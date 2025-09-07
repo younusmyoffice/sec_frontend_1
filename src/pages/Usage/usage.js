@@ -51,7 +51,7 @@ const Usage = () => {
         ]);
         const [activeDropdown, setActiveDropdown] = useState("");
         const [activeFabDropdown, setActiveFabDropdown] = useState(dropdownItems[0]);
-        const [progress, setProgress] = useState(10);
+        const [progress] = useState(10);
         const [openDialog, setOpenDialog] = useState(false);
         const [showSnack, setShowSnack] = useState(true);
         const [textField1, setTextField1] = useState("");

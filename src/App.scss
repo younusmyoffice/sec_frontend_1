@@ -1,4 +1,4 @@
-@import "./static/scss/base/variables";
+@use "./static/scss/base/variables" as *;
 
 .MuiButton-root.MuiButton-contained,
 .MuiButton-root.MuiButton-outlined {
