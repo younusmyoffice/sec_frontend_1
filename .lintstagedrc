@@ -1,0 +1,8 @@
+  {
+    "*.js": [
+      "yarn lint"
+    ],
+    "*.{css,scss,html,js,json,md,yaml,yml,gql,graphql}": [
+      "yarn prettier-check:updated"
+    ]
+  }
