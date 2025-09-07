@@ -1,0 +1,122 @@
+.NavBar-Box-one {
+    // margin-bottom: 8%;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: -1%;
+    white-space: nowrap;
+    width: fit-content;
+    // width: auto;
+}
+
+.NavBar-Box-one > a {
+    text-decoration: none;
+    margin: 1%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: #e72b4a;
+    font-family: "Poppins";
+    cursor: pointer;
+    // width: -webkit-fill-available;
+    width: auto;
+}
+
+.NavBar-Box-one a.active {
+    text-decoration: none;
+    margin: 0.7%;
+    padding: 10px 16px;
+    border-radius: 16px;
+    font-family: "Poppins";
+    cursor: pointer;
+    background-color: #e72b4a;
+    color: white;
+    // width: 8em;
+    width: auto;
+}
+
+
+
+.main-container{
+    position: relative;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.Doctor-detail-container{
+    display: flex;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    margin-left: 0;
+    border: 1px solid  #E6E1E5;
+    position: relative;
+    width: 90%;
+    padding: 1rem;
+    align-items: center;
+    justify-content: space-between;
+
+    .doc-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+}
+
+.image-container{
+    width: 70px;
+    height: 70px;
+    padding: 1%;
+    border-radius: 8px;
+    margin-left: 0%;
+    margin-top: 0%;
+}
+
+.Detail-container{
+     // border:1px solid;
+    // height:60%;
+    margin-top: 1%;
+}
+
+.Edit-icon{
+    // border:'1px solid',
+    height: 40px;
+    width: 40px;
+}
+
+.Edit-btn{
+     // border:'1px solid',
+}
+
+.Terms-Conditions-Container{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid  #E6E1E5;
+    margin-top: 1rem;
+    width: 90%;
+    padding: 4rem;
+}
+
+.terms-condition-title{
+   display: flex;
+   align-content: flex-start;
+}
+
+.Conditions{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: grey;
+    font-family:poppins ;
+    font-size: 14px;
+    font-style: normal;
+    font-weight:400 ;
+    line-height: 21px;
+    letter-spacing: 0.07px;
+}
+
+.Custom-Click{
+// border: 1px solid;
+margin-top: 12rem;
+margin-left: 10em;
+}

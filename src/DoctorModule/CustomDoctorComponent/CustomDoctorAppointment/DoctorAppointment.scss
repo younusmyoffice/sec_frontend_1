@@ -1,0 +1,25 @@
+.DoctorDashboardCard{
+    display: flex;
+    flex-direction: column;
+    width: 31%;
+    height: 30%;
+    flex-shrink: 0;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-colors-n-80, #E6E1E5);
+    background: var(--ui-colors-n-100, #FFF);
+    // margin: 1%;
+    // padding: 1%;
+}
+
+.DropDown-field{
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.Number-Container{
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 2% 3%;
+}

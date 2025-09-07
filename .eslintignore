@@ -1,0 +1,9 @@
+.git/**
+/.vscode
+dist/**
+node_modules/
+src/components/FacebookLogin/facebook-login.client.js
+src/components/FacebookLogin/facebook-login.js
+src/components/FacebookLogin/helpers/param.helper.js
+src/components/SkeletonLoader/
+.lintstagedrc

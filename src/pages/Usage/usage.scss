@@ -1,0 +1,24 @@
+@import "../../static/scss/base/variables";
+@import "../../static/scss/main.scss";
+
+.usage {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+
+    .component-library {
+        margin: 20px 50px;
+        text-align: center;
+        width: 100%;
+
+        .items {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            gap: 10px;
+            width: 100%;
+        }
+    }
+}

@@ -1,0 +1,177 @@
+.NavBar-Container > a {
+    text-decoration: none;
+    margin: 0.7%;
+    border: 1px solid #e72b4a;
+    padding: 4px 20px;
+    border-radius: 100px;
+    color: #e72b4a;
+    cursor: pointer;
+    width: 100%;
+}
+
+.NavBar-Container a.active {
+    background-color: #e72b4a;
+    color: white;
+    width: 100%;
+}
+.Navbar-cont{
+    display: flex;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+}
+
+.prof-id{
+    display: flex;
+    align-items: center;
+}
+
+.edit-prof{
+    // border: 1px solid;
+    display: flex;
+    width: 100%;
+    margin-top: 1.5rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.info-container{
+    position: relative;
+    display: flex;
+    // border:1px solid  #E6E1E5 ;
+    width: 100%;
+    align-items: center;
+    padding: 1rem;
+}
+
+.Textfield-container{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    // border: 1px solid;
+    padding: 2rem;
+
+}
+
+.first-middle{
+    display: flex;
+    gap: 1rem;
+}
+
+.Last-Dob{
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.Gender{
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 1rem;
+}
+
+.contact{
+    display: flex;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+    gap: 4rem;
+    // justify-content: space-between;
+
+}
+
+.contact-textfields{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    // border: 1px solid;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.streetlines{
+    display: flex;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+    // padding: 1rem;
+    gap: 5rem;
+}
+
+.other-textfields{
+    display: flex;
+    margin-top: 2rem;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+    // padding: 1rem;
+    gap: 5rem;
+}
+
+.Clinic{
+    display: flex;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+    gap: 4rem;
+    margin-top: 4rem;
+}
+
+.clinic-fields{
+    display: flex;
+    margin-top: 2rem;
+    border: 1px solid;
+    width: 100%;
+    align-items: center;
+    // padding: 1rem;
+    gap: 5rem;
+}
+
+.Custom-click{
+    display: flex;
+    margin-top: 1rem;
+    // border: 1px solid;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+
+.save-discard-button{
+    width: 100%;
+    display:flex ;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.Zip{
+     display: flex;
+    margin-top: 2rem;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+    // padding: 1rem;
+    gap: 5rem;
+}
+
+.country-state-city{
+    display: flex;
+    margin-top: 2rem;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+    // padding: 1rem;
+    gap: 5rem;
+}
+
+.clinic-streets{
+    display: flex;
+    margin-top: 2rem;
+    // border: 1px solid;
+    width: 100%;
+    align-items: center;
+    // padding: 1rem;
+    gap: 5rem;
+}
+
+

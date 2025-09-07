@@ -1,0 +1,33 @@
+.RequestimageContainer{
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50px;
+    border: 1px solid #AEAAAE;
+}
+
+.image-container{
+    border-radius: 50px;
+    // border: 1px solid #AEAAAE;
+}
+
+.Request-main-container{
+    width: 100%;
+    // border: 2px solid red;
+    display: flex;
+    height: 5rem;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+.card-details-container{
+    display: flex;
+}
+
+.Request-inner-container{
+    display: flex;
+}
+
+.request-button-container{
+    display: flex;
+}

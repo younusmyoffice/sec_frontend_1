@@ -1,0 +1,93 @@
+.RequestimageContainer{
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50px;
+    border: 1px solid #AEAAAE;
+}
+
+.image-container{
+    border-radius: 50px;
+    // border: 1px solid #AEAAAE;
+}
+
+.Request-main-container1{
+    width: 100%;
+    // border: 2px solid red;
+    border: 1px solid #E6E1E5;
+    border-radius: 5px;
+    border-top: 1px;
+    border-left: 1px;
+    border-right: 1px;
+    display: flex;
+    // flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    justify-content: space-between;
+    align-items: center;
+
+    @media screen and (max-width: 600px){
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 1rem;
+
+    }
+
+}
+
+
+
+
+.card-details-container{
+    display: flex;
+}
+
+.Request-inner-container1{
+    display: flex;
+    // border: 1px solid;
+}
+
+.request-button-container{
+    display: flex;
+}
+
+.details-names{
+    // border: 1px solid;
+    width: 100%;
+    display: flex;
+    gap: 10.8rem;
+    margin-top: 1rem;
+    // justify-content: space-between;
+}
+
+.names-details{
+    // border: 1px solid;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.file-heading{
+    // border: 1px solid;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.file-name{
+    // border: 1px solid;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.file-download{
+    // border: 1px solid;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dwnl-icon{
+    display: flex;
+    align-items: center;
+}
