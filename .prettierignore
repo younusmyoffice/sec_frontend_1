@@ -1,7 +1,0 @@
-build/**
-.serverless
-.serverless-offline
-.webpack
-**/coverage/**
-dist/**
-.lintstagedrc
