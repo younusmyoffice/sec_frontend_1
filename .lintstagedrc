@@ -1,8 +1,8 @@
   {
     "*.js": [
-      "yarn lint"
+      "npm run lint"
     ],
     "*.{css,scss,html,js,json,md,yaml,yml,gql,graphql}": [
-      "yarn prettier-check:updated"
+      "npm run prettier-check:updated"
     ]
   }
