@@ -1,8 +1,0 @@
-  {
-    "*.js": [
-      "npm run lint"
-    ],
-    "*.{css,scss,html,js,json,md,yaml,yml,gql,graphql}": [
-      "npm run prettier-check:updated"
-    ]
-  }
