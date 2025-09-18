@@ -1,0 +1,41 @@
+/* Carousel Styles */
+.carousel-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-slider {
+  display: flex;
+  transition: transform 0.3s ease;
+  width: max-content;
+}
+
+.carousel-item {
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+/* Hide scrollbar but keep functionality */
+.carousel-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-slider {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Smooth scrolling animation */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.carousel-auto-scroll {
+  animation: scroll 20s linear infinite;
+}

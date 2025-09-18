@@ -1,0 +1,73 @@
+.side-bar-tab-view-container {
+    background-color: #28282B; /* Adjust as needed */
+    height: 100%;
+    width: 25%;
+    padding: 1%;
+    overflow: auto;
+  }
+  
+  .side-bar-tab-view-container-inner {
+    background-color: #28282B; /* Adjust as needed */
+    height : 100%;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .side-bar-tab-view-container-inner-sidebarmode-one {
+    display: flex;
+    align-items: center;
+    height: 7%;
+    justify-content: space-between;
+  }
+  
+  .side-bar-tab-view-container-inner-sidebarmode-one-paragraph {
+    font-size: 1rem; /* Adjust as needed */
+    color: #ffffff; /* Adjust as needed */
+    font-weight: 700; /* Adjust as needed */
+  }
+  
+  .side-bar-tab-view-container-inner-sidebarmode-xicon {
+    height: 1.25rem; /* Adjust as needed */
+    width: 1.25rem; /* Adjust as needed */
+  }
+  
+  .side-bar-container{
+    position: relative;
+  }
+
+  .side-bar-container-transition-child-container-one {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.25);
+  }
+  
+  .side-bar-container-inner-one {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: hidden;
+  }
+  
+  .side-bar-container-inner-one-one {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+
+  .side-bar-container-inner-one-dialog-panel {
+    width: 100vw;
+    transform: translateX(0);
+    overflow: hidden;
+    background-color: #4b5563;
+    box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+  }
+  

@@ -1,0 +1,141 @@
+.country-code-selector {
+  // Match the standard Material-UI TextField design
+  .MuiFormControl-root {
+    .MuiInput-root {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+      transition: border-bottom-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
+      
+      &:hover {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.87);
+      }
+      
+      &.Mui-focused {
+        border-bottom: 2px solid #1976d2;
+      }
+      
+      &.Mui-disabled {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.26);
+        color: rgba(0, 0, 0, 0.38);
+      }
+    }
+  }
+
+  .MuiSelect-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 30px 0 0 0 ;
+    
+    .MuiBox-root {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+
+  .MuiMenuItem-root {
+    padding: 8px 16px;
+    min-height: 48px;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    
+    &.Mui-selected {
+      background-color: #e3f2fd;
+      
+      &:hover {
+        background-color: #bbdefb;
+      }
+    }
+  }
+
+  .MuiTextField-root {
+    .MuiInput-root {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+      transition: border-bottom-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
+      
+      &:hover {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.87);
+      }
+      
+      &.Mui-focused {
+        border-bottom: 2px solid #1976d2;
+      }
+      
+      &.Mui-disabled {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.26);
+        color: rgba(0, 0, 0, 0.38);
+      }
+    }
+  }
+
+  // Custom styles for the search input
+  .MuiBox-root {
+    .MuiTextField-root {
+      .MuiInput-root {
+        font-size: 14px;
+        border-bottom: none;
+        
+        &:hover {
+          border-bottom: none;
+        }
+        
+        &.Mui-focused {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+
+  // Loading state styles
+  .MuiBox-root {
+    .MuiCircularProgress-root {
+      color: #1976d2;
+    }
+  }
+
+  // Error state styles
+  &.error {
+    .MuiInput-root {
+      border-bottom-color: #d32f2f;
+      
+      &:hover {
+        border-bottom-color: #d32f2f;
+      }
+      
+      &.Mui-focused {
+        border-bottom-color: #d32f2f;
+      }
+    }
+  }
+
+  // Disabled state styles
+  &.disabled {
+    .MuiInput-root {
+      background-color: transparent;
+      color: rgba(0, 0, 0, 0.38);
+      
+      border-bottom: 1px solid rgba(0, 0, 0, 0.26);
+    }
+  }
+
+  // Focus styles
+  &:focus-within {
+    .MuiInput-root {
+      border-bottom: 2px solid #1976d2;
+    }
+  }
+
+  // Responsive styles
+  @media (max-width: 600px) {
+    .MuiBox-root {
+      flex-direction: column;
+      gap: 8px;
+      
+      .MuiFormControl-root {
+        min-width: 100%;
+      }
+    }
+  }
+}

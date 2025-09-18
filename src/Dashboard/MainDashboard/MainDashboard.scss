@@ -1,0 +1,43 @@
+// .NavBar-Box > a{
+//     text-decoration: none;
+//     margin: 0.7%;
+//     border: 1px solid #E72B4A;
+//     padding: 4px 20px;
+//     border-radius: 20px;
+//     color: #E72B4A;
+//     cursor: pointer;
+// }
+
+// .NavBar-Box{
+//     width: "1000px";
+// }
+
+.NavBar-Box {
+    margin-bottom: 8%;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: -4%;
+}
+
+.NavBar-Box > a {
+    text-decoration: none;
+    margin: 0.7%;
+    padding: 10px 16px;
+    border-radius: 16px;
+    color: #e72b4a;
+    font-family: "Poppins";
+    cursor: pointer;
+}
+
+.NavBar-Box a.active {
+    text-decoration: none;
+    margin: 0.7%;
+    padding: 10px 16px;
+    border-radius: 16px;
+    font-family: "Poppins";
+    cursor: pointer;
+    background-color: #e72b4a;
+    color: white;
+    width: 8em;
+}

@@ -1,0 +1,321 @@
+// @import "../../../static/scss/base/variables";
+// @import "../../../static/scss/main.scss";
+
+// Mobile-first responsive design
+.register-photo {
+    background: #f1f7fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.form-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 80vh;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.image-holder {
+    display: none; // Hidden on mobile by default
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    background-image: linear-gradient(359.75deg, #e73a56 10.46%, rgba(231, 58, 86, 0) 99.85%),
+        url(https://media.istockphoto.com/id/1200980392/photo/medical-concept-of-asian-beautiful-female-doctor-in-white-coat-with-stethoscope-waist-up.jpg?s=612x612&w=0&k=20&c=nD_1Tn11kWcMZwZfnyA-lYAvNKcBeoEK_KLObBnN6Jg=);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.component-library {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+    min-height: 80vh;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    img {
+        max-width: 100%;
+        height: auto;
+        max-height: 80px;
+    }
+}
+
+.signup-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+    line-height: 1.3;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.form-group .buttoncss {
+    width: 100%;
+    max-width: 1.875rem;
+}
+
+.btn-continue {
+    min-width: 90%;
+    margin: 1% auto;
+    background: #e72b4a;
+    color: #ffffff;
+    text-align: center;
+    border: none;
+    border-radius: 2rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 1rem !important;
+    box-sizing: border-box;
+} 
+
+.button {
+    display: block;
+}
+
+// Tablet styles (768px and up)
+@media (min-width: 768px) {
+    .register-photo {
+        padding: 2rem;
+    }
+    
+    .component-library {
+        padding: 3rem;
+    }
+    
+    .signup-title {
+        font-size: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .logo img {
+        max-height: 100px;
+    }
+}
+
+// Desktop styles (992px and up)
+@media (min-width: 992px) {
+    .register-photo {
+        padding: 3rem;
+    }
+    
+    .form-container {
+        min-height: 70vh;
+    }
+    
+    .image-holder {
+        display: flex; // Show image on desktop
+    }
+    
+    .component-library {
+        width: 50%;
+        padding: 4rem;
+    }
+    
+    .signup-title {
+        font-size: 2.5rem;
+        margin-bottom: 4rem;
+    }
+    
+    .logo img {
+        max-height: 120px;
+    }
+}
+
+// Large desktop styles (1200px and up)
+@media (min-width: 1200px) {
+    .register-photo {
+        padding: 4rem;
+    }
+    
+    .component-library {
+        padding: 5rem;
+    }
+    
+    .signup-title {
+        font-size: 3rem;
+    }
+}
+
+// Extra small mobile devices (320px and below)
+@media (max-width: 320px) {
+    .register-photo {
+        padding: 0.5rem;
+    }
+    
+    .form-container {
+        border-radius: 8px;
+        min-height: 90vh;
+    }
+    
+    .component-library {
+        padding: 1rem;
+    }
+    
+    .signup-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .logo img {
+        max-height: 50px;
+    }
+}
+
+// Small mobile devices (480px and below)
+@media (max-width: 480px) {
+    .register-photo {
+        padding: 0.75rem;
+    }
+    
+    .component-library {
+        padding: 1.5rem;
+    }
+    
+    .signup-title {
+        font-size: 1.375rem;
+        margin-bottom: 1.25rem;
+    }
+}
+
+// Landscape mobile orientation
+@media (max-height: 500px) and (orientation: landscape) {
+    .register-photo {
+        min-height: 100vh;
+        padding: 0.5rem;
+    }
+    
+    .form-container {
+        min-height: 95vh;
+    }
+    
+    .component-library {
+        padding: 1rem;
+        min-height: 90vh;
+    }
+    
+    .signup-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .logo img {
+        max-height: 50px;
+    }
+}  
+
+.text-center  {
+    font-size: 1.25rem;
+    line-height: 1.2em;
+    margin-top: 2% auto 0;
+    text-align: center;
+}
+
+.register-photo form .btn-block {
+    background: #e72b4a;
+    margin-left: 200px;
+    border-radius: 100px;
+    gap: 8px;
+    width: 170px;
+    height: 48px;
+    border: none;
+    padding: 8px 16px;
+    box-shadow: none;
+    margin-top: 42px;
+    text-shadow: none;
+    outline: none !important;
+}
+
+.register-photo form .btn-primary:hover,
+.register-photo form .btn-primary:active {
+    background: #e72b4a;
+}
+
+.register-photo form .btn-primary:active {
+    transform: translateY(1+px);
+}
+
+.card .content {
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+}
+
+.card label.box {
+    margin-top: 12px;
+    padding: 0.625rem 0.75rem;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border: 2px solid #e6e1e5;
+    border-radius: 16px;
+    cursor: pointer;
+    max-width: 90%;
+}
+
+#one:checked ~ label.first,
+#two:checked ~ label.second,
+#three:checked ~ label.third {
+    border-color: #e73a56;
+    background: #ffffff;
+}
+
+.card label.box:hover {
+    background: #ffffff;
+}
+
+#one:checked ~ label.first .circle,
+#two:checked ~ label.second .circle,
+#three:checked ~ label.third .circle {
+    border-color: #e73a56;
+    background: #fff;
+}
+
+.card label.box .plan {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.card input[type="radio"] {
+    display: none;
+}
+
+// .component-library{
+//     display: flex !important ;
+//     flex-direction: column !important;
+//     align-items: center !important;
+//     flex-wrap: wrap !important;
+//     margin-top: 2rem;
+// }
+

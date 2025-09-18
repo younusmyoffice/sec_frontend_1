@@ -1,0 +1,16 @@
+.page-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    .info-text {
+        margin-top: 1rem;
+        font-size: 1.2rem;
+    }
+}

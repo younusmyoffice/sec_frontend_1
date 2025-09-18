@@ -1,0 +1,244 @@
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { TextField, InputAdornment, IconButton } from "@mui/material";
+
+const CustomTextField = ({
+    id,
+    label,
+    defaultValue,
+    helperText,
+    variant,
+    isValid,
+    isInvalid,
+    isDisabled,
+    leftIcon,
+    rightIcon,
+    onChange,
+    textcss,
+    inputType,
+    CustomValue,
+    placeholder,
+    onInput,
+    type,
+    multiline,
+    rows,
+    maxRows,
+    onLeftIconClick,  // New prop for handling left icon click
+    onRightIconClick, // New prop for handling right icon click
+    error, // New prop for error state
+    noSpacing = false, // New prop to disable default spacing
+}) => {
+    const [isFocused, setIsFocused] = useState(false);
+
+    return (
+        <TextField
+            type={type}
+            className={`${isValid ? "valid-class" : ""}${isInvalid ? "invalid-class" : ""}`}
+            typeof={type}
+            id={id}
+            multiline={multiline}
+            rows={rows}
+            maxRows={maxRows}
+            label={label}
+            placeholder={placeholder}
+            value={CustomValue}
+            defaultValue={defaultValue}
+            helperText={helperText}
+            variant={variant}
+            disabled={isDisabled}
+            error={error || isInvalid}
+            sx={{
+                marginBottom: noSpacing ? 0 : "1.5rem", // Consistent spacing between fields
+                // Red error styling when error prop is true
+                "& .MuiFormHelperText-root": {
+                    color: (error || isInvalid) ? "#d32f2f !important" : "inherit"
+                },
+                "& .MuiInput-root": {
+                    "&:before": {
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "1px solid rgba(0, 0, 0, 0.42)"
+                    },
+                    "&:hover:not(.Mui-disabled):before": {
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid rgba(0, 0, 0, 0.87)"
+                    },
+                    "&.Mui-focused:after": {
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #1976d2"
+                    }
+                },
+                "& .MuiInputLabel-root": {
+                    color: (error || isInvalid) ? "#d32f2f !important" : "inherit"
+                },
+                ...textcss, // Allow override of spacing if needed
+            }}
+            onInput={onInput}
+            onChange={onChange}
+            InputLabelProps={{
+                shrink: !!defaultValue || !!isFocused,
+                style: leftIcon ? { paddingLeft: 30 } : {},
+            }}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            {...(leftIcon || rightIcon
+                ? {
+                      // only add InputProps if leftIcon or rightIcon is defined
+                      InputProps: {
+                          startAdornment: leftIcon ? (
+                              <InputAdornment position="start">
+                                  <IconButton onClick={onLeftIconClick}>
+                                      {leftIcon}
+                                  </IconButton>
+                              </InputAdornment>
+                          ) : null,
+                          endAdornment: rightIcon ? (
+                              <InputAdornment position="end">
+                                  <IconButton onClick={onRightIconClick}>
+                                      {rightIcon}
+                                  </IconButton>
+                              </InputAdornment>
+                          ) : null,
+                      },
+                  }
+                : {})}
+        />
+    );
+};
+
+CustomTextField.defaultProps = {
+    id: "text-field",
+    label: "username",
+    defaultValue: "",
+    helperText: "valid username",
+    variant: "standard",
+    isValid: false,
+    isInvalid: false,
+    isDisabled: false,
+    leftIcon: null,  // Allow custom icon to be passed
+    rightIcon: null,  // Allow custom icon to be passed
+    onChange: () => {},
+    onLeftIconClick: () => {},  // Default no-op for icon click
+    onRightIconClick: () => {}, // Default no-op for icon click
+    error: false, // Default no error state
+    noSpacing: false, // Default spacing enabled
+};
+
+CustomTextField.propTypes = {
+    id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    defaultValue: PropTypes.string,
+    helperText: PropTypes.string,
+    variant: PropTypes.string,
+    isValid: PropTypes.bool,
+    isInvalid: PropTypes.bool,
+    isDisabled: PropTypes.bool,
+    leftIcon: PropTypes.node,
+    rightIcon: PropTypes.node,
+    onChange: PropTypes.func,
+    onInput: PropTypes.string.isRequired,
+    onLeftIconClick: PropTypes.func,  // Prop type for left icon click handler
+    onRightIconClick: PropTypes.func, // Prop type for right icon click handler
+    error: PropTypes.bool, // Prop type for error state
+    noSpacing: PropTypes.bool, // Prop type for spacing control
+};
+
+export default CustomTextField;
+
+// // import React, { useState } from "react";
+// import PropTypes from "prop-types";
+// import { TextField, InputAdornment } from "@mui/material";
+
+// const CustomTextField = ({
+//     id,
+//     label,
+//     defaultValue,
+//     helperText,
+//     variant,
+//     isValid,
+//     isInvalid,
+//     isDisabled,
+//     leftIcon,
+//     rightIcon,
+//     onChange,
+//     textcss,
+//     inputType,
+//     CustomValue,
+//     placeholder,
+//     onInput,
+//     type,
+//     multiline,
+//     rows,
+//     maxRows,
+// }) => {
+//     const [isFocused, setIsFocused] = useState(false);
+
+//     return (
+//         <TextField
+//             type={type}
+//             className={`${isValid ? "valid-class" : ""}${isInvalid ? "invalid-class" : ""}`}
+//             typeof={type}
+//             id={id}
+//             multiline={multiline}
+//             rows={rows}
+//             maxRows={maxRows}
+//             label={label}
+//             placeholder={placeholder}
+//             value={CustomValue}
+//             defaultValue={defaultValue}
+//             helperText={helperText}
+//             variant={variant}
+//             disabled={isDisabled}
+//             sx={textcss}
+//             onInput={onInput}
+//             onChange={onChange}
+//             InputLabelProps={{
+//                 shrink: !!defaultValue || !!isFocused,
+//                 style: leftIcon ? { paddingLeft: 30 } : {},
+//             }}
+//             onFocus={() => setIsFocused(true)}
+//             onBlur={() => setIsFocused(false)}
+//             {...(leftIcon || rightIcon
+//                 ? {
+//                       // only add InputProps if leftIcon or rightIcon is defined
+//                       InputProps: {
+//                           startAdornment: leftIcon ? (
+//                               <InputAdornment position="start">{leftIcon}</InputAdornment>
+//                           ) : null,
+//                           endAdornment: rightIcon ? (
+//                               <InputAdornment position="end">{rightIcon}</InputAdornment>
+//                           ) : null,
+//                       },
+//                   }
+//                 : {})}
+//         />
+//     );
+// };
+
+// CustomTextField.defaultProps = {
+//     id: "text-field",
+//     label: "username",
+//     defaultValue: "",
+//     helperText: "valid username",
+//     variant: "standard",
+//     isValid: false,
+//     isInvalid: false,
+//     isDisabled: false,
+//     leftIcon: null,  // Allow custom icon to be passed
+//     // leftIcon: "",
+//     rightIcon: "",
+//     onChange: () => {},
+// };
+
+// CustomTextField.propTypes = {
+//     id: PropTypes.string.isRequired,
+//     label: PropTypes.string.isRequired,
+//     defaultValue: PropTypes.string,
+//     helperText: PropTypes.string,
+//     variant: PropTypes.string,
+//     isValid: PropTypes.bool,
+//     isInvalid: PropTypes.bool,
+//     isDisabled: PropTypes.bool,
+//     leftIcon: PropTypes.node,
+//     rightIcon: PropTypes.node,
+//     onChange: PropTypes.func,
+//     onInput: PropTypes.string.isRequired,
+// };
+
+// export default CustomTextField;

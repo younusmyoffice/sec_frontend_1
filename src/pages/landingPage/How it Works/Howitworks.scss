@@ -1,0 +1,394 @@
+.screen-container {
+    width: 100%;
+    height: 419vh;
+    background-color: white;
+}
+
+.header-container1 {
+    width: 100%;
+}
+
+.header-container {
+    width: 95%;
+    height: 56px;
+    border: 1px solid #e6e1e5;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2rem;
+}
+
+
+.howitworks-heading{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+@media (max-width: 480px) {
+    .howitworks-heading {
+        font-size: 14px; 
+        padding: 10px;
+    }
+}
+
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .howitworks-heading {
+        font-size: 16px;
+        padding: 15px;
+    }
+}
+
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .howitworks-heading {
+        font-size: 18px;
+        padding: 20px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .howitworks-heading {
+        font-size: 20px;
+        padding: 25px;
+    }
+}
+
+.description{
+    padding: 2rem;
+}
+
+.Benifits{
+  width: 100%;
+  padding: 2rem;
+}
+
+.firstpole{
+    display: flex;
+    width: 100%;
+    gap: 2rem;
+}
+
+.secondpole{
+    display: flex;
+    width: 100%;
+    gap: 2rem;
+    margin-top: 1rem;
+    
+}
+
+.thirdpole{
+    display: flex;
+    width: 100%;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.fourthpole{
+    display: flex;
+    width: 100%;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.heading2{
+    text-align: center;
+    margin-top: 2rem;
+    
+}
+
+.thought{
+    width: 1295px;
+    height: 304px;
+    display: flex;
+    justify-content: center;
+    background-image: url(../../../static/images/HowitworksImages/rectangle251.png);
+    background-size: cover;
+    align-items: center;
+    margin-top: 5rem;
+}
+
+.pink-container{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: #FDEAED;
+    margin-top: 3rem;
+}
+
+.welcome-heading{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    
+    
+}
+
+.boximage{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.about-doctor{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+
+}
+
+.footerContainer{
+     border: 1px solid;
+    width: 100%;
+    height: 500px;
+    position: relative;
+    background-color: #E72B4A;
+    display: flex;
+    flex-direction: column;
+}
+
+.mediaicons{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2rem;
+    width: 100%;
+    padding: 3rem;
+    
+   
+}
+
+.text1{
+    background-color: white;
+}
+
+.Boxicons{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem;
+
+}
+
+.firstfield{
+   width: 100%;
+   display: grid;
+   grid-template-columns: 1fr 1fr 1fr;
+
+}
+
+.secondfield{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.about{
+    width: 100%;
+    display: flex;
+    margin-top: 1rem;
+    justify-content: center;
+}
+   
+   
+
+.other-fields{
+    padding: 2rem;
+}
+
+.monitor-doctor{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.pink-container-responsive{
+    display: none;
+}
+
+.red-footer-responsive{
+    display: block;
+    
+}
+
+.burger-menu {
+    cursor: pointer;
+    display: none !important;
+    width:35px;
+    height:30px;
+    position: absolute;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
+    left:50px;
+}
+.burger-menu img {
+    width: 30px;
+    height: 30px; 
+    display: block; 
+}
+
+.full-logo{
+    display: block;
+ }
+
+
+
+@media (max-width: 768px) {
+    .burger-menu {
+        display: block !important;
+        width:35px;
+        height:30px;
+        position: fixed;
+        z-index: 9999;
+        background: #ffff;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+}
+    .full-logo{
+    display: none!important;
+}
+.red-footer {
+    display: block;
+}
+
+    .other-header-content {
+        display: block;
+        display:flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    @media (max-width:768px){
+        .other-header-content{
+            display:none;
+        }
+    }
+
+    .other-header-content.show {
+        display: block;
+        margin-top: 15rem;
+        z-index: 9999;
+        position:fixed;
+        background-color: #ffff;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        
+    }
+
+@media screen and (max-width: 768px) {
+    // existing styles
+}
+
+.red-footer-responsive{
+    display: block;
+    background: #E72B4A;
+    width: 100% !important;
+    height: 70vh;
+}
+
+.social-icons-responsive{
+      display: flex;
+      gap: 1.5rem;
+}
+
+.half-align{
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+.hcf-pr{
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+.about-us-res{
+    width: 100% !important;
+    display: flex !important;
+    margin-top: 2.5rem !important;
+    justify-content: center;
+    margin-left: 7.2rem;
+}
+
+.first-ali-res{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem;
+}
+
+.pink-container{
+    display: none;
+}
+
+.alldoc-text{
+    font-size: 20px !important;
+}
+
+.screen-container{
+    width: 100% !important;
+    // height: 650vh !important;
+}
+
+    .howitworks-heading{
+        margin-top: 2rem;
+    }
+
+    .description{
+        margin-top: -2rem !important;
+    }
+
+    .Benifits{
+        margin-top: -2.5rem !important;
+        width: 100% !important;
+    }
+
+    .benefit-text{
+        margin-top: 1rem !important;
+        line-height: 2.8rem !important;
+    }
+
+    .descr-pole{
+        font-size: 25px !important;
+    }
+
+    .second-pole{
+        margin-top: 1rem !important;
+    }
+
+    .head2{
+        margin-top: 4rem !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    .thought-text{
+       text-align: center;
+    }
+
+    .first-ali{
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+    }
+
+ }

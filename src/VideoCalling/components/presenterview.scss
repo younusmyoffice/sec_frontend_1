@@ -1,0 +1,81 @@
+.presenter-view-main-container {
+    background-color: #374151; /* Adjust as needed */
+    border-radius: 0.375rem; /* Adjust as needed */
+    margin: 0.5rem; /* Adjust as needed */
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    /* Calculate height based on provided logic */
+    height: calc(100% - 1rem); /* Adjust as needed */
+    padding: 1.5rem; /* Adjust as needed */
+    padding: 3.25rem; /* Adjust as needed */
+    padding: 0.75rem; /* Adjust as needed */
+    padding: 0.25rem; /* Adjust as needed */
+
+}
+  
+
+.presenter-view-main-container-inner-container {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .presenter-view-main-container-inner-container-one {
+    position: absolute;
+    bottom: 0.5rem; /* Adjust as needed */
+    left: 0.5rem; /* Adjust as needed */
+    background-color: #374151; /* Adjust as needed */
+    padding: 0.5rem; /* Adjust as needed */
+    border-radius: 0.375rem; /* Adjust as needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+
+  .presenter-view-paragraph {
+    font-size: 0.875rem; /* Adjust as needed */
+    color: #fff; /* Adjust as needed */
+  }
+  
+
+  .presenter-view-islocal-container {
+    padding: 2.5rem; /* Adjust as needed */
+    border-radius: 1rem; /* Adjust as needed */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: #374151; /* Adjust as needed */
+    transform: translate(-50%, -50%);
+  }
+  
+  .presenter-view-islocal-paragraph-container{
+    margin-top: 1rem;
+  }
+
+  .presenter-view-islocal-paragraph-container-inner {
+    color: #fff; /* Adjust as needed */
+    font-size: 1.25rem; /* Adjust as needed */
+    font-weight: 600; /* Adjust as needed */
+  }
+  
+
+  .presenter-view-mt-8-container {
+    margin-top: 2rem; /* Adjust as needed */
+  }
+
+  .presenter-view-mt-8-container-button {
+    background-color: #8b5cf6; /* Adjust as needed */
+    color: #fff; /* Adjust as needed */
+    padding: 0.5rem 1rem; /* Adjust as needed */
+    border-radius: 0.375rem; /* Adjust as needed */
+    font-size: 0.875rem; /* Adjust as needed */
+    text-align: center;
+    font-weight: 500; /* Adjust as needed */
+  }
+  

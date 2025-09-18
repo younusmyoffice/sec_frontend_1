@@ -1,0 +1,158 @@
+.meeting-detail-main-container{
+  height: 18%;
+  width: 80%;
+}
+  
+
+.meeting-clicked-container{
+  border-width: 1px;
+  border-style: solid;
+  border-color: #cbd5e0; /* Adjust as needed */
+  border-radius: 0.75rem; /* Adjust as needed */
+  padding-left: 1rem; /* Adjust as needed */
+  padding-right: 1rem;
+  padding-top: 0.75rem; /* Adjust as needed */
+  padding-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;  
+
+}
+  
+  
+  .meeting-paragraph-container{
+    color: #E72B4A; /* Adjust as needed */
+    font-size: 1rem; /* Adjust as needed */
+  
+  }
+  
+  .button-container{
+    margin-left: 0.5rem; /* Adjust as needed */
+}
+  
+
+  .check-icon-container{
+    color: #68d391; /* Adjust as needed */
+    height: 1.25rem; /* Adjust as needed */
+    width: 1.25rem; /* Adjust as needed */
+  }
+  
+
+  .clipboard-container{
+    height: 1.25rem; /* Adjust as needed */
+    width: 1.25rem; /* Adjust as needed */
+    color: #0000; /* Adjust as needed */
+
+  }
+  
+
+  .joinMeeting-input-container{
+    padding-left: 1rem; /* Adjust as needed */
+    padding-right: 1rem; /* Adjust as needed */
+    padding-top: 0.75rem; /* Adjust as needed */
+    padding-bottom: 0.75rem; /* Adjust as needed */
+    background-color: #4b5563; /* Adjust as needed */
+    border-radius: 0.75rem; /* Adjust as needed */
+    color: #fff; /* Adjust as needed */
+    width: 100%;
+    text-align: center;
+
+  }
+  
+
+  .meetingErrorId{
+    font-size: 0.75rem; /* Adjust as needed */
+    color: #dc2626; /* Adjust as needed */
+
+  }
+
+
+  .created-meeting-joined-input{
+    padding-left: 1rem; /* Adjust as needed */
+    padding-right: 1rem; /* Adjust as needed */
+    padding-top: 0.75rem; /* Adjust as needed */
+    padding-bottom: 0.75rem; /* Adjust as needed */
+    margin-top: 1.25rem; /* Adjust as needed */
+    background-color: #4b5563; /* Adjust as needed */
+    border-radius: 0.75rem; /* Adjust as needed */
+    color: #fff; /* Adjust as needed */
+    width: 100%;
+    text-align: center;
+
+  }
+
+.meeting-button-width{
+    width: 100%;
+    color: #fff; /* Adjust as needed */
+    padding-left: 0.5rem; /* Adjust as needed */
+    padding-right: 0.5rem; /* Adjust as needed */
+    padding-top: 0.75rem; /* Adjust as needed */
+    padding-bottom: 0.75rem; /* Adjust as needed */
+    border-radius: 0.75rem; /* Adjust as needed */
+    margin-top: 1.25rem; /* Adjust as needed */
+
+}
+
+.created-meeting-joined-input-gray {
+    background-color: #4b5563; /* Adjust as needed */
+}
+  
+
+  .created-meeting-joined-input-purple{
+    background-color: #E72B4A; /* Adjust as needed */
+  }
+
+
+  .created-meeting-clicked-container-two{
+    width: 100%;
+    margin-top: 0; /* Adjust as needed */
+    margin-top: 1rem; /* Adjust as needed */
+    flex-direction: column;
+
+    display: flex;
+
+  }
+
+
+  .inner-created-meeting-clicked-container-two{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: column;
+    width: 100%;
+    height: 100%
+  }
+
+
+  .inner-created-meeting-clicked-container-three{
+    width: 100%;
+    background-color: #E72B4A; /* Adjust as needed */
+    color: #fff; /* Adjust as needed */
+    padding: 3%;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .inner-created-meeting-clicked-container-three-gray{
+    width: 100%;
+    background-color: #808080; /* Adjust as needed */
+    color: #fff; /* Adjust as needed */
+    padding: 3%;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  
+
+.join-meeting-button{
+  width: 100%;
+  background-color: #E72B4A; /* Adjust as needed */
+  color: #fff; /* Adjust as needed */
+  padding: 3%;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+  

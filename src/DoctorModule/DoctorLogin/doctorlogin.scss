@@ -1,0 +1,56 @@
+.register-photo {
+    display: flex;
+    height: 100vh; 
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5; 
+}
+
+.image-holder {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   background-color: #f8d7da;
+}
+
+.form-container{
+    background: #ffff;
+}
+
+.already {
+    margin-left: auto;
+    justify-content: center;
+    display: contents;
+    margin-top: 10px;
+    font-size: medium;
+}
+
+.whole {
+    margin: auto;
+}
+
+.forgotpassword {
+    margin: auto;
+    display: contents;
+    margin-top: 10px;
+    font-size: medium;
+    color: #e72b4a;
+}
+
+.text-center {
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 0px;
+    margin-top: 40px;
+    margin-left: auto;
+    text-align: center;
+}
+
+.mobile {
+    margin: auto;
+    margin-top: 10px;
+    display: contents;
+    font-size: medium;
+    color: #e72b4a;
+}

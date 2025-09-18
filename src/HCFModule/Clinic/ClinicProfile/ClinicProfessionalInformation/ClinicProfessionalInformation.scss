@@ -1,0 +1,126 @@
+.profile-container{
+display: flex;
+position: relative;
+flex-direction: column;
+width: 90%;
+height: 120vh;
+background-color: white;
+// height: 90%;
+
+@media screen and (max-width: 600px){
+    
+   
+}
+
+}
+
+.profile-bttn{
+    width: 90%;
+    display: flex;
+    justify-content: center;
+}
+
+.prof-id{
+    display: flex;
+    margin-top: 1rem;
+}
+
+.navlink-btn{
+    // border: 1px solid;
+    width: 100%;
+    display: flex;
+    // flex-direction: column;
+    // align-items: center;
+    justify-content: space-between;
+    // margin-top: 1rem;
+}
+
+.login-box{
+    position: relative;
+    // border: 1px solid;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    // justify-content: space-between;
+
+    @media screen and (max-width: 600px){
+        display: flex;
+        flex-direction: column;
+        width: 55%;
+        // justify-content: flex-start;
+        flex-wrap: wrap;
+        // justify-content: center;
+        // flex-direction: column;
+    }
+}
+
+.HCF-box{
+    position: relative;
+    // border: 1px solid;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    // justify-content: space-between;
+    margin-top: 4rem;
+
+}
+
+.center-line{
+    border: 1px solid #E6E1E5;
+    width: 95%;
+    border-bottom:1px ;
+    border-left: 1px;
+    border-right: 1px;
+
+    @media screen and (max-width: 600px){
+       width: 100%;
+    }
+}
+
+.center-line1 {
+    border: 1px solid #E6E1E5;
+    border-bottom: 1px solid #E6E1E5;
+    width: 95%;
+    margin: 0 auto; /* Center aligns the border within its parent container */
+}
+
+
+.edit-btn{
+    display: flex;
+    align-items: center;
+    // gap: 1rem;
+}
+
+.mob-email-pass{
+    position: relative;
+    // border: 1px solid;
+    width: 100%;
+    display: flex;
+    // justify-content: space-between;
+    gap: 8rem;
+    margin-top: 2rem;
+
+    @media screen and (max-width: 600px){
+        display: flex;
+        // flex-direction: column;
+        flex-wrap: wrap;
+        gap: 1rem;
+     }
+}
+
+.Reg-date1{
+    // border: 1px solid;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.save-bttn{
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+    padding-bottom: 50px;
+font-size: large;
+}
+

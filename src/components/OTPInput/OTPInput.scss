@@ -1,0 +1,30 @@
+.custom-otp-input {
+  .otp-input {
+    input {
+      &:focus {
+        border-color: #e72b49 !important;
+        box-shadow: 0 0 0 2px rgba(231, 43, 73, 0.2) !important;
+      }
+      
+      &:hover {
+        border-color: #e72b49;
+      }
+    }
+  }
+  
+  // Animation for when OTP is complete
+  &.otp-complete {
+    .otp-input input {
+      border-color: #4caf50;
+      background-color: #f8fff8;
+    }
+  }
+  
+  // Error state
+  &.otp-error {
+    .otp-input input {
+      border-color: #f44336;
+      background-color: #fff5f5;
+    }
+  }
+}

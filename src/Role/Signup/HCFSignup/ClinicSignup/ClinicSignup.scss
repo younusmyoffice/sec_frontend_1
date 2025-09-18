@@ -1,0 +1,278 @@
+.Stepper{
+    display: flex;
+    // border: 1px solid;
+    justify-content: center;
+    margin-top: 3rem;
+    }
+    
+    .hcftitle1{
+        display: flex;
+        justify-content: center;
+        // border: 1px solid;
+        width: 100%;
+        margin-top: 2rem;
+        
+    }
+    
+    .Srvice-details{
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        width: 100%;
+        // justify-content: space-between;
+        // gap: -16rem;
+        // border: 1px solid;
+    }
+    
+    .nxt-btn{
+        // border: 1px solid;
+        width: 100%;
+        margin-top: -27rem;
+    }
+    
+    .back-btn{
+        margin-top: 2.5rem;
+        margin-left: -7em;
+    }
+    
+    .title2{
+        // margin-top: 1rem;
+        display: flex;
+        // border: 1px solid;
+        width: 100%;
+        justify-content: center;
+        margin-top: -1.5rem;
+    }
+    
+    .step-back{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9rem;
+        // border: 1px solid;
+        width: 100%;
+    }
+    
+    .nxt-btn1{
+    //    border: 1px solid;
+       width: 100%;
+       display: flex;
+       justify-content: center;
+       margin-top: 1rem;
+    }
+    
+    .info-fields1{
+        // border: 1px solid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .date-time-picker{
+        // border: 1px solid;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .Date-range-picker1{
+        // position: relative;
+        display: flex;
+        margin-top: 1rem;
+        // flex-direction: column;
+        justify-content: center;
+        // border: 1px solid;
+        width: 100%;
+    }
+    
+    .time-picker{
+    display: flex;
+    justify-content: center;
+    //  border: 1px solid;
+     width: 100%;
+    }
+    
+    .days{
+        display: flex;
+    justify-content: center;
+    //  border: 1px solid;
+     margin-top: 1rem;
+     width: 100%;
+     margin-left: -15em;
+    }
+    
+    .time{
+        display: flex;
+        justify-content: center;
+        //  border: 1px solid;
+         margin-top: 1rem;
+         width: 100%;
+         margin-left: -15em;
+    }
+    
+    .servicetitle1{
+        // border: 1px solid;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .services{
+        display: flex;
+        justify-content: center;
+        //  border: 1px solid;
+         margin-top: 1rem;
+         width: 100%;
+    }
+    
+    .imge-cont{
+        // border: 1px solid;
+        width: 100%;
+        height: 85vh;
+    }
+    
+    .card-cont1{
+        // border: 1px solid;
+        width: 100%;
+        // height: 70vh;
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .done-btn1{
+        margin-top: 1rem;
+    }
+    
+    .contact-container{
+    // border: 1px solid;
+    width: 100%;
+    height: 68vh;
+    margin-top: -2rem;
+    }
+    
+    .title3{
+        // border: 1px solid;
+        width: 100%;
+        display: flex;
+        justify-content:center;
+    }
+    
+    .undraw-img1{
+        // border: 1px solid;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    @media only screen and (max-width: 768px) {
+    
+        .Stepper-Container{
+            width: 100vw;
+            height: 100vh;
+        }
+    
+        .FrameBox {
+            display: flex; /* Hide the image on smaller screens */
+        }
+    
+        .step-back {
+            display: flex;
+            // flex-direction: column; /* Arrange steps and buttons vertically on smaller screens */
+            // gap: 9rem;
+            align-items: center;
+            text-align: center;
+            margin-top: 5rem;
+            width: 60%;
+        }
+    
+        .Stepper {
+            width: 60%;
+            // margin-top: 2rem;
+            // margin-bottom: -17rem; /* Make the stepper full width on smaller screens */
+        }
+    
+        .mainBox1 {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            margin-top: 5rem; /* Make the form full width on smaller screens */
+        }
+    
+       
+    
+        .back-btn{
+            margin-right: -5rem;
+        }
+    
+    
+    
+        /* Adjust other styles as needed for smaller screens */
+    }
+    
+    @media only screen and (max-width: 768px) {
+        .sve-btn {
+            text-align: center; /* Center the button on smaller screens */
+        }
+    
+        .sve-btn .CustomButton-root {
+            width: 100%; /* Make the button full width on smaller screens */
+        }
+    }
+    
+    @media only screen and (max-width: 768px) {
+        .contact-container {
+            flex-direction: column; /* Stack elements vertically on smaller screens */
+            align-items: center;
+            text-align: center;
+        }
+    
+        .info-fields1 .MuiTextField-root {
+            width: 100%; /* Make the text fields take full width on smaller screens */
+            max-width: 360px; /* Limit the max-width of the text fields */
+            margin-bottom: 10px; /* Add some spacing between text fields on smaller screens */
+        }
+    
+        .nxt-btn1 .CustomButton-root {
+            width: 100%; /* Make the button take full width on smaller screens */
+            max-width: 360px; /* Limit the max-width of the button */
+        }
+    }
+    
+    @media only screen and (max-width: 768px) {
+        .imge-cont {
+            text-align: center; /* Center the content on smaller screens */
+        }
+    
+        .card1 {
+            width: 100%; /* Make the card take full width on smaller screens */
+            max-width: 300px; /* Limit the max-width of the card */
+            margin: 0 auto; /* Center the card horizontally */
+            padding: 20px; /* Add some padding around the card */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add a box shadow for visual appeal */
+        }
+    
+        .undraw-img1 img {
+            width: 100%; /* Make the image inside the card take full width */
+            height: auto; /* Maintain aspect ratio */
+            margin-bottom: 20px; /* Add some spacing between the image and text */
+        }
+    
+        .greetings1,
+        .note1 {
+            margin-bottom: 10px; /* Add some spacing between text elements */
+        }
+    
+        .done-btn1 .CustomButton-root {
+            width: 100%; /* Make the button take full width on smaller screens */
+            max-width: 270px; /* Limit the max-width of the button */
+            margin: 0 auto; /* Center the button horizontally */
+        }
+    }
+    
+    

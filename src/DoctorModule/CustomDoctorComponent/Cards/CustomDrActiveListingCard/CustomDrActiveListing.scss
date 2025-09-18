@@ -1,0 +1,66 @@
+// .activeListingContainer{
+//     border: 1px solid red;
+// }
+
+// .navigation-bar{
+//     display: flex;
+//     width: 100%;
+//     // border: 1px solid;
+//     // justify-content: space-around;
+//     // gap: 2rem;
+
+// }
+
+// .button-more{
+//     // display: flex;
+//     gap: 2rem;
+//     align-items: center;
+//     margin-left: -3em;
+// }
+
+.mainC{
+    // position: relative;
+    // margin-top: 10%;
+    border:1px solid  #E6E1E5 ;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 9rem;
+    padding: 1rem;
+    border-radius: 8px;
+    // border : 1px solid red
+}
+
+.card-info1{
+    display: flex;
+    position: relative;
+    // border:1px solid ;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info{
+    display: flex;
+    flex-direction: column;
+}
+
+.listing{
+    display: flex;
+    // border: 1px solid;
+    justify-content: flex-start;
+}
+.ID{
+    display: flex;
+    // border: 1px solid;
+    justify-content: flex-start; 
+}
+
+.bttns{
+    display: flex;
+    // border: 1px solid;
+    width: 100%;
+    margin-top: 2rem;
+    justify-content: flex-end;
+    gap: 1rem;
+}

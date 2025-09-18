@@ -1,0 +1,77 @@
+
+.main-outer-container{
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+.inner-container-eight{
+  height: 100%;
+  width: 80%;
+  position: relative;
+  transform: rotateY(180deg);
+}
+
+.video-container{
+  border-radius: 10px;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+// .video-container .flip {
+//   /* Define flip styles here */
+// }
+.isMobileContainer-main{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.camera-pff-container{
+  font-size: 1.25rem; /* Adjust as needed */
+  font-size: 1.25rem; /* Adjust as needed */
+  font-size: 1.125rem; /* Adjust as needed */
+  color: #fff;
+
+}
+
+
+.mic-container{
+  position: absolute;
+  bottom: 1.5rem; /* Adjust as needed */
+  bottom: 1rem; /* Adjust as needed */
+  left: 0;
+  right: 0;
+}
+
+.innermic-container{
+  display: grid;
+  grid-auto-flow: column;
+  column-gap: 1rem; /* Adjust as needed */
+  align-items: center;
+  justify-content: center;
+  margin: -0.5rem; /* Adjust as needed */
+
+}
+.meeting-inner-container{
+  width: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #28282B;
+}
+
+
