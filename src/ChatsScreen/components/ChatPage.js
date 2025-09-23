@@ -6,13 +6,20 @@ import ChatFooter from './ChatFooter';
 import "./chat.scss";
 
 const ChatPage = ({ socket }) => {
-  const { roomID , appointment_id, savedUserName} = useParams();
+  const { roomID, appointment_id, user, savedUserName } = useParams();
   // const { roomID, userName } = state;
   const [messages, setMessages] = useState([]);
   const [typingStatus, setTypingStatus] = useState("");
+  const [userName, setUserName] = useState("");
   const lastMessageRef = useRef(null);
 
   useEffect(() => {
+    // Get userName from localStorage or use a default
+    const derivedName = localStorage.getItem("userName") || `Patient_${Date.now()}`;
+    setUserName(derivedName);
+    // Persist to localStorage so other components (comparisons, disconnect) see it
+    localStorage.setItem("userName", derivedName);
+    
     // Listen for message and typing events
     socket.on("messageResponse", data => setMessages(prevMessages => [...prevMessages, data]));
     socket.on("typingResponse", data => setTypingStatus(data));
@@ -22,10 +29,10 @@ const ChatPage = ({ socket }) => {
       setMessages(data);
     });
 
-    // Attempt to rejoin room if the user refreshes the page
-    const savedUserName = localStorage.getItem("userName");
-    if (savedUserName && roomID) {
-      socket.emit("joinRoom", { userID: savedUserName, roomID, appointment_id });
+    // Join room with userName and roomID
+    if (derivedName && roomID && socket) {
+      console.log("Joining room:", { userID: derivedName, roomID, appointment_id });
+      socket.emit("joinRoom", { userID: derivedName, roomID, appointment_id });
     }
 
     return () => {
@@ -43,7 +50,7 @@ const ChatPage = ({ socket }) => {
 
   return (
     <div className="chat">
-      <ChatBar socket={socket} roomID={roomID} savedUserName={savedUserName} />
+      <ChatBar socket={socket} roomID={roomID} savedUserName={userName} />
       <div className='chat__main'>
         <ChatBody messages={messages} typingStatus={typingStatus} lastMessageRef={lastMessageRef} roomID={roomID} socket={socket} />
         <ChatFooter socket={socket} roomID={roomID} />

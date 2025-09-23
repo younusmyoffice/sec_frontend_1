@@ -20,7 +20,7 @@ import CustomOTPInput from "../../../../components/OTPInput";
 import axiosInstance from "../../../../config/axiosInstance";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import AddPlanCard from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/AddPlanCard";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import ListingModal from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/ListingModal";
 import AddIcon from "@mui/icons-material/Add";
 import { NavLink, useNavigate } from "react-router-dom";

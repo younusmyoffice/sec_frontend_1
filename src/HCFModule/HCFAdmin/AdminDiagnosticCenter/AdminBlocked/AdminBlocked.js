@@ -16,7 +16,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import CustomButton from "../../../../components/CustomButton";
 import pen from "../../../../static/images/DrImages/Pen.svg";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { Testlist } from "../AdminLabs/AdminLabDetails/Testlist";
 
 const AdminBlocked = () => {

@@ -156,10 +156,26 @@ html{
 
 .MuiDrawer-root {
     color: $primary-color;
+    
+    // Ensure drawer doesn't push content
+    &.MuiDrawer-docked {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1200;
+    }
+    
     .MuiPaper-root {
         background-color: $white-color;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1200;
+        
         .MuiList-root {
-            padding: 20px;
+            padding: 2px;
             .MuiListItem-root {
                 .MuiButtonBase-root.MuiListItemButton-root {
                     align-items: center;
@@ -229,6 +245,45 @@ html{
         text-transform: capitalize;
     }
 }
+// Fix for drawer layout issues
+.MuiBox-root {
+    // Ensure main content doesn't get pushed by drawer
+    &.drawer-open {
+        margin-left: 200px !important;
+        width: calc(100% - 240px) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    &.drawer-closed {
+        margin-left: 47px !important;
+        width: calc(100% - 57px) !important;
+        transition: all 0.3s ease !important;
+    }
+}
+
+// Override any conflicting styles
+.MuiDrawer-root.MuiDrawer-docked {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1200;
+    
+    .MuiPaper-root {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1200;
+    }
+}
+
+// Ensure the main content area is properly positioned
+main {
+    position: relative;
+    z-index: 1;
+}
+
 body {
     font-family: "Poppins";
 }

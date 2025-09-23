@@ -6,9 +6,9 @@ import DateModal from "../../../components/DateModal/DateModal";
 import FilterModal from "../../../components/FilterModal/FilterModal";
 import HCFAdminCard from "../../../components/Card/HCFadminCard/HCFAdminCard";
 import CustomButton from "../../../components/CustomButton";
-import { PaginationCard } from "../../../Dashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../PatientDashboard/PatientAppointment/PatientCards";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const SuperAdminHCF = () => {
     const [cardData, setCardData] = useState([]);

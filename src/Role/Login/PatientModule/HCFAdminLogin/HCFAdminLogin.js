@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Cookies from "js-cookie";
 import { Box, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -15,6 +14,7 @@ import { useAuthentication } from "../../../../loginComponent/UserProvider";
 import CustomSnackBar from "../../../../components/CustomSnackBar/custom-sack-bar";
 import { baseURL, emailRegex, passwordRegex } from "../../../../constants/const";
 import { decodeJWT } from "../../../../utils/jwtUtils";
+import Cookies from "js-cookie";
 
 const HcfAdminLogin = () => {
     const [showPassword, setShowPassword] = useState(true);
@@ -98,14 +98,13 @@ const HcfAdminLogin = () => {
                 localStorage.setItem("hcfadmin_Email", resData.email);
                 localStorage.setItem("hcfadmin_suid", resData.suid);
                 localStorage.setItem("profile", resData.profile_picture);
+                Cookies.set("hcfadmin_Email", resData.email, { expires: 7 });
 
                 // Store JWT decoded information
                 localStorage.setItem("user_id", userInfo.userId);
                 localStorage.setItem("role_id", userInfo.roleId || "");
                 localStorage.setItem("jwt_email", userInfo.email || resData.email);
 
-                Cookies.set("token", resData.access_token);
-                Cookies.set("hcfadmin_Email", resData.email);
 
                 HealthCare(resData.email);
                 navigate("/hcfadmin/notification", { replace: true });

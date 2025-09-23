@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import React, { useState } from "react";
 import "./doctorlogin.scss";
 import { Box, CircularProgress } from "@mui/material";
@@ -11,6 +10,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CustomButton from "../../components/CustomButton";
 import { baseURL, emailRegex, passwordRegex } from "../../constants/const";
+import Cookies from "js-cookie";
 
 const DoctorLogin = () => {
     const [showPassword, setShowPassword] = useState(true);
@@ -69,10 +69,9 @@ const DoctorLogin = () => {
                 localStorage.setItem("path", "request");
                 localStorage.setItem("logged_as", "doctor");
                 localStorage.setItem("profile", res?.profile_picture);
+                // persist cookie for auth guard
+                Cookies.set("doctorEmail", res?.email, { expires: 7 });
 
-                Cookies.set("doctor_uid", res?.suid);
-                Cookies.set("token", res?.access_token);
-                Cookies.set("doctorEmail", res?.email);
 
                 DoctorLogin(res?.email);
                 setInvalidUser(false);

@@ -5,9 +5,9 @@ import DateModal from "../../../components/DateModal/DateModal";
 import FilterModal from "../../../components/FilterModal/FilterModal";
 import PatientadminCard from "../../../components/Card/PatientCard/PatientadminCard";
 import CustomButton from "../../../components/CustomButton";
-import { PaginationCard } from "../../../Dashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../PatientDashboard/PatientAppointment/PatientCards";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const SuperAdminPatient = () => {
     const [cardData, setCardData] = useState([]);

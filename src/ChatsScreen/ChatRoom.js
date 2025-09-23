@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import CustomTextField from "../components/CustomTextField";
 import CustomButton from "../components/CustomButton";
 import "./chatroom.scss";
-import { AppointmentNavbar } from "../Dashboard/PatientAppointment/PatientCards";
+import { AppointmentNavbar } from "../PatientDashboard/PatientAppointment/PatientCards";
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 
@@ -101,7 +101,7 @@ const ChatRoom = () => {
     // );
 
     useEffect(() => {
-        socketRef.current = io("http://localhost:8080");
+        socketRef.current = io("http://localhost:4001");
 
         socketRef.current.on("connect", () => {
             setError(null);

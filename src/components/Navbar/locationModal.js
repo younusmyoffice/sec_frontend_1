@@ -15,7 +15,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import CloseIcon from "@mui/icons-material/Close";
 import axiosInstance from "../../config/axiosInstance";
-import NoAppointmentCard from "../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import Drcard from "../../constants/drcard/drcard";
 import frontimg from "../../static/images/DrImages/locationIcon.png";
 import { Link } from "react-router-dom";

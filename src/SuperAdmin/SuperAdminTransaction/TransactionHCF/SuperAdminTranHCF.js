@@ -22,7 +22,7 @@ import DatePickerModal from "../../../components/DatePickerModal/DatePickerModal
 import apolloimg from "../../../static/images/DrImages/image 27.png";
 import { DoctorDetail } from "../../SuperAdminHistory/SuperAdminHistoryDoctor/DoctorDetail";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 
 

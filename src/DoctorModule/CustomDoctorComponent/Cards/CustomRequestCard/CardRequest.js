@@ -91,17 +91,23 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
     const AcceptAppointment = async () => {
         setClicked(!clicked);
         try {
+            console.log("Sending appointment request data:", appointmentRequestData);
+            console.log("API endpoint: /sec/Doctor/AppointmentsRequestsAccept");
+            
             const response = await axiosInstance.post(
                 "/sec/Doctor/AppointmentsRequestsAccept",
-                JSON.stringify(appointmentRequestData),
-                { Accept: "Application/json" },
+                appointmentRequestData,
             );
-            alert(response?.data.response.status);
-            console.log("RESPONSE : ", response?.data);
+            
+            console.log("API Response:", response?.data);
+            alert(`Appointment ${response?.data?.response?.status || 'accepted successfully'}`);
+            
             // acceptButtonClicked("child")
             AcceptOrRejectButtonClicked(!accAndRejClicked);
         } catch (error) {
-            console.log(error.response);
+            console.error("Accept appointment error:", error);
+            console.error("Error response:", error.response?.data);
+            alert(`Error: ${error.response?.data?.error || error.message || 'Failed to accept appointment'}`);
         }
     };
 
@@ -109,17 +115,23 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
         // setRejectClicked(true);
         console.log("Hitting reject request");
         try {
+            console.log("Sending reject appointment data:", rejectAppointment);
+            console.log("API endpoint: /sec/Doctor/AppointmentsRequestsReject");
+            
             const response = await axiosInstance.post(
                 "/sec/Doctor/AppointmentsRequestsReject",
-                JSON.stringify(rejectAppointment),
+                rejectAppointment,
             );
-            // Add Snack Bar
-            // alert(response?.data.response.status);
-            console.log("RESPONSE : ", response?.data);
+            
+            console.log("Reject API Response:", response?.data);
+            alert(`Appointment ${response?.data?.response?.status || 'rejected successfully'}`);
+            
             AcceptOrRejectButtonClicked(!accAndRejClicked);
             setRejectAppointmentFlag(false);
         } catch (error) {
-            console.log(error.response);
+            console.error("Reject appointment error:", error);
+            console.error("Error response:", error.response?.data);
+            alert(`Error: ${error.response?.data?.error || error.message || 'Failed to reject appointment'}`);
             setRejectAppointmentFlag(false);
         }
     };

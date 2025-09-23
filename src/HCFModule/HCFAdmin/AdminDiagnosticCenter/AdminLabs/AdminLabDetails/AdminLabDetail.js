@@ -26,7 +26,7 @@ import pen from "../../../../../static/images/DrImages/Pen.svg";
 import CustomModal from "../../../../../components/CustomModal";
 import CustomTextField from "../../../../../components/CustomTextField";
 import CustomSnackBar from "../../../../../components/CustomSnackBar";
-import NoAppointmentCard from "../../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const AdminLabDetail = () => {
     const navigate = useNavigate();

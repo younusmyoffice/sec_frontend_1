@@ -1,5 +1,4 @@
 // import React from 'react'
-import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import "./clicniLogin.scss";
 import { Box, CircularProgress, IconButton, InputAdornment, Stack, TextField } from "@mui/material";
@@ -13,6 +12,7 @@ import CustomButton from "../../../components/CustomButton/custom-button";
 import { useAuthentication } from "../../../loginComponent/UserProvider";
 import CustomSnackBar from "../../../components/CustomSnackBar/custom-sack-bar";
 import { baseURL, emailRegex, passwordRegex } from "../../../constants/const";
+import Cookies from "js-cookie";
 
 const ClinicLogin = () => {
     const [showPassword, setShowPassword] = useState(true);
@@ -87,10 +87,8 @@ const ClinicLogin = () => {
                 localStorage.setItem("clinic_suid", resData.suid);
                 localStorage.setItem("clinic_Email", resData.email);
                 localStorage.setItem("profile", resData.profile_picture);
+                Cookies.set("clinicEmail", resData.email, { expires: 7 });
 
-                Cookies.set("clinic_uid", resData.suid);
-                Cookies.set("token", resData.access_token);
-                Cookies.set("clinicEmail", resData.email);
                 ClinicLogin(resData.email);
 
                 navigate("/clinicDashboard/clinicbodydashboard/clinirequests", { replace: true });

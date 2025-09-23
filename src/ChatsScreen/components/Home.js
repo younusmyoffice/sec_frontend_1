@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { AppointmentNavbar } from "../../Dashboard/PatientAppointment/PatientCards";
+import { AppointmentNavbar } from "../../PatientDashboard/PatientAppointment/PatientCards";
 import DoctorAppointmentNavbar from "../../DoctorModule/CustomDoctorComponent/DoctorAppointmentNavbar/DoctorAppointmentNavbar";
 import CustomButton from "../../components/CustomButton";
 

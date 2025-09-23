@@ -13,12 +13,12 @@ import {
     Skeleton,
 } from "@mui/material";
 
-import { PaginationCard } from "../../../Dashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../PatientDashboard/PatientAppointment/PatientCards";
 import { TransactionCard } from "./TransactionCard";
 import DoctorStatisticsNavbar from "../../CustomDoctorComponent/DoctorStatisticsNavbar/DoctorStatisticsNavbar";
 import axiosInstance from "../../../config/axiosInstance";
-import { ReceiveCard, SendCard, FaildCard } from "../../../Dashboard/PatientManage/Transactions/TransactionCard";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import { ReceiveCard, SendCard, FaildCard } from "../../../PatientDashboard/PatientManage/Transactions/TransactionCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { currencysign, formatDate } from "../../../constants/const";
 
 const DoctorTransaction = () => {

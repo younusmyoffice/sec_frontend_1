@@ -1,10 +1,6 @@
 import { Box, Typography, Button, Divider, responsiveFontSizes } from "@mui/material";
 import React, { useEffect, useState, useCallback } from "react";
 import "./doctorprofileinfo.scss";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { NavLink } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
@@ -12,6 +8,7 @@ import CustomList from "../../../components/CustomList";
 import CustomDropdown from "../../../components/CustomDropdown/custom-dropdown";
 import CustomTextField from "../../../components/CustomTextField/custom-text-field";
 import CustomButton from "../../../components/CustomButton/custom-button";
+import CustomDatePicker from "../../../components/CustomDatePicker";
 import DocProf from "../../../static/images/DrImages/Image02.png";
 import { baseURL } from "../../../constants/const";
 import axiosInstance from "../../../config/axiosInstance";
@@ -88,6 +85,20 @@ const DoctorPersonalInfo = () => {
                     council_name: profileData.council_name || "",
                     description: profileData.description || "",
                 }));
+
+                // Set profile image for display
+                if (profileData.profile_picture) {
+                    if (profileData.profile_picture.startsWith('data:image/')) {
+                        // It's already a data URL
+                        setProfileImage(profileData.profile_picture);
+                    } else if (profileData.profile_picture.startsWith('http')) {
+                        // It's an S3 URL
+                        setProfileImage(profileData.profile_picture);
+                    } else {
+                        // It's a base64 string without data URL prefix
+                        setProfileImage(`data:image/jpeg;base64,${profileData.profile_picture}`);
+                    }
+                }
             } else {
                 console.error("No profile data found");
             }
@@ -101,21 +112,39 @@ const DoctorPersonalInfo = () => {
         FetchCountryNames();
     }, []);
 
+    // Update profile image when data.profile_picture changes
+    useEffect(() => {
+        if (data?.profile_picture) {
+            if (data.profile_picture.startsWith('data:image/')) {
+                setProfileImage(data.profile_picture);
+            } else if (data.profile_picture.startsWith('http')) {
+                setProfileImage(data.profile_picture);
+            } else if (!data.profile_picture.startsWith('dev-uploads/')) {
+                setProfileImage(`data:image/jpeg;base64,${data.profile_picture}`);
+            }
+        }
+    }, [data?.profile_picture]);
+
     console.log(data);
     const fetchData = async () => {
         console.log("Entered the fetch data");
+        console.log("Data being sent:", data);
         try {
             const response = await axiosInstance.post(
                 `/sec/Doctor/updatedoctorprofile`,
                 JSON.stringify(data),
             );
+            console.log("Profile update response:", response);
             setSnackBar({
                 open: true,
                 message: "Profile updated successfully!",
                 severity: "success",
             });
+            
+            // Refresh profile data after successful update
+            await fetchDataProfile();
         } catch (error) {
-            console.error(error.response);
+            console.error("Profile update error:", error.response);
             setSnackBar({
                 open: true,
                 message: "Failed to update profile. Please try again.",
@@ -213,17 +242,100 @@ const DoctorPersonalInfo = () => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64Data = reader.result.split(",")[1]; // Extract base64 without metadata
-                setProfileImage(URL.createObjectURL(file)); // For preview
+            const isDevelopment = process.env.NODE_ENV === 'development';
+            
+            if (isDevelopment) {
+                // Development mode - use data URL for immediate preview
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const dataUrl = reader.result; // Full data URL with metadata
+                    const base64Data = reader.result.split(",")[1]; // Extract base64 without metadata
+                    
+                    setProfileImage(dataUrl); // Immediate preview
+                    setData((prevData) => ({
+                        ...prevData,
+                        profile_picture: base64Data, // Store for API call
+                    }));
+                    
+                    setSnackBar({
+                        open: true,
+                        message: "Image loaded successfully (Development Mode)",
+                        severity: "success",
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Production mode - upload to S3
+                uploadToS3(file);
+            }
+        }
+    };
+
+    const uploadToS3 = async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('role', 'doctor');
+            
+            const response = await axiosInstance.post('/sec/reports/uploadProfilePicturesToS3', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            
+            if (response.data.filePath) {
+                setProfileImage(response.data.filePath); // Set S3 URL for preview
                 setData((prevData) => ({
                     ...prevData,
-                    profile_picture: base64Data, // Store the base64 representation
+                    profile_picture: response.data.filePath, // Store S3 URL
                 }));
-            };
-            reader.readAsDataURL(file); // Trigger the file reading process
+                
+                setSnackBar({
+                    open: true,
+                    message: "Image uploaded successfully!",
+                    severity: "success",
+                });
+            }
+        } catch (error) {
+            console.error('Upload failed:', error);
+            setSnackBar({
+                open: true,
+                message: "Failed to upload image. Please try again.",
+                severity: "error",
+            });
         }
+    };
+
+    // Function to get the correct image source
+    const getImageSrc = () => {
+        console.log("getImageSrc - data.profile_picture:", data?.profile_picture);
+        console.log("getImageSrc - profileImage:", profileImage);
+        
+        // If we have profile_picture in data, use it
+        if (data?.profile_picture) {
+            // Check if it's a base64 string or URL
+            if (data.profile_picture.startsWith('data:image/')) {
+                // It's a base64 data URL
+                console.log("Using data URL from profile_picture");
+                return data.profile_picture;
+            } else if (data.profile_picture.startsWith('http')) {
+                // It's an S3 URL
+                console.log("Using S3 URL from profile_picture");
+                return data.profile_picture;
+            } else if (data.profile_picture.startsWith('dev-uploads/')) {
+                // It's a development mock path, use profileImage state
+                console.log("Using profileImage for dev-uploads path");
+                return profileImage;
+            } else {
+                // It's a base64 string without data URL prefix
+                console.log("Converting base64 to data URL");
+                return `data:image/jpeg;base64,${data.profile_picture}`;
+            }
+        }
+        
+        // Fallback to profileImage state
+        console.log("Using fallback profileImage");
+        return profileImage;
     };
 
     return (
@@ -275,7 +387,7 @@ const DoctorPersonalInfo = () => {
                     >
                         <Box
                             component="img"
-                            src={data?.profile_picture||profileImage}
+                            src={getImageSrc()}
                             alt="Profile"
                             sx={{
                                 width: "167px",
@@ -374,24 +486,20 @@ const DoctorPersonalInfo = () => {
                                     color: isEditing ? "#000" : "#787579",
                                 }}
                             />
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DemoContainer components={["DatePicker"]} isDisabled={!isEditing}>
-                                    <DatePicker
-                                        value={data?.DOB ? dayjs(data.DOB) : null} // Convert to Day.js object
-                                        label="Date of Birth"
-                                        disabled={!isEditing}
-                                        style={{ width: "300px" }}
-                                        onChange={(newValue) => {
-                                            if (newValue) {
-                                                setData({
-                                                    ...data,
-                                                    DOB: newValue.format("YYYY-MM-DD"), // Use Day.js's format method
-                                                });
-                                            }
-                                        }}
-                                    />
-                                </DemoContainer>
-                            </LocalizationProvider>
+                            <CustomDatePicker
+                                label="Date of Birth"
+                                value={data?.DOB ? dayjs(data.DOB) : null}
+                                onChange={(newValue) => {
+                                    if (newValue) {
+                                        setData({
+                                            ...data,
+                                            DOB: newValue.format("YYYY-MM-DD"),
+                                        });
+                                    }
+                                }}
+                                disabled={!isEditing}
+                                sx={{ width: "300px" }}
+                            />
                         </div>
                         <div className="Last-Dob">
                             <CustomTextField

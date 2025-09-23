@@ -66,12 +66,104 @@ export const getCurrentUser = () => {
  */
 export const isTokenValid = () => {
     try {
-        const userInfo = getCurrentUser();
-        return userInfo !== null && !userInfo.isExpired;
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            return false;
+        }
+        
+        const userInfo = decodeJWT(token);
+        return !userInfo.isExpired;
     } catch (error) {
         console.error('Error checking token validity:', error);
         return false;
     }
+};
+
+/**
+ * Checks if token is close to expiration (within 5 minutes)
+ * @returns {boolean} - True if token needs refresh, false otherwise
+ */
+export const needsTokenRefresh = () => {
+    try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            return false;
+        }
+        
+        const userInfo = decodeJWT(token);
+        if (userInfo.isExpired) {
+            return true;
+        }
+        
+        // Check if token expires within 5 minutes (300 seconds)
+        const fiveMinutesFromNow = Date.now() + (5 * 60 * 1000);
+        const tokenExpiry = userInfo.exp * 1000;
+        
+        return tokenExpiry <= fiveMinutesFromNow;
+    } catch (error) {
+        console.error('Error checking token refresh need:', error);
+        // Be lenient on decode errors here; let 401 flow handle it
+        return false;
+    }
+};
+
+/**
+ * Refreshes the JWT token by calling the refresh endpoint
+ * @returns {Promise<boolean>} - True if refresh successful, false otherwise
+ */
+import axiosInstance from '../config/axiosInstance';
+
+export const refreshToken = async () => {
+    try {
+        // Fallback: if no refresh_token, use access_token for minimal refresh flow
+        const bearer = localStorage.getItem('refresh_token') || localStorage.getItem('access_token');
+        if (!bearer) {
+            console.warn('No token available for refresh');
+            return false;
+        }
+
+        const response = await axiosInstance.post(
+            '/sec/auth/refresh',
+            null,
+            {
+                headers: {
+                    'Authorization': `Bearer ${bearer}`
+                }
+            }
+        );
+
+        const data = response?.data;
+        if (data?.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+            // If backend ever returns a refresh_token, store it
+            if (data.refresh_token) {
+                localStorage.setItem('refresh_token', data.refresh_token);
+            }
+            console.log('Token refreshed successfully');
+            return true;
+        }
+
+        console.error('Token refresh failed: no access_token in response');
+        return false;
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        return false;
+    }
+};
+
+/**
+ * Clears all authentication data from localStorage
+ */
+export const clearAuthData = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('patient_Email');
+    localStorage.removeItem('patient_suid');
+    localStorage.removeItem('profile');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('role_id');
+    localStorage.removeItem('jwt_email');
+    console.log('Authentication data cleared');
 };
 
 /**
@@ -99,56 +191,4 @@ export const getCurrentRoleId = () => {
 export const getCurrentUserEmail = () => {
     const userInfo = getCurrentUser();
     return userInfo ? userInfo.email : null;
-};
-
-/**
- * Clears all authentication data from localStorage and cookies
- */
-export const clearAuthData = () => {
-    // Clear all possible auth-related localStorage items
-    const authKeys = [
-        'access_token',
-        'patient_Email',
-        'patient_suid',
-        'profile',
-        'hcfadmin_Email',
-        'hcfadmin_suid',
-        'diagnostic_Email',
-        'diagnostic_suid',
-        'doctor_Email',
-        'doctor_suid',
-        'superadmin_Email',
-        'superadmin_suid',
-        'user_id',
-        'role_id',
-        'jwt_email',
-        'token',
-        'patient_uid',
-        'diagnostic_suid',
-        'diagnostic_Email',
-        'clinic_Email',
-        'clinic_suid'
-    ];
-    
-    authKeys.forEach(key => {
-        localStorage.removeItem(key);
-    });
-    
-    // Clear cookies
-    try {
-        // Clear all cookies by setting them to expire in the past
-        const cookies = document.cookie.split(';');
-        cookies.forEach(cookie => {
-            const eqPos = cookie.indexOf('=');
-            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-            if (name) {
-                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-            }
-        });
-    } catch (error) {
-        console.warn('Error clearing cookies:', error);
-    }
-    
-    console.log('All authentication data cleared from localStorage and cookies');
 };

@@ -19,7 +19,7 @@ import DiagnostCenterTableCard from "./DiagnostCenterTableCard";
 import CustomModal from "../../../../components/CustomModal";
 import CustomTextField from "../../../../components/CustomTextField";
 import CustomDropdown from "../../../../components/CustomDropdown";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../../config/axiosInstance";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 

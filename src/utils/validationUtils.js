@@ -1,182 +1,272 @@
-/**
- * Centralized validation utilities for the application
- */
-import { useState, useCallback } from 'react';
+// Validation utility functions for booking appointment
 
-// Validation functions for mobile numbers with country codes
-export const validateMobileNumber = (mobile, countryCode) => {
-    if (!mobile) {
+export const validateStep = (step, data, questions = null) => {
+    switch (step) {
+        case 0: // Details step
+            return validateDetailsStep(data);
+        case 1: // Date & Time step
+            return validateDateTimeStep(data);
+        case 2: // Duration step
+            return validateDurationStep(data);
+        case 3: // Questions step
+            return validateQuestionsStep(data, questions);
+        case 4: // Payment step
+            return validatePaymentStep(data);
+        default:
+            return { isValid: true, errors: [] };
+    }
+};
+
+const validateDetailsStep = (data) => {
+    const errors = [];
+    
+    if (!data.patient_type) {
+        errors.push("Please select patient type");
+    }
+    
+    if (!data.name || data.name.trim() === "") {
+        errors.push("Full name is required");
+    } else if (data.name.trim().length < 2) {
+        errors.push("Full name must be at least 2 characters");
+    }
+    
+    if (!data.gender) {
+        errors.push("Please select gender");
+    }
+    
+    if (!data.age) {
+        errors.push("Please select age");
+    } else if (data.age < 0 || data.age > 120) {
+        errors.push("Please enter a valid age");
+    }
+    
+    if (!data.problem || data.problem.trim() === "") {
+        errors.push("Please describe your problem");
+    } else if (data.problem.trim().length < 10) {
+        errors.push("Problem description must be at least 10 characters");
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+};
+
+const validateDateTimeStep = (data) => {
+    const errors = [];
+    
+    if (!data.appointment_date) {
+        errors.push("Please select an appointment date");
+    }
+    
+    if (!data.duration) {
+        errors.push("Please select appointment duration");
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+};
+
+const validateDurationStep = (data) => {
+    const errors = [];
+    
+    if (!data.appointment_time) {
+        errors.push("Please select a time slot");
+    }
+    
+    if (!data.doctor_fee_plan_id) {
+        errors.push("Please select a package plan");
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+};
+
+const validateQuestionsStep = (data, questions = null) => {
+    const errors = [];
+    
+    // If no questions are provided or questions array is empty, skip validation
+    if (!questions || questions.length === 0) {
+        return {
+            isValid: true,
+            errors: []
+        };
+    }
+    
+    // Check if all required questions are answered
+    const questionKeys = Object.keys(data).filter(key => key.startsWith('answer_'));
+    const answeredQuestions = questionKeys.filter(key => data[key] && data[key].trim() !== '');
+    
+    // If there are questions but not all are answered
+    if (questions.length > 0 && answeredQuestions.length !== questions.length) {
+        const unansweredCount = questions.length - answeredQuestions.length;
+        errors.push(`Please answer all questions (${unansweredCount} remaining)`);
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+};
+
+const validatePaymentStep = (data) => {
+    const errors = [];
+    
+    if (!data.payment_method_nonce) {
+        errors.push("Please complete payment");
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+};
+
+export const getStepTitle = (step) => {
+    const titles = [
+        "Patient Details",
+        "Select Date & Time",
+        "Choose Package",
+        "Answer Questions",
+        "Payment"
+    ];
+    return titles[step] || "Step";
+};
+
+export const getStepSubtitle = (step) => {
+    const subtitles = [
+        "Tell us about yourself and your health concern",
+        "Pick a convenient date and time for your appointment",
+        "Select the consultation package that suits your needs",
+        "Help us understand your condition better",
+        "Complete your payment to confirm the appointment"
+    ];
+    return subtitles[step] || "";
+};
+
+// Mobile number validation functions
+export const validateMobileNumber = (mobile, countryCode = "+1") => {
+    if (!mobile || mobile.trim() === "") {
         return { isValid: false, message: "Mobile number is required" };
     }
     
-    // Remove any non-numeric characters (spaces, dashes, parentheses, etc.)
-    const cleanMobile = mobile.replace(/[\s\-\(\)\+]/g, '');
+    // Clean the mobile number
+    const cleanedMobile = cleanMobileNumber(mobile);
+    
+    // Basic length validation based on country code
+    const minLength = getMinLengthForCountry(countryCode);
+    const maxLength = getMaxLengthForCountry(countryCode);
+    
+    if (cleanedMobile.length < minLength) {
+        return { 
+            isValid: false, 
+            message: `Mobile number must be at least ${minLength} digits` 
+        };
+    }
+    
+    if (cleanedMobile.length > maxLength) {
+        return { 
+            isValid: false, 
+            message: `Mobile number must not exceed ${maxLength} digits` 
+        };
+    }
     
     // Check if it contains only digits
-    if (!/^\d+$/.test(cleanMobile)) {
-        return { isValid: false, message: "Mobile number should contain only digits" };
+    if (!/^\d+$/.test(cleanedMobile)) {
+        return { 
+            isValid: false, 
+            message: "Mobile number should contain only digits" 
+        };
     }
     
-    // Check for minimum length
-    if (cleanMobile.length < 7) {
-        return { isValid: false, message: "Mobile number is too short" };
-    }
-    
-    // Country-specific validation
-    if (countryCode === "+1") {
-        // US/Canada - 10 digits
-        if (cleanMobile.length !== 10) {
-            return { isValid: false, message: "US/Canada mobile number must be exactly 10 digits" };
-        }
-    } else if (countryCode === "+91") {
-        // India - 10 digits
-        if (cleanMobile.length !== 10) {
-            return { isValid: false, message: "Indian mobile number must be exactly 10 digits" };
-        }
-    } else if (countryCode === "+44") {
-        // UK - 10-11 digits
-        if (cleanMobile.length < 10 || cleanMobile.length > 11) {
-            return { isValid: false, message: "UK mobile number must be 10-11 digits" };
-        }
-    } else if (countryCode === "+86") {
-        // China - 11 digits
-        if (cleanMobile.length !== 11) {
-            return { isValid: false, message: "Chinese mobile number must be exactly 11 digits" };
-        }
-    } else if (countryCode === "+81") {
-        // Japan - 10-11 digits
-        if (cleanMobile.length < 10 || cleanMobile.length > 11) {
-            return { isValid: false, message: "Japanese mobile number must be 10-11 digits" };
-        }
-    } else if (countryCode === "+49") {
-        // Germany - 10-12 digits
-        if (cleanMobile.length < 10 || cleanMobile.length > 12) {
-            return { isValid: false, message: "German mobile number must be 10-12 digits" };
-        }
-    } else if (countryCode === "+33") {
-        // France - 10 digits
-        if (cleanMobile.length !== 10) {
-            return { isValid: false, message: "French mobile number must be exactly 10 digits" };
-        }
-    } else if (countryCode === "+61") {
-        // Australia - 9 digits
-        if (cleanMobile.length !== 9) {
-            return { isValid: false, message: "Australian mobile number must be exactly 9 digits" };
-        }
-    } else {
-        // Generic validation - 7-15 digits
-        if (cleanMobile.length < 7 || cleanMobile.length > 15) {
-            return { isValid: false, message: "Mobile number must be 7-15 digits" };
-        }
+    // Country-specific validation patterns
+    const pattern = getValidationPattern(countryCode);
+    if (pattern && !pattern.test(cleanedMobile)) {
+        return { 
+            isValid: false, 
+            message: getMobileHelperText(countryCode) 
+        };
     }
     
     return { isValid: true, message: "" };
 };
 
-// Get country-specific helper text
-export const getMobileHelperText = (countryCode, isValid, errorMessage) => {
-    if (!isValid && errorMessage) {
-        return errorMessage;
-    }
-    
-    const countryNames = {
-        "+1": "US/Canada",
-        "+91": "India", 
-        "+44": "UK",
-        "+86": "China",
-        "+81": "Japan",
-        "+49": "Germany",
-        "+33": "France",
-        "+61": "Australia"
-    };
-    
-    const countryName = countryNames[countryCode] || "International";
-    return `Enter your mobile number (${countryCode} - ${countryName})`;
-};
-
-// Get country-specific placeholder text
-export const getMobilePlaceholder = (countryCode) => {
-    const placeholders = {
-        "+1": "1234567890",
-        "+91": "9876543210",
-        "+44": "7123456789",
-        "+86": "13812345678",
-        "+81": "9012345678",
-        "+49": "15123456789",
-        "+33": "612345678",
-        "+61": "412345678"
-    };
-    
-    return placeholders[countryCode] || "Mobile number";
-};
-
-// Clean mobile number (remove non-numeric characters)
 export const cleanMobileNumber = (mobile) => {
-    return mobile.replace(/[\s\-\(\)\+]/g, '');
+    if (!mobile) return "";
+    
+    // Remove all non-digit characters
+    return mobile.replace(/\D/g, "");
 };
 
-// Check if mobile number is valid for any country (basic check)
-export const isBasicValidMobile = (mobile) => {
-    const cleanMobile = cleanMobileNumber(mobile);
-    return /^\d+$/.test(cleanMobile) && cleanMobile.length >= 7 && cleanMobile.length <= 15;
-};
-
-// Get mobile number length requirements for a country
-export const getMobileLengthRequirements = (countryCode) => {
-    const requirements = {
-        "+1": { min: 10, max: 10, description: "10 digits" },
-        "+91": { min: 10, max: 10, description: "10 digits" },
-        "+44": { min: 10, max: 11, description: "10-11 digits" },
-        "+86": { min: 11, max: 11, description: "11 digits" },
-        "+81": { min: 10, max: 11, description: "10-11 digits" },
-        "+49": { min: 10, max: 12, description: "10-12 digits" },
-        "+33": { min: 10, max: 10, description: "10 digits" },
-        "+61": { min: 9, max: 9, description: "9 digits" }
+export const getMobileHelperText = (countryCode) => {
+    const helperTexts = {
+        "+1": "Enter a valid US/Canada mobile number (10 digits)",
+        "+91": "Enter a valid Indian mobile number (10 digits)",
+        "+44": "Enter a valid UK mobile number (10-11 digits)",
+        "+61": "Enter a valid Australian mobile number (9 digits)",
+        "+49": "Enter a valid German mobile number (10-11 digits)",
+        "+33": "Enter a valid French mobile number (10 digits)",
+        "+86": "Enter a valid Chinese mobile number (11 digits)",
+        "+81": "Enter a valid Japanese mobile number (10-11 digits)",
+        "+82": "Enter a valid Korean mobile number (10-11 digits)",
+        "+55": "Enter a valid Brazilian mobile number (10-11 digits)"
     };
     
-    return requirements[countryCode] || { min: 7, max: 15, description: "7-15 digits" };
+    return helperTexts[countryCode] || "Enter a valid mobile number";
 };
 
-// Validation hook for mobile numbers
-export const useMobileValidation = (initialCountryCode = "+1") => {
-    const [validationState, setValidationState] = useState({
-        isValid: true,
-        message: "",
-        countryCode: initialCountryCode
-    });
-    
-    const validateMobile = useCallback((mobile, countryCode) => {
-        const validation = validateMobileNumber(mobile, countryCode);
-        setValidationState({
-            isValid: validation.isValid,
-            message: validation.message,
-            countryCode: countryCode
-        });
-        return validation;
-    }, []);
-    
-    const resetValidation = useCallback(() => {
-        setValidationState({
-            isValid: true,
-            message: "",
-            countryCode: initialCountryCode
-        });
-    }, [initialCountryCode]);
-    
-    return {
-        validationState,
-        validateMobile,
-        resetValidation
+// Helper functions for mobile validation
+const getMinLengthForCountry = (countryCode) => {
+    const minLengths = {
+        "+1": 10,   // US/Canada
+        "+91": 10,  // India
+        "+44": 10,  // UK
+        "+61": 9,   // Australia
+        "+49": 10,  // Germany
+        "+33": 10,  // France
+        "+86": 11,  // China
+        "+81": 10,  // Japan
+        "+82": 10,  // Korea
+        "+55": 10   // Brazil
     };
+    
+    return minLengths[countryCode] || 7;
 };
 
-// Default export for easy importing
-export default {
-    validateMobileNumber,
-    getMobileHelperText,
-    getMobilePlaceholder,
-    cleanMobileNumber,
-    isBasicValidMobile,
-    getMobileLengthRequirements,
-    useMobileValidation
+const getMaxLengthForCountry = (countryCode) => {
+    const maxLengths = {
+        "+1": 10,   // US/Canada
+        "+91": 10,  // India
+        "+44": 11,  // UK
+        "+61": 9,   // Australia
+        "+49": 11,  // Germany
+        "+33": 10,  // France
+        "+86": 11,  // China
+        "+81": 11,  // Japan
+        "+82": 11,  // Korea
+        "+55": 11   // Brazil
+    };
+    
+    return maxLengths[countryCode] || 15;
+};
+
+const getValidationPattern = (countryCode) => {
+    const patterns = {
+        "+1": /^[2-9]\d{9}$/,           // US/Canada: starts with 2-9, 10 digits
+        "+91": /^[6-9]\d{9}$/,          // India: starts with 6-9, 10 digits
+        "+44": /^[1-9]\d{9,10}$/,       // UK: starts with 1-9, 10-11 digits
+        "+61": /^[2-9]\d{8}$/,          // Australia: starts with 2-9, 9 digits
+        "+49": /^[1-9]\d{9,10}$/,       // Germany: starts with 1-9, 10-11 digits
+        "+33": /^[1-9]\d{8}$/,          // France: starts with 1-9, 9 digits
+        "+86": /^1[3-9]\d{9}$/,         // China: starts with 1, second digit 3-9, 11 digits
+        "+81": /^[789]\d{9,10}$/,       // Japan: starts with 7-9, 10-11 digits
+        "+82": /^[1-9]\d{9,10}$/,       // Korea: starts with 1-9, 10-11 digits
+        "+55": /^[1-9]\d{9,10}$/        // Brazil: starts with 1-9, 10-11 digits
+    };
+    
+    return patterns[countryCode] || null;
 };

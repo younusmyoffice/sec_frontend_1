@@ -7,7 +7,6 @@ import { Box } from "@mui/material";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import { baseURL } from "../../../../constants/const";
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const LoginWithOtpVerify = () => {
     const navigate = useNavigate();
@@ -26,7 +25,6 @@ const LoginWithOtpVerify = () => {
 
         localStorage.setItem("access_token", access_token);
         localStorage.setItem("profile", profile_picture);
-        Cookies.set("token", access_token);
 
         const roleRoutes = {
             1: { path: "/admindashboard", emailKey: "admin_Email", uidKey: "admin_uid" },

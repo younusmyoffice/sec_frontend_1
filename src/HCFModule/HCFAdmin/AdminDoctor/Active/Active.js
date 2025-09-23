@@ -18,7 +18,7 @@ import pen from "../../../../static/images/DrImages/Pen.svg";
 import axiosInstance from "../../../../config/axiosInstance";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import profile from "../../../../static/images/DrImages/Out Patient Department.png";
 
 const HCFDoctorActive = () => {

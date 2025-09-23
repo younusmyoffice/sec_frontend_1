@@ -3,14 +3,11 @@ import React, { useEffect, useState, useCallback } from "react";
 import "./doctorprofessionalinfo.scss";
 import { NavLink, Outlet } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CustomDropdown from "../../../components/CustomDropdown/custom-dropdown";
 import CustomTextField from "../../../components/CustomTextField/custom-text-field";
 import CustomButton from "../../../components/CustomButton/custom-button";
 import CustomModal from "../../../components/CustomModal";
+import CustomDatePicker from "../../../components/CustomDatePicker";
 import axiosInstance from "../../../config/axiosInstance";
 import WorkExperience from "./WorkExperience";
 import Awards from "./Awards";
@@ -540,25 +537,21 @@ const ProfessionalDetails = () => {
                                 setData(Copy);
                             }}
                         ></CustomTextField>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer components={["DatePicker"]}>
-                                <DatePicker
-                                    value={
-                                        data.qualified_year ? dayjs(`${data.qualified_year}`) : null
-                                    }
-                                    disabled={!isEditing}
-                                    label="Year of Passing"
-                                    views={["year"]} // Focus only on year selection
-                                    style={{ width: "300px" }}
-                                    onChange={(newValue) => {
-                                        setData({
-                                            ...data,
-                                            qualified_year: newValue?.$y, // Extract only the year
-                                        });
-                                    }}
-                                />
-                            </DemoContainer>
-                        </LocalizationProvider>
+                        <CustomDatePicker
+                            value={
+                                data.qualified_year ? dayjs(`${data.qualified_year}`) : null
+                            }
+                            disabled={!isEditing}
+                            label="Year of Passing"
+                            views={["year"]} // Focus only on year selection
+                            sx={{ width: "300px" }}
+                            onChange={(newValue) => {
+                                setData({
+                                    ...data,
+                                    qualified_year: newValue?.$y, // Extract only the year
+                                });
+                            }}
+                        />
                     </div>
                     <div className="deg-spe">
                         <CustomTextField
@@ -1003,20 +996,18 @@ const ProfessionalDetails = () => {
                             }}
                         />
 
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                                label="Start Date"
-                                value={experienceData?.startDate}
-                                onChange={(newValue) => handleChange("startDate", newValue)}
-                                sx={{ width: "180px" }}
-                            />
-                            <DatePicker
-                                label="End Date"
-                                value={experienceData?.endDate}
-                                onChange={(newValue) => handleChange("endDate", newValue)}
-                                sx={{ width: "180px" }}
-                            />
-                        </LocalizationProvider>
+                        <CustomDatePicker
+                            label="Start Date"
+                            value={experienceData?.startDate}
+                            onChange={(newValue) => handleChange("startDate", newValue)}
+                            sx={{ width: "180px" }}
+                        />
+                        <CustomDatePicker
+                            label="End Date"
+                            value={experienceData?.endDate}
+                            onChange={(newValue) => handleChange("endDate", newValue)}
+                            sx={{ width: "180px" }}
+                        />
                     </div>
                     <div
                         className="save-btn"
@@ -1102,14 +1093,12 @@ const ProfessionalDetails = () => {
                             }}
                             textcss={{ width: "180px" }}
                         />
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                                label="Issue Date"
-                                value={licenseData?.lic_date}
-                                onChange={(newValue) => handleChangeLic("lic_date", newValue)}
-                                sx={{ width: "450px" }}
-                            />
-                        </LocalizationProvider>
+                        <CustomDatePicker
+                            label="Issue Date"
+                            value={licenseData?.lic_date}
+                            onChange={(newValue) => handleChangeLic("lic_date", newValue)}
+                            sx={{ width: "450px" }}
+                        />
                         <CustomTextField
                             rows={3}
                             multiline // Enable multiline input
@@ -1196,14 +1185,12 @@ const ProfessionalDetails = () => {
                             }}
                             textcss={{ width: "180px" }}
                         />
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                                label="Issue Date"
-                                value={awardData.award_date}
-                                onChange={(newValue) => handleChangeAwa("award_date", newValue)}
-                                sx={{ width: "180px" }}
-                            />
-                        </LocalizationProvider>
+                        <CustomDatePicker
+                            label="Issue Date"
+                            value={awardData.award_date}
+                            onChange={(newValue) => handleChangeAwa("award_date", newValue)}
+                            sx={{ width: "180px" }}
+                        />
                         <CustomTextField
                             rows={3}
                             multiline

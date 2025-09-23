@@ -6,12 +6,14 @@ import CustomButton from "../../../../components/CustomButton";
 import "./addplan.scss";
 import axiosInstance from "../../../../config/axiosInstance";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
+import EditPlanModal from "./EditPlanModal";
 
-const AddPlanCard = ({ planCardData, index, RendenDataAfterDelete, isDeleteVisible = true, isEditVisible = true }) => {
+const AddPlanCard = ({ planCardData, index, RendenDataAfterDelete, isDeleteVisible = true, isEditVisible = true, onPlanUpdated }) => {
 
     const [snackOpen, setSnackOpen] = useState(false);
     const [snackMessage, setSnackMessage] = useState("");
     const [snackType, setSnackType] = useState("success");
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
     const [deletePlan] = useState({
         doctor_id: planCardData?.doctor_id,
@@ -40,9 +42,28 @@ const AddPlanCard = ({ planCardData, index, RendenDataAfterDelete, isDeleteVisib
         }
     };
 
+    const handleEditClick = () => {
+        console.log("EditPlanModal - Plan data being passed:", planCardData);
+        setEditModalOpen(true);
+    };
+
+    const handlePlanUpdated = () => {
+        if (onPlanUpdated) {
+            onPlanUpdated();
+        }
+        setEditModalOpen(false);
+    };
+
     return (
         <>
             <CustomSnackBar type={snackType} isOpen={snackOpen} message={snackMessage} />
+            
+            <EditPlanModal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                planData={planCardData}
+                onPlanUpdated={handlePlanUpdated}
+            />
 
             <div className="Box1">
                 <div>
@@ -97,6 +118,7 @@ const AddPlanCard = ({ planCardData, index, RendenDataAfterDelete, isDeleteVisib
                         <CustomButton
                             label="Edit"
                             isTransaprent={true}
+                            handleClick={handleEditClick}
                             buttonCss={{
                                 borderBottom: "1px",
                                 borderLeft: "1px",

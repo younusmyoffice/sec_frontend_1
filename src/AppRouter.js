@@ -29,20 +29,20 @@ import {
     ClinicAuthentication,
     DiagnostAuthentication,
 } from "./loginComponent/RequireAuthentication";
-import BodyDashboard from "./Dashboard/BodyDashboard/BodyDashboard";
-import Explore from "./Dashboard/Explore/Explore";
-import Profile from "./Dashboard/Profile/Profile";
-import DrDetailsCard from "./Dashboard/DrDetailsCard/DrDetailsCard";
-import Received from "./Dashboard/MyActivity/Received/Received";
-import Shared from "./Dashboard/MyActivity/Shared/Shared";
-import Upcoming from "./Dashboard/PatientAppointment/UpComing/Upcoming";
-import Completed from "./Dashboard/PatientAppointment/Completed/Completed";
-import Cancelled from "./Dashboard/PatientAppointment/Cancelled/Cancelled";
+import BodyDashboard from "./PatientDashboard/BodyDashboard/BodyDashboard";
+import Explore from "./PatientDashboard/Explore/Explore";
+import Profile from "./PatientDashboard/Profile/Profile";
+import DrDetailsCard from "./PatientDashboard/DrDetailsCard/DrDetailsCard";
+import Received from "./PatientDashboard/MyActivity/Received/Received";
+import Shared from "./PatientDashboard/MyActivity/Shared/Shared";
+import Upcoming from "./PatientDashboard/PatientAppointment/UpComing/Upcoming";
+import Completed from "./PatientDashboard/PatientAppointment/Completed/Completed";
+import Cancelled from "./PatientDashboard/PatientAppointment/Cancelled/Cancelled";
 // import Chats from "./Dashboard/PatientAppointment/Chats/Chats";
-import AppointmentDashboard from "./Dashboard/PatientAppointment/AppointmentDashboard";
-import MainDashboard from "./Dashboard/MainDashboard/MainDashboard";
-import Payment from "./Dashboard/Profile/Payment";
-import Contact from "./Dashboard/Profile/ContactDetails";
+import AppointmentDashboard from "./PatientDashboard/PatientAppointment/AppointmentDashboard";
+import MainDashboard from "./PatientDashboard/MainDashboard/MainDashboard";
+import Payment from "./PatientDashboard/Profile/Payment";
+import Contact from "./PatientDashboard/Profile/ContactDetails";
 // import { AllFiles } from "./Dashboard/PatientManage/Reports/AllFiles/AllFiles";
 import DoctorDashboard from "./DoctorModule/DoctorDashboard/doctordashboard";
 import DoctorLogin from "./DoctorModule/DoctorLogin/doctorlogin";
@@ -91,12 +91,12 @@ import DoctorProssionalInfo from "./DoctorModule/DoctorProfile/DoctorProfessiona
 import DiagnosticCenterReports from "./HCFModule/DiagnosticCenter/DiagnosticCenterReports/DiagnosticCenterReports";
 import DiagnosticPatientChats from "./HCFModule/DiagnosticCenter/DiagnosticCenterReports/DiagnosticCenterChat/DiagnostCenterChats";
 import DiagnosticCenterCharts from "./HCFModule/DiagnosticCenter/DiagnosticCenterReports/DiagnosticCenterCharts/DiagnosticCenterCharts";
-import BookingHistory from "./Dashboard/PatientManage/BookingHistory/BookingHistory";
-import Transactions from "./Dashboard/PatientManage/Transactions/Transactions";
-import Reports from "./Dashboard/PatientManage/Reports/Reports";
-import AllFiles from "./Dashboard/PatientManage/Reports/AllFiles/AllFiles";
-import Examined from "./Dashboard/PatientManage/Reports/examined/Examined";
-import Subscriptions from "./Dashboard/PatientManage/Subscription/Subscription";
+import BookingHistory from "./PatientDashboard/PatientManage/BookingHistory/BookingHistory";
+import Transactions from "./PatientDashboard/PatientManage/Transactions/Transactions";
+import Reports from "./PatientDashboard/PatientManage/Reports/Reports";
+import AllFiles from "./PatientDashboard/PatientManage/Reports/AllFiles/AllFiles";
+import Examined from "./PatientDashboard/PatientManage/Reports/examined/Examined";
+import Subscriptions from "./PatientDashboard/PatientManage/Subscription/Subscription";
 import VideoCall from "./DoctorModule/DoctorAppointmentDashboard/DoctorChat/VideoCall";
 import VoiceCall from "./DoctorModule/DoctorAppointmentDashboard/DoctorChat/VoiceCall";
 import HCFDetailedCard from "./Role/Login/PatientModule/PatientHCF/DrDetailsCard/HCFDetailedCard";
@@ -132,11 +132,11 @@ import SuperAdminLogin from "./Role/Login/PatientModule/SuperAdminLogin/SuperAdm
 import VideoCallingSDK from "./VideoCalling/VideoCallingSDK";
 import ChatRoom from "./ChatsScreen/ChatRoom";
 import AdminLabDetail from "./HCFModule/HCFAdmin/AdminDiagnosticCenter/AdminLabs/AdminLabDetails/AdminLabDetail";
-import HcfDrDetailsCard from "./Dashboard/DrDetailsCard/HcfDrDetailsCard";
+import HcfDrDetailsCard from "./PatientDashboard/DrDetailsCard/HcfDrDetailsCard";
 
-const ManageDashboard = lazy(() => import("./Dashboard/PatientManage/ManageDashboard"));
-// import MyActivity from "./Dashboard/MyActivity/MyActivity";
-const LazyPatientMyActivity = lazy(() => import("./Dashboard/MyActivity/MyActivity"));
+const ManageDashboard = lazy(() => import("./PatientDashboard/PatientManage/ManageDashboard"));
+// import MyActivity from "./PatientDashboard/MyActivity/MyActivity";
+const LazyPatientMyActivity = lazy(() => import("./PatientDashboard/MyActivity/MyActivity"));
 
 const LazyDoctorrequest = lazy(() => import("./DoctorModule/DoctorMainDashboard/Request.js/Request"),
 );
@@ -271,7 +271,7 @@ const LazyAdminBlocked = lazy(() =>
 );
 
 const LazyDoctorListingDetails = lazy(() =>
-    import("./DoctorModule/DoctorListing/CreateNewListing/ListingDetails/ListingDetails"),
+    import("./DoctorModule/DoctorListing/DoctorListingDetails/DoctorListingDetails"),
 );
 
 const LazyDoctorAddPlans = lazy(() =>
@@ -359,7 +359,7 @@ const LazySuperAdminTranDoctor = lazy(() =>
 const LazySuperAdminTranHCF = lazy(() =>
     import("./SuperAdmin/SuperAdminTransaction/TransactionHCF/SuperAdminTranHCF"),
 );
-const LazyPatientExplore = lazy(() => import("./Dashboard/Explore/Explore"));
+const LazyPatientExplore = lazy(() => import("./PatientDashboard/Explore/Explore"));
 
 const NotFound = lazy(() => import("./components/NotFound"));
 
@@ -372,7 +372,7 @@ import HcfClinicSignup from "./Role/Signup/HcfClinicSignup/HcfClinicSingup";
 
 console.log('this is dev env : ',DevEnv);
 
-const socket = socketIO.connect("http://localhost:4000", {
+const socket = socketIO.connect("http://localhost:4001", {
     // put here the url of backend
     reconnectionAttempts: 5, // Attempt reconnection up to 5 times
     reconnectionDelay: 1000, // Delay between reconnection attempts (1 second)
@@ -639,6 +639,10 @@ export const AppRouter = () => (
                                     }
                                 ></Route>
                                 <Route path={"chats/:user/:roomID"} element={<DoctorAuthentication><Home socket={socket} /></DoctorAuthentication>}></Route>
+                                <Route
+                                    path={"chats/:user/:roomID/:appointment_id"}
+                                    element={<DoctorAuthentication><ChatPage socket={socket} /></DoctorAuthentication>}
+                                />
                                 <Route
                                     path={"chats/:roomID"}
                                     element={<DoctorAuthentication><ChatPage socket={socket} /></DoctorAuthentication>}

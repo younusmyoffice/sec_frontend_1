@@ -2,9 +2,20 @@ import { Box, Typography } from "@mui/material";
 import React from "react";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CustomButton from "../../../../components/CustomButton";
+import EditListingButton from "../../../../components/EditListingButton";
 // import "./CustomDrActiveListing.scss";
 
-const CustomDrActiveListingCard = ({ label, Idtype, Idnumber, onhandleClickButtonOne , buttonOneLabel , buttonTwoLabel , onhandleClickButtonTwo}) => {
+const CustomDrActiveListingCard = ({ 
+    label, 
+    Idtype, 
+    Idnumber, 
+    onhandleClickButtonOne, 
+    buttonOneLabel, 
+    buttonTwoLabel, 
+    onhandleClickButtonTwo,
+    onEditClick,
+    showEditButton = true
+}) => {
     return (
         <>
             <Box
@@ -15,9 +26,9 @@ const CustomDrActiveListingCard = ({ label, Idtype, Idnumber, onhandleClickButto
                     borderRadius: " 0.5rem",
                 }}
             >
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <Box
-                        sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                        sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", flex: 1 }}
                     >
                         <Typography
                             style={{
@@ -47,23 +58,38 @@ const CustomDrActiveListingCard = ({ label, Idtype, Idnumber, onhandleClickButto
                             {Idtype} : {Idnumber}
                         </Typography>
                     </Box>
+                    
+                    {/* Edit Button */}
+                    {showEditButton && (
+                        <Box sx={{ marginLeft: "16px", marginRight: "16px" }}>
+                            <EditListingButton
+                                onEditClick={onEditClick}
+                                size="medium"
+                                variant="outlined"
+                                tooltip="Edit Listing"
+                            />
+                        </Box>
+                    )}
+                    
                     <div className="bttns">
                         <CustomButton
                             label={buttonOneLabel}
                             isTransaprent={"True"}
                             buttonCss={{
-                                width: "149px",
+                                width: "120px",
                                 height: "48px",
                                 borderRadius: "20px",
+                                fontSize: "14px",
                             }}
                             handleClick={onhandleClickButtonOne}
                         ></CustomButton>
                         <CustomButton
                             label={buttonTwoLabel}
                             buttonCss={{
-                                width: "149px",
+                                width: "120px",
                                 height: "48px",
                                 borderRadius: "20px",
+                                fontSize: "14px",
                             }}
                             handleClick={onhandleClickButtonTwo}
                         ></CustomButton>

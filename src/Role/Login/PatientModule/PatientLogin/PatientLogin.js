@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Cookies from "js-cookie";
 import { Box, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -16,6 +15,7 @@ import { useAuthentication } from "../../../../loginComponent/UserProvider";
 import CustomSnackBar from "../../../../components/CustomSnackBar/custom-sack-bar";
 import { baseURL, emailRegex, passwordRegex } from "../../../../constants/const";
 import { decodeJWT, getCurrentUser } from "../../../../utils/jwtUtils";
+import Cookies from "js-cookie";
 
 const PatientLogin = () => {
     const [showPassword, setShowPassword] = useState(true);
@@ -85,15 +85,14 @@ const PatientLogin = () => {
                 localStorage.setItem("access_token", resData.access_token);
                 localStorage.setItem("patient_suid", resData.suid);
                 localStorage.setItem("profile", resData.profile_picture);
+                // Set cookie for auth guard persistence
+                Cookies.set("patientEmail", email, { expires: 7 });
                 
                 // Store additional user info from JWT
                 localStorage.setItem("user_id", userInfo.userId);
                 localStorage.setItem("role_id", userInfo.roleId || "");
                 localStorage.setItem("jwt_email", userInfo.email || email);
 
-                Cookies.set("patient_uid", resData.suid);
-                Cookies.set("token", resData.access_token);
-                Cookies.set("patientEmail", resData.email);
 
                 authLogin(resData.email);
                 navigate("/patientdashboard", { replace: true });

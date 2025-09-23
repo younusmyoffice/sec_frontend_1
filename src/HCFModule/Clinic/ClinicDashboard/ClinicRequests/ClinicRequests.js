@@ -6,7 +6,7 @@ import ClinicCardRequest from "./ClinicCardRequest";
 import CustomButton from "../../../../components/CustomButton/custom-button";
 import "./clinicrequest.scss";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const ClinicRequests = () => {
     const [loading, setLoading] = useState(true); 

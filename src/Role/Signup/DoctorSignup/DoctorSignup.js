@@ -15,6 +15,8 @@ import ClassicFrame from "../../../static/images/DrImages/Undraw.png";
 import ImageFrame from "../../../static/images/logos/Doctor_logo.png";
 import axiosInstance from "../../../config/axiosInstance";
 import CustomSnackBar from "../../../components/CustomSnackBar";
+import VerificationLoader from "../../../components/VerificationLoader";
+import useVerificationLoader from "../../../hooks/useVerificationLoader";
 import { useNavigate } from "react-router-dom";
 
 const steps = ["", "", "", "", "", ""];
@@ -71,6 +73,20 @@ const DoctorSignup = () => {
     const [updatedUserSuccesfully, setUpdatedUserSuccesfully] = useState("");
     const [showSnackBar, setShowSnackBar] = useState(false);
     const navigate = useNavigate();
+    
+    // Use the verification loader hook
+    const {
+        isLoading: isVerifying,
+        title,
+        message: verificationMessage,
+        subMessage,
+        showLoader,
+        hideLoader,
+        updateMessage,
+        showDoctorVerification
+    } = useVerificationLoader({
+        progressColor: "#e72b49"
+    });
 
     const isStepOptional = (step) => {
         return step === 1;
@@ -234,18 +250,46 @@ const DoctorSignup = () => {
         
         console.log("Sending doctor profile data:", dataToSend);
         
+        // Show verification loading popup
+        showDoctorVerification();
+        
         try {
             const response = await axiosInstance.post(
                 "/sec/auth/updateProfile",
                 JSON.stringify(dataToSend),
             );
-            setUpdatedUserSuccesfully("Profile Completed 🙂");
+            
+            // Check if verification is in progress
+            if (response.data?.response?.message === "ADMIN_APPROVAL_REQUIRED") {
+                updateMessage({
+                    message: "Doctor verification pending admin approval...",
+                    subMessage: "Your profile has been submitted for review"
+                });
+                // Keep the popup open for a bit longer to show the message
+                setTimeout(() => {
+                    hideLoader();
+                    setUpdatedUserSuccesfully("Profile submitted for verification 🙂");
+                    setShowSnackBar(true);
+                    handleNext();
+                }, 2000);
+            } else {
+                // Verification successful
+                updateMessage({
+                    message: "Doctor verification successful!",
+                    subMessage: "Your profile has been verified and activated"
+                });
+                setTimeout(() => {
+                    hideLoader();
+                    setUpdatedUserSuccesfully("Profile Completed 🙂");
+                    setShowSnackBar(true);
+                    handleNext();
+                }, 2000);
+            }
+            
             console.log("send data succesfully : ", response);
-            setShowSnackBar(true);
-            setFlagToSendDoctorData(false);
-            handleNext();
         } catch (err) {
             console.log("Error sending data", err);
+            hideLoader();
             setShowSnackBar(false);
             setFlagToSendDoctorData(false);
         }
@@ -274,6 +318,18 @@ const DoctorSignup = () => {
                 message={updatedUserSuccesfully}
                 type="success"
             />
+            
+            {/* Doctor Verification Loading Dialog */}
+            <VerificationLoader
+                open={isVerifying}
+                title={title}
+                message={verificationMessage}
+                subMessage={subMessage}
+                progressColor="#e72b49"
+                progressSize={60}
+                progressThickness={4}
+            />
+            
             <Box sx={{ width: "100%" }}>
                 <div className="FrameBox1">
                     <Box

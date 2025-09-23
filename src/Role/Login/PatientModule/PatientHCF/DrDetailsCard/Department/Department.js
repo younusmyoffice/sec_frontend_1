@@ -11,7 +11,7 @@ import axiosInstance from "../../../../../../config/axiosInstance";
 import CustomButton from "../../../../../../components/CustomButton";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import NoAppointmentCard from "../../../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const Department = () => {
     const [departData, setDepartData] = useState([]);

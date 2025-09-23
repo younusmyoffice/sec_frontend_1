@@ -19,7 +19,7 @@ import {
 import DoctorStatisticsNavbar from "../../CustomDoctorComponent/DoctorStatisticsNavbar/DoctorStatisticsNavbar";
 import axiosInstance from "../../../config/axiosInstance";
 import "./doctorOverview.scss";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { formatDate, currencysign } from "../../../constants/const";
 
 const OverView = () => {

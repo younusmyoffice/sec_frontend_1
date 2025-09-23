@@ -26,7 +26,7 @@ import doc2 from "../../../static/images/DrImages/doc2.png";
 import doc3 from "../../../static/images/DrImages/doc3.png";
 import { DoctorDetail } from "../../SuperAdminHistory/SuperAdminHistoryDoctor/DoctorDetail";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const SuperAdminTranDoctors = () => {
     const [cardData, setCardData] = useState([]);

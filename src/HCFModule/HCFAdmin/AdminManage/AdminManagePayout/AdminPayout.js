@@ -21,7 +21,7 @@ import { Margin } from "@mui/icons-material";
 import CustomButton from "../../../../components/CustomButton";
 import { AuditCards } from "../../../DiagnosticCenter/DiagnosticManage/DiagnosticCenterAuditLog/AuditCards";
 import pen from "../../../../static/images/DrImages/Pen.svg";
-import { PaginationCard } from "../../../../Dashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../../PatientDashboard/PatientAppointment/PatientCards";
 import CustomTextField from "../../../../components/CustomTextField";
 import CustomModal from "../../../../components/CustomModal";
 

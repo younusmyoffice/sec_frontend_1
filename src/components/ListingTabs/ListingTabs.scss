@@ -1,0 +1,133 @@
+.listing-tabs {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  overflow-x: auto;
+  gap: 4px;
+
+  // Hide scrollbar but keep functionality
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-link {
+    flex: 1;
+    min-width: fit-content;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+    background: transparent;
+
+    &:hover {
+      color: #e72b49;
+      background-color: rgba(231, 43, 73, 0.05);
+      transform: translateY(-1px);
+    }
+
+    &.active {
+      background: linear-gradient(135deg, #e72b49, #d32f2f);
+      color: white;
+      box-shadow: 0 4px 12px rgba(231, 43, 73, 0.3);
+      transform: translateY(-2px);
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #e72b49, #d32f2f);
+        border-radius: 8px;
+        z-index: -1;
+      }
+    }
+
+    // Responsive adjustments
+    @media (max-width: 1024px) {
+      padding: 10px 20px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      padding: 8px 16px;
+      font-size: 12px;
+      min-width: 120px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 8px 12px;
+      font-size: 11px;
+      min-width: 100px;
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 1024px) {
+    padding: 6px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 4px;
+    margin-bottom: 16px;
+    gap: 2px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 2px;
+    margin-bottom: 12px;
+    gap: 1px;
+  }
+}
+
+// Animation for tab switching
+@keyframes tabSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.listing-tabs .tab-link {
+  animation: tabSlideIn 0.3s ease-out;
+}
+
+// Focus styles for accessibility
+.listing-tabs .tab-link:focus {
+  outline: 2px solid #e72b49;
+  outline-offset: 2px;
+}
+
+// Active tab indicator animation
+.listing-tabs .tab-link.active {
+  animation: tabSlideIn 0.3s ease-out, activeTabPulse 2s ease-in-out infinite;
+}
+
+@keyframes activeTabPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(231, 43, 73, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 16px rgba(231, 43, 73, 0.4);
+  }
+}

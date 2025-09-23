@@ -1,0 +1,134 @@
+.doctor-profile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+
+  .profile-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .profile-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .profile-avatar {
+        flex-shrink: 0;
+        border: 3px solid #f0f0f0;
+        transition: all 0.3s ease;
+
+        &:hover {
+          border-color: #e72b49;
+          transform: scale(1.05);
+        }
+      }
+
+      .profile-details {
+        .doctor-name {
+          font-family: 'Poppins', sans-serif;
+          font-weight: 600;
+          font-size: 18px;
+          color: #1a1a1a;
+          margin: 0 0 4px 0;
+          line-height: 1.3;
+
+          @media (max-width: 768px) {
+            font-size: 16px;
+          }
+        }
+
+        .doctor-specialty {
+          font-family: 'Poppins', sans-serif;
+          font-weight: 400;
+          font-size: 14px;
+          color: #666;
+          margin: 0;
+          line-height: 1.4;
+
+          @media (max-width: 768px) {
+            font-size: 13px;
+          }
+        }
+      }
+    }
+  }
+
+  // Hover effects
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+
+  // Responsive adjustments
+  @media (max-width: 1024px) {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    margin-bottom: 16px;
+
+    .profile-content {
+      .profile-info {
+        .profile-avatar {
+          width: 70px !important;
+          height: 70px !important;
+          font-size: 1.3rem !important;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    margin-bottom: 12px;
+
+    .profile-content {
+      .profile-info {
+        .profile-avatar {
+          width: 60px !important;
+          height: 60px !important;
+          font-size: 1.1rem !important;
+        }
+      }
+    }
+  }
+}
+
+// Custom Button Overrides for this component
+.doctor-profile-card .custom-button {
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(231, 43, 73, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 200px;
+  }
+}

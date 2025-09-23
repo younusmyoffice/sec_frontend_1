@@ -20,7 +20,7 @@ import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import ToModal from "../../../ToModal/ToModal";
 import "./PackageDoctor.scss";
 import { DoctorDetail } from "../../SuperAdminHistory/SuperAdminHistoryDoctor/DoctorDetail";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import doc1 from "../../../static/images/DrImages/doc1.png";
 import doc2 from "../../../static/images/DrImages/doc2.png";
 import doc3 from "../../../static/images/DrImages/doc3.png";

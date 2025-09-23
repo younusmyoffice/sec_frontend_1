@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import CustomNotificationCard from "../../../../DoctorModule/CustomDoctorComponent/Cards/CardNotification/CardNotification";
 import DoctorAppointmentCard from "../../../../DoctorModule/CustomDoctorComponent/CustomDoctorAppointment/DoctorAppointment";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import CustomButton from "../../../../components/CustomButton"; // Assuming CustomButton is correctly imported
 
 const HCFAdminNotifications = () => {

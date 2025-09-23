@@ -6,7 +6,7 @@ import CustomButton from "../../../components/CustomButton";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CustomDrActiveListingCard from "../../CustomDoctorComponent/Cards/CustomDrActiveListingCard/CustomDrActiveListingCard";
 import CustomSnackBar from "../../../components/CustomSnackBar";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../config/axiosInstance";
 
 const DoctorSavedDraft = () => {

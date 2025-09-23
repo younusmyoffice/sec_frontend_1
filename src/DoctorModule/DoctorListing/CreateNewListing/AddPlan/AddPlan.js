@@ -7,7 +7,7 @@ import "./addplan.scss";
 import axiosInstance from "../../../../config/axiosInstance";
 import ListingModal from "./ListingModal";
 import AddPlanCard from "./AddPlanCard";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 
 const AddPlans = () => {
@@ -40,6 +40,13 @@ const AddPlans = () => {
             if (response?.data?.response?.allPlan === undefined) {
                 setPlandata([]);
             } else {
+                console.log("AddPlan - Full API response:", response?.data);
+            console.log("AddPlan - API response structure:", response?.data?.response);
+            console.log("AddPlan - API response allPlan:", response?.data?.response?.allPlan);
+            if (response?.data?.response?.allPlan && response?.data?.response?.allPlan.length > 0) {
+                console.log("AddPlan - First plan item:", response?.data?.response?.allPlan[0]);
+                console.log("AddPlan - First plan item keys:", Object.keys(response?.data?.response?.allPlan[0] || {}));
+            }
                 setPlandata(response?.data?.response?.allPlan);
             }
         } catch (err) {
@@ -68,6 +75,10 @@ const AddPlans = () => {
 
     const RenderDataAfterAddingPlan = (value) => {
         setRenderDataAfterAddPlan(value);
+    };
+
+    const handlePlanUpdated = () => {
+        fetchAddPlans();
     };
 
     return (
@@ -116,6 +127,7 @@ const AddPlans = () => {
                             planCardData={plan}
                             index={index}
                             RendenDataAfterDelete={RendenDataAfterDelete}
+                            onPlanUpdated={handlePlanUpdated}
                         />
                     ))
                 )}

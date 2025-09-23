@@ -2,7 +2,7 @@ import { Box, Skeleton, Typography, Pagination } from "@mui/material"; // Import
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import CancelledCard from "./CancelledCard";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../../config/axiosInstance";
 
 const ClinicCancelled = () => {

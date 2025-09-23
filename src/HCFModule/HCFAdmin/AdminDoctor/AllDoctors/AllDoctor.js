@@ -16,7 +16,7 @@ import CustomButton from "../../../../components/CustomButton";
 import { AllDoctorTable } from "./AllDoctorTable";
 import pen from "../../../../static/images/DrImages/Pen.svg";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import profile from "../../../../static/images/DrImages/doc1.png";

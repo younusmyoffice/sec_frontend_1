@@ -4,7 +4,7 @@ import "./DoctorRequest.scss";
 import DoctorAppointmentNavbar from "../../CustomDoctorComponent/DoctorAppointmentNavbar/DoctorAppointmentNavbar";
 import CustomRequestCard from "../../CustomDoctorComponent/Cards/CustomRequestCard/CardRequest";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const DoctorRequest = () => {
     const [data, setData] = useState({

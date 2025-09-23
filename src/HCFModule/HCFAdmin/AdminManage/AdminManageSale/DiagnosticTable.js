@@ -16,7 +16,7 @@ import CustomButton from "../../../../components/CustomButton";
 import axios from "axios";
 import { baseURL } from "../../../../constants/const";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { formatDate, currencysign } from "../../../../constants/const";
 
 const DoctorTable = () => {

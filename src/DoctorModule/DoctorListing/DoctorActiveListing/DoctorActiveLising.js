@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, Skeleton } from "@mui/material";
+import { Box, Skeleton, Typography, IconButton } from "@mui/material";
+import { Add as AddIcon, Refresh as RefreshIcon } from "@mui/icons-material";
 import "./doctorActiveListing.scss";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../../../components/CustomButton";
 import CustomDrActiveListingCard from "../../CustomDoctorComponent/Cards/CustomDrActiveListingCard/CustomDrActiveListingCard";
 import DoctorListingNavbar from "../../CustomDoctorComponent/DoctorListingNavbar/DoctorListingBavbar";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import CustomSnackBar from "../../../components/CustomSnackBar";
 
 const DoctorActiveListing = () => {
@@ -75,6 +76,13 @@ const DoctorActiveListing = () => {
         }
     };
 
+    const handleEditListing = (listingId) => {
+        // Store the listing ID for editing
+        localStorage.setItem("editing_listing_id", listingId);
+        // Navigate to the listing details page for editing
+        navigate("/doctordashboard/doctorListing/listingdetails");
+    };
+
     useEffect(() => {
         if (deleteDoctorListFlag) {
             fetchActiveListing();
@@ -101,6 +109,10 @@ const DoctorActiveListing = () => {
                         width: "100%",
                         display: "flex",
                         justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "24px",
+                        flexWrap: "wrap",
+                        gap: "16px"
                     }}
                 >
                     <Box>
@@ -124,7 +136,7 @@ const DoctorActiveListing = () => {
                     component={"div"}
                     sx={{
                         position: "relative",
-                        top: "4em",
+                        top: "0",
                         width: "100%",
                         display: "flex",
                         height: "100%",
@@ -166,6 +178,8 @@ const DoctorActiveListing = () => {
                                     onhandleClickButtonTwo={() =>
                                         ChangeActiveState(card?.doctor_id, card?.doctor_list_id)
                                     }
+                                    onEditClick={() => handleEditListing(card?.doctor_list_id)}
+                                    showEditButton={true}
                                 />
                             ))
                         )}

@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, useParams } from "react-router-dom";
-import ContainerThree from "../../../../../../Dashboard/DrDetailsCard/ContainerThree";
+import ContainerThree from "../../../../../../PatientDashboard/DrDetailsCard/ContainerThree";
 import { useLocation } from "react-router-dom";
 
 

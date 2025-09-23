@@ -16,10 +16,10 @@ import CustomButton from "../../../../../components/CustomButton";
 import DropIn from "braintree-web-drop-in-react";
 import { get_client_token, get_nonce } from "../../../../../const_payment/Const_Payment";
 import CustomSnackBar from "../../../../../components/CustomSnackBar";
-import NoAppointmentCard from "../../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../../../config/axiosInstance";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"; // Using DateFns adapter for simplicity
-import { formatDate } from "../../../../../Dashboard/DrDetailsCard/bookappointmentapihelperfunction";
+import { formatDate } from "../../../../../PatientDashboard/DrDetailsCard/bookappointmentapihelperfunction";
 import isSameDay from "date-fns/isSameDay";
 import isWithinInterval from "date-fns/isWithinInterval";
 import isAfter from "date-fns/isAfter";

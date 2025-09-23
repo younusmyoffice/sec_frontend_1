@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "./doctorcompleted.scss";
 import DoctorAppointmentNavbar from "../../CustomDoctorComponent/DoctorAppointmentNavbar/DoctorAppointmentNavbar";
 import CustomRequestCard from "../../CustomDoctorComponent/Cards/CustomRequestCard/CardRequest";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../config/axiosInstance";
 
 const DoctorCompleted = () => {

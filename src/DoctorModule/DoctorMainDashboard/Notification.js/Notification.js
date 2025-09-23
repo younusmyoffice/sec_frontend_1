@@ -5,7 +5,7 @@ import axios from "axios";
 import DoctorAppointmentCard from "../../CustomDoctorComponent/CustomDoctorAppointment/DoctorAppointment";
 import CustomNotificationCard from "../../CustomDoctorComponent/Cards/CardNotification/CardNotification";
 import { baseURL } from "../../../constants/const";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../config/axiosInstance";
 import CustomButton from "../../../components/CustomButton";
 

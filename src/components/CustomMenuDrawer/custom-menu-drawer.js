@@ -89,8 +89,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
     alignItems: "center",
     justifyContent: "flex-end",
     padding: theme.spacing(0, 1),
+    minHeight: "64px", // Reduced from default toolbar height
     // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
 }));
 
 const AppBar = styled(MuiAppBar, {
@@ -526,8 +526,24 @@ const profile = localStorage.getItem("profile")
                     </div> */}
                 {/* </List> */}
             </Drawer>
-            {/* <Box component="main" sx={{ flexGrow: 1, p: 3 }}> */}
-            <Box component="main" sx={{ flexGrow: 1, width: "80%" }}>
+            <Box 
+                component="main" 
+                className={open ? "drawer-open" : "drawer-closed"}
+                sx={{ 
+                    flexGrow: 1, 
+                    width: { xs: "100%", sm: "100%" },
+                    marginLeft: { xs: 0, sm: open ? `${drawerWidth}px` : "57px" },
+                    transition: theme.transitions.create(["margin"], {
+                        easing: theme.transitions.easing.sharp,
+                        duration: theme.transitions.duration.leavingScreen,
+                    }),
+                    minHeight: "100vh",
+                    backgroundColor: "#fffff",
+                    position: "relative",
+                    zIndex: 1,
+                    padding: { xs: "0.5rem", sm: "1rem" }
+                }}
+            >
                 <DrawerHeader />
                 {children}
             </Box>

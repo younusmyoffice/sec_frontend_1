@@ -16,7 +16,7 @@ import { NavLink } from "react-router-dom";
 import CustomCheckBox from "../../../../components/CustomCheckBox";
 import axiosInstance from "../../../../config/axiosInstance";
 import { SaleActivityCard } from "../../../HCFAdmin/AdminManage/AdminManageSale/SaleActivityCard";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import pic from "../../../../static/images/DrImages/patient_alter.png";
 import { currencysign, formatDate } from "../../../../constants/const";
 

@@ -5,7 +5,7 @@ import {CircularProgress, Pagination, Skeleton } from "@mui/material";
 import DateModal from "../../../components/DateModal/DateModal";
 import FilterModal from "../../../components/FilterModal/FilterModal";
 import AdminDoctorCard from "../../../components/Card/Superadmindoctorcard/AdminDoctorCard";
-import { PaginationCard } from "../../../Dashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../PatientDashboard/PatientAppointment/PatientCards";
 
 const SuperAdminDoctor = () => {
     const [loading, setLoading] = useState(true);

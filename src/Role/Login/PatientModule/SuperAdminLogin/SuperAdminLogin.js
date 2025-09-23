@@ -1,5 +1,4 @@
 // import React from 'react'
-import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import "./superadmin.scss";
 import { IconButton, InputAdornment, Stack, TextField } from "@mui/material";
@@ -49,9 +48,6 @@ const SuperAdminLogin = () => {
                 console.log("access_token : ", response?.data?.response?.access_token);
                 console.log("doctor suid : ", response?.data?.response?.suid);
 
-                Cookies.set("patient_uid", response?.data?.response?.suid);
-                Cookies.set("token", response?.data?.response?.access_token);
-                Cookies.set("patientEmail", response?.data?.response?.email);
                 Authentication.PatientLogin(email);
                 // alert("succesfully loggedIn");
                 // navigate('/patientverification' , {replace : true});

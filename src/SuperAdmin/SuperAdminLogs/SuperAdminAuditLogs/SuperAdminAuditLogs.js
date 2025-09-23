@@ -17,14 +17,14 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
-import { PaginationCard } from "../../../Dashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../PatientDashboard/PatientAppointment/PatientCards";
 import { DoctorBookingCard } from "../../../DoctorModule/DoctorStatistics/DoctorBookingHistory/DoctorBookingCard";
 import CustomButton from "../../../components/CustomButton";
 import { baseURL } from "../../../constants/const";
 import DateModal from "../../../components/DateModal/DateModal";
 import FilterModal from "../../../components/FilterModal/FilterModal";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 function createData(name, calories, fat, carbs, protein) {
     return { name, calories, fat, carbs, protein };

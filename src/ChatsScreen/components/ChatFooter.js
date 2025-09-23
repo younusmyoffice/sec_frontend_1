@@ -4,12 +4,15 @@ import SendIcon from '@mui/icons-material/Send';
 
 const ChatFooter = ({ socket, roomID }) => {
   const [message, setMessage] = useState("");
-  const handleTyping = () => socket.emit("typing", { roomID, data: `${localStorage.getItem("userName")} is typing` });
+  const userName = localStorage.getItem("userName") || `Patient_${Date.now()}`;
+  
+  const handleTyping = () => socket.emit("typing", { roomID, data: `${userName} is typing` });
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (message.trim() && localStorage.getItem("userName")) {
-      socket.emit("message", { roomID, data: { text: message, name: localStorage.getItem("userName"), id: `${socket.id}${Math.random()}`, socketID: socket.id } });
+    if (message.trim() && userName) {
+      console.log("Sending message:", { roomID, data: { text: message, name: userName, id: `${socket.id}${Math.random()}`, socketID: socket.id } });
+      socket.emit("message", { roomID, data: { text: message, name: userName, id: `${socket.id}${Math.random()}`, socketID: socket.id } });
     }
     setMessage("");
   };

@@ -1,0 +1,96 @@
+.verification-loader {
+  .progress-container {
+    position: relative;
+    
+    .MuiCircularProgress-root {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  }
+  
+  .text-content {
+    max-width: 300px;
+    
+    .verification-title {
+      background: linear-gradient(135deg, #e72b49, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+    
+    .verification-message {
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    
+    .verification-sub-message {
+      opacity: 0.8;
+      font-style: italic;
+    }
+  }
+}
+
+// Animation for the progress indicator
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Responsive design
+@media (max-width: 600px) {
+  .verification-loader {
+    gap: 2rem;
+    
+    .progress-container {
+      .MuiCircularProgress-root {
+        width: 50px !important;
+        height: 50px !important;
+      }
+    }
+    
+    .text-content {
+      max-width: 250px;
+      
+      .verification-title {
+        font-size: 1.1rem !important;
+      }
+      
+      .verification-message {
+        font-size: 0.9rem !important;
+      }
+      
+      .verification-sub-message {
+        font-size: 0.8rem !important;
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .verification-loader {
+    .text-content {
+      .verification-title {
+        color: #fff !important;
+      }
+      
+      .verification-message {
+        color: #ccc !important;
+      }
+      
+      .verification-sub-message {
+        color: #aaa !important;
+      }
+    }
+  }
+}

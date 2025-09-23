@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import CustomCheckBox from "../../../../components/CustomCheckBox";
-import NoAppointmentCard from "../../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../../config/axiosInstance";
 import "./clinicstaff.scss";
 import Docpic from "../../../../static/images/DrImages/image4.jpg";

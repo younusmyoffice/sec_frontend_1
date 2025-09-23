@@ -19,7 +19,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import DoctorManageNavbar from "../../CustomDoctorComponent/DoctorManageNavbar/DoctorManageNavbar";
 import { AuditCards } from "../../../HCFModule/DiagnosticCenter/DiagnosticManage/DiagnosticCenterAuditLog/AuditCards";
 import CustomButton from "../../../components/CustomButton";
-import { PaginationCard } from "../../../Dashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../PatientDashboard/PatientAppointment/PatientCards";
 
 function createData(name, calories, fat, carbs, protein, action) {
     return { name, calories, fat, carbs, protein, action };

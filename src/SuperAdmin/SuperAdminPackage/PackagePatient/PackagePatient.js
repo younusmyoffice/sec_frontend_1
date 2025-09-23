@@ -24,7 +24,7 @@ import doc1 from "../../../static/images/DrImages/doc1.png";
 import doc2 from "../../../static/images/DrImages/doc2.png";
 import doc3 from "../../../static/images/DrImages/doc3.png";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 
 const PackagePatient = () => {

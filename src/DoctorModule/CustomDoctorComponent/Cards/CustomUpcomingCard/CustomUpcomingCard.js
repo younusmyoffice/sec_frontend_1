@@ -13,6 +13,8 @@ import CustomButton from "../../../../components/CustomButton/custom-button";
 import axiosInstance from "../../../../config/axiosInstance";
 import profileimg from "../../../../static/images/DrImages/pat1.png";
 import DownloadIcon from "@mui/icons-material/Download";
+import { convertTo12Hour, isAppointmentTimeReached } from "../../../../utils/timeUtils";
+import { getProfileImageSrc } from "../../../../utils/imageUtils";
 
 const CustomUpcomingCard = ({
     data = {},
@@ -23,6 +25,13 @@ const CustomUpcomingCard = ({
     accAndRejClicked,
     isDisabled
 }) => {
+    // Use backend join_status as primary source, with frontend fallback
+    const canJoin = isAppointmentTimeReached(
+        data?.appointment_date, 
+        data?.appointment_time, 
+        data?.join_status
+    );
+    const finalIsDisabled = isDisabled || !canJoin;
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -84,17 +93,20 @@ const CustomUpcomingCard = ({
         // setRejectClicked(true);
         console.log("Hitting reject request");
         try {
+            console.log("Sending reject appointment data:", rejectAppointment);
             const response = await axiosInstance.post(
                 "/sec/Doctor/AppointmentsRequestsReject",
-                JSON.stringify(rejectAppointment),
+                rejectAppointment,
             );
             // Add Snack Bar
-            // alert(response?.data.response.status);
-            console.log("RESPONSE : ", response?.data);
+            console.log("Reject API Response:", response?.data);
+            alert(`Appointment ${response?.data?.response?.status || 'rejected successfully'}`);
             AcceptOrRejectButtonClicked(!accAndRejClicked);
             setRejectAppointmentFlag(false);
         } catch (error) {
-            console.log(error.response);
+            console.error("Reject appointment error:", error);
+            console.error("Error response:", error.response?.data);
+            alert(`Error: ${error.response?.data?.error || error.message || 'Failed to reject appointment'}`);
             setRejectAppointmentFlag(false);
         }
     };
@@ -163,7 +175,7 @@ const CustomUpcomingCard = ({
                                 className="image-container"
                                 component={"img"}
                                 sx={{ width: "100%", height: "100%" }}
-                                src={data?.profile_picture || profileimg} // Fallback for no image
+                                src={getProfileImageSrc(data?.profile_picture, profileimg)} // Fallback for no image
                                 alt="Profile Image"
                             ></Box>
                         </div>
@@ -240,7 +252,7 @@ const CustomUpcomingCard = ({
                                     flex: "1",
                                 }}
                             >
-                                Schedule | {data?.appointment_date.split("T")[0]} |
+                                Schedule | {data?.appointment_date.split("T")[0]} | {convertTo12Hour(data?.appointment_time)} |
                                 {data?.report_name || "Attachments"}
                             </Typography>
                             <Box
@@ -263,7 +275,7 @@ const CustomUpcomingCard = ({
                                     },
                                 }}
                             >
-                                View
+                                View Report
                             </Box>
 
                             <CustomModal
@@ -429,11 +441,13 @@ const CustomUpcomingCard = ({
                                 gap: "0.5rem",
                                 flexShrink: "0",
                                 borderRadius: "6.25rem",
+                                backgroundColor: finalIsDisabled ? "#f5f5f5" : undefined,
+                                color: finalIsDisabled ? "#999" : undefined,
                             }}
-                            isDisabled={isDisabled}
-                            label={Joinlabel}
+                            isDisabled={finalIsDisabled}
+                            label={canJoin ? Joinlabel : "Not Available"}
                             isTransaprent={false}
-                            handleClick={onClickJoinHandler}
+                            handleClick={canJoin ? onClickJoinHandler : () => {}}
                         />
                     </div>
                     <div style={{ display: "flex", alignItems: "center" }}>

@@ -10,7 +10,7 @@ import CustomButton from "../components/CustomButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Skeleton from "react-loading-skeleton";
-import NoAppointmentCard from "../Dashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 // import HCFDrCard from "../pages/PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
 import HCFDrCard from "../Role/Login/PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
 
@@ -97,32 +97,48 @@ export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID
                         display: "flex",
                         scrollbarWidth: "none",
                         scrollBehavior: "smooth",
+                        padding: "8px 0",
                     }}
                 >
-                    <Box sx={{ borderRadius: 1, display: "flex" }}>
-                        {
-                        loading ? (
-                            [...Array(10)].map((_, index) => (
+                    <Box sx={{ 
+                        borderRadius: 1, 
+                        display: "flex",
+                        gap: 2,
+                        minWidth: "fit-content"
+                    }}>
+                        {loading ? (
+                            [...Array(4)].map((_, index) => (
                                 <Skeleton
                                     key={index}
-                                    height="8rem"
-                                    width="20em"
-                                    style={{ marginRight: "10px", borderRadius: "8px" }}
+                                    height="200px"
+                                    width="300px"
+                                    sx={{ 
+                                        borderRadius: "12px", 
+                                        flexShrink: 0 
+                                    }}
                                 />
                             ))
                         ) : sendCardData?.length === 0 ? (
-                            <NoAppointmentCard
-                                style={{ height: "8rem" }}
-                                text_one="No Data found"
-                            />
+                            <Box sx={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                justifyContent: "center",
+                                height: "200px",
+                                width: "100%",
+                                minWidth: "300px"
+                            }}>
+                                <NoAppointmentCard
+                                    text_one="No Data found"
+                                />
+                            </Box>
                         ) : (
                             sendCardData?.slice(0, 10).map((dataprop, index) => (
                                 <Link
-                                    to={ hcfID === null || undefined ?  `${linkPath}${dataprop.suid}` : `${linkPath}${dataprop.suid}/${hcfID?.hcfID}`}
+                                    to={hcfID === null || undefined ? `${linkPath}${dataprop.suid}` : `${linkPath}${dataprop.suid}/${hcfID?.hcfID}`}
                                     style={{
-                                        width: "20em",
+                                        width: "300px",
                                         textDecoration: "none",
-                                        marginRight: "10px",
+                                        flexShrink: 0,
                                     }}
                                     key={index}
                                 >

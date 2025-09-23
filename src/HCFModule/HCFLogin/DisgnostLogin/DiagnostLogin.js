@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import React, { useState } from "react";
 import "./diagnostLogin.scss";
 import { Box, CircularProgress } from "@mui/material";
@@ -12,6 +11,7 @@ import CustomButton from "../../../components/CustomButton/custom-button";
 import { useAuthentication } from "../../../loginComponent/UserProvider";
 import CustomSnackBar from "../../../components/CustomSnackBar/custom-sack-bar";
 import { baseURL, emailRegex, passwordRegex } from "../../../constants/const";
+import Cookies from "js-cookie";
 
 const DiagnosticLogin = () => {
     const [showPassword, setShowPassword] = useState(true);
@@ -69,10 +69,7 @@ console.log("resData", resData);
                 localStorage.setItem("diagnostic_suid", resData.suid);
                 localStorage.setItem("diagnostic_Email", resData.email);
                 localStorage.setItem("profile", resData.profile_picture);
-
-                Cookies.set("diagnostic_suid", resData.suid);
-                Cookies.set("token", resData.access_token);
-                Cookies.set("diagnostic_Email", resData.email);
+                Cookies.set("diagnostic_Email", resData.email, { expires: 7 });
 
                 DiagnostLogin(resData.email);
                 navigate("/diagnostCenterDashboard/notification", { replace: true });
