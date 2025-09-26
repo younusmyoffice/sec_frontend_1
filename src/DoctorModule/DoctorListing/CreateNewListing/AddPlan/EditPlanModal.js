@@ -24,34 +24,74 @@ const EditPlanModal = ({
     const [snackOpen, setSnackOpen] = useState(false);
     const [snackMessage, setSnackMessage] = useState("");
     const [snackType, setSnackType] = useState("success");
+    const [isLoadingPlanData, setIsLoadingPlanData] = useState(false);
+    const [renderKey, setRenderKey] = useState(0);
 
-    const dropdownItems = ["15", "30", "45", "60", "90"];
+    const dropdownItems = ["15 minutes", "30 minutes", "45 minutes", "60 minutes", "90 minutes"];
+
+    // Fetch plan data when modal opens
+    const fetchPlanData = async (planId) => {
+        setIsLoadingPlanData(true);
+        try {
+            console.log("EditPlanModal - Fetching plan data for ID:", planId);
+            const response = await axiosInstance.get(`/sec/createUpdatedoctorlisting/planById/${planId}`);
+            
+            console.log("EditPlanModal - API Response:", response.data);
+            const planData = response.data.response?.DocListingPlan?.[0];
+            if (planData) {
+                const plan = planData;
+                
+                console.log("EditPlanModal - Plan data received:", plan);
+                console.log("EditPlanModal - plan.plan_name:", plan?.plan_name);
+                console.log("EditPlanModal - plan.plan_fee:", plan?.plan_fee);
+                console.log("EditPlanModal - plan.plan_duration:", plan?.plan_duration);
+                console.log("EditPlanModal - plan.plan_description:", plan?.plan_description);
+                
+                // Keep the full duration format (e.g., "30 minutes")
+                const duration = plan?.plan_duration || "";
+                const newFormData = {
+                    plan_name: plan?.plan_name || "",
+                    plan_fee: plan?.plan_fee || "",
+                    plan_duration: duration,
+                    plan_description: plan?.plan_description || ""
+                };
+                
+                console.log("EditPlanModal - Setting form data to:", newFormData);
+                setFormData(newFormData);
+                // Force re-render by updating render key
+                setRenderKey(prev => prev + 1);
+            } else {
+                console.error("EditPlanModal - No plan data found in response");
+                setSnackMessage("Failed to load plan data");
+                setSnackType("error");
+                setSnackOpen(true);
+            }
+        } catch (error) {
+            console.error("EditPlanModal - Error fetching plan data:", error);
+            setSnackMessage("Failed to load plan data");
+            setSnackType("error");
+            setSnackOpen(true);
+        } finally {
+            setIsLoadingPlanData(false);
+        }
+    };
 
     useEffect(() => {
+        console.log("EditPlanModal - useEffect triggered, isOpen:", isOpen, "planData:", planData);
+        
         if (planData && isOpen) {
-            // The planData comes directly from the allPlan array, not wrapped in DocListingPlan
-            const plan = planData;
+            // Extract plan ID from planData
+            const planId = planData?.doctor_fee_plan_id || planData?.plan_id;
+            console.log("EditPlanModal - Plan ID extracted:", planId);
             
-            // Extract duration number from "30 minutes" format
-            const duration = plan?.plan_duration ? 
-                plan.plan_duration.replace(/\s*minutes?/i, '') : "";
-            
-            setFormData({
-                plan_name: plan?.plan_name || "",
-                plan_fee: plan?.plan_fee || "",
-                plan_duration: duration,
-                plan_description: plan?.plan_description || ""
-            });
-            
-            console.log("EditPlanModal - Plan data received:", planData);
-            console.log("EditPlanModal - Plan data keys:", Object.keys(planData || {}));
-            console.log("EditPlanModal - Raw plan_duration:", plan?.plan_duration);
-            console.log("EditPlanModal - Form data set:", {
-                plan_name: plan?.plan_name || "",
-                plan_fee: plan?.plan_fee || "",
-                plan_duration: duration,
-                plan_description: plan?.plan_description || ""
-            });
+            if (planId) {
+                fetchPlanData(planId);
+            } else {
+                console.error("EditPlanModal - No plan ID found in planData");
+                setSnackMessage("No plan ID found");
+                setSnackType("error");
+                setSnackOpen(true);
+            }
         }
     }, [planData, isOpen]);
 
@@ -122,6 +162,10 @@ const EditPlanModal = ({
         }
     };
 
+    console.log("EditPlanModal - Rendering modal, isOpen:", isOpen);
+    console.log("EditPlanModal - Current formData:", formData);
+    console.log("EditPlanModal - isLoadingPlanData:", isLoadingPlanData);
+    
     return (
         <>
             <CustomSnackBar isOpen={snackOpen} message={snackMessage} type={snackType} />
@@ -130,6 +174,7 @@ const EditPlanModal = ({
                 isOpen={isOpen}
                 onClose={handleClose}
                 disableBackdropClick={loading}
+                style={{ zIndex: 9999 }}
                 title={
                     <Typography variant="h6" fontFamily="poppins" fontWeight="500">
                         Edit Plan
@@ -141,7 +186,7 @@ const EditPlanModal = ({
                             label="Cancel"
                             isTransaprent={true}
                             handleClick={handleClose}
-                            disabled={loading}
+                            disabled={loading || isLoadingPlanData}
                             buttonCss={{
                                 border: "1px solid #E72B4A",
                                 color: "#E72B4A",
@@ -153,7 +198,7 @@ const EditPlanModal = ({
                         <CustomButton
                             label={loading ? "Updating..." : "Update Plan"}
                             handleClick={handleSubmit}
-                            disabled={loading}
+                            disabled={loading || isLoadingPlanData}
                             buttonCss={{
                                 backgroundColor: "#E72B4A",
                                 color: "white",
@@ -169,78 +214,101 @@ const EditPlanModal = ({
                 }
             >
                 <div style={{ padding: "20px", minWidth: "400px" }}>
-                    <div style={{ marginBottom: "20px" }}>
-                        <CustomTextField
-                            label="Plan Name"
-                            value={formData.plan_name}
-                            onChange={(e) => handleInputChange('plan_name', e.target.value)}
-                            textcss={{
-                                width: "100%",
-                                height: "56px",
-                                fontFamily: "poppins",
-                                fontSize: "16px"
-                            }}
-                            required
-                        />
-                    </div>
-
-                    <div style={{ marginBottom: "20px" }}>
-                        <CustomTextField
-                            label="Plan Fee"
-                            type="number"
-                            value={formData.plan_fee}
-                            onChange={(e) => handleInputChange('plan_fee', e.target.value)}
-                            textcss={{
-                                width: "100%",
-                                height: "56px",
-                                fontFamily: "poppins",
-                                fontSize: "16px"
-                            }}
-                            required
-                        />
-                    </div>
-
-                    <div style={{ marginBottom: "20px" }}>
-                        <CustomDropdown
-                            label="Duration (minutes)"
-                            items={dropdownItems}
-                            activeItem={formData.plan_duration}
-                            handleChange={(value) => handleInputChange('plan_duration', value)}
-                            dropdowncss={{
-                                width: "100%",
-                                height: "56px",
-                                fontFamily: "poppins",
-                                fontSize: "16px"
-                            }}
-                        />
-                    </div>
-
-                    <div style={{ marginBottom: "20px" }}>
-                        <CustomTextField
-                            label="Plan Description"
-                            value={formData.plan_description}
-                            onChange={(e) => handleInputChange('plan_description', e.target.value)}
-                            multiline
-                            rows={3}
-                            textcss={{
-                                width: "100%",
-                                fontFamily: "poppins",
-                                fontSize: "16px"
-                            }}
-                        />
-                    </div>
-
-                    {loading && (
+                    {isLoadingPlanData ? (
                         <div style={{ 
                             display: "flex", 
                             justifyContent: "center", 
                             alignItems: "center", 
-                            marginTop: "20px" 
+                            height: "200px",
+                            flexDirection: "column",
+                            gap: "16px"
                         }}>
-                            <CircularProgress size={24} />
-                            <Typography style={{ marginLeft: "12px", fontFamily: "poppins" }}>
-                                Updating plan...
+                            <CircularProgress size={40} />
+                            <Typography variant="body1" fontFamily="poppins">
+                                Loading plan data...
                             </Typography>
+                        </div>
+                    ) : (
+                        <div key={renderKey}>
+                            {console.log("EditPlanModal - Rendering form with data:", formData, "renderKey:", renderKey)}
+                            <div style={{ marginBottom: "20px" }}>
+                                <CustomTextField
+                                    key={`plan_name_${formData.plan_name}_${renderKey}`}
+                                    label="Plan Name"
+                                    CustomValue={formData.plan_name || ""}
+                                    onChange={(e) => handleInputChange('plan_name', e.target.value)}
+                                    textcss={{
+                                        width: "100%",
+                                        height: "56px",
+                                        fontFamily: "poppins",
+                                        fontSize: "16px"
+                                    }}
+                                    required
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <CustomTextField
+                                    key={`plan_fee_${formData.plan_fee}_${renderKey}`}
+                                    label="Plan Fee"
+                                    type="number"
+                                    CustomValue={formData.plan_fee || ""}
+                                    onChange={(e) => handleInputChange('plan_fee', e.target.value)}
+                                    textcss={{
+                                        width: "100%",
+                                        height: "56px",
+                                        fontFamily: "poppins",
+                                        fontSize: "16px"
+                                    }}
+                                    required
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <CustomDropdown
+                                    key={`plan_duration_${formData.plan_duration}_${renderKey}`}
+                                    label="Duration (minutes)"
+                                    items={dropdownItems}
+                                    activeItem={formData.plan_duration || ""}
+                                    handleChange={(value) => handleInputChange('plan_duration', value)}
+                                    dropdowncss={{
+                                        width: "100%",
+                                        height: "56px",
+                                        fontFamily: "poppins",
+                                        fontSize: "16px"
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <CustomTextField
+                                    key={`plan_description_${formData.plan_description}_${renderKey}`}
+                                    label="Plan Description"
+                                    CustomValue={formData.plan_description || ""}
+                                    onChange={(e) => handleInputChange('plan_description', e.target.value)}
+                                    multiline
+                                    rows={3}
+                                    textcss={{
+                                        width: "100%",
+                                        fontFamily: "poppins",
+                                        fontSize: "16px"
+                                    }}
+                                />
+                            </div>
+
+                            {loading && (
+                                <div style={{ 
+                                    display: "flex", 
+                                    justifyContent: "center", 
+                                    alignItems: "center", 
+                                    marginTop: "20px" 
+                                }}>
+                                    <CircularProgress size={24} />
+                                    <Typography style={{ marginLeft: "12px", fontFamily: "poppins" }}>
+                                        Updating plan...
+                                    </Typography>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

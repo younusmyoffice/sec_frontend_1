@@ -23,6 +23,7 @@ const ListingModal = ({
     const [planMessage, setPlanMessage] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [validation, setValidation] = useState({}); // { plan_name: { fee: msg|null, duration: msg|null } }
 
     const dropdownItems = ["15 minutes", "30 minutes", "45 minutes", "60 minutes", "90 minutes"];
     const plansTemplate = (planType) => ({
@@ -58,10 +59,41 @@ const ListingModal = ({
         setListingPayload({ plan: updatedPlans });
     };
 
+    // Compute validation for selected plans
+    useEffect(() => {
+        const v = {};
+        (listingPayload.plan || []).forEach(p => {
+            const feeMissing = p.plan_fee === null || p.plan_fee === undefined || p.plan_fee === '' || Number(p.plan_fee) <= 0;
+            const durationMissing = !p.plan_duration || String(p.plan_duration).trim() === '';
+            v[p.plan_name] = {
+                fee: feeMissing ? 'Price is required' : null,
+                duration: durationMissing ? 'Duration is required' : null,
+            };
+        });
+        setValidation(v);
+    }, [listingPayload]);
+
+    const isSaveDisabled = () => {
+        // Save disabled if any selected plan has missing fee or duration
+        return (listingPayload.plan || []).some(p => {
+            const planV = validation[p.plan_name] || {};
+            return !!planV.fee || !!planV.duration;
+        });
+    };
+
     const addListing = async () => {
         setLoading(true)
         try {
-            const response = await axiosInstance.post("/sec/createUpdatedoctorlisting/planCreate", JSON.stringify(listingPayload));
+            const numericPayload = {
+                plan: (listingPayload.plan || []).map(p => ({
+                    ...p,
+                    doctor_id: Number(p.doctor_id),
+                    doctor_list_id: Number(p.doctor_list_id),
+                    // ensure numeric fee if provided
+                    plan_fee: p.plan_fee !== null && p.plan_fee !== undefined && p.plan_fee !== '' ? Number(p.plan_fee) : null,
+                }))
+            };
+            const response = await axiosInstance.post("/sec/createUpdatedoctorlisting/planCreate", JSON.stringify(numericPayload));
             setPlanMessage(response?.data?.response?.message || "plan created successfully");
             setIsOpen(true);
             RenderDataAfterAddingPlan(true);
@@ -124,7 +156,8 @@ const ListingModal = ({
                         <div className="first-plan-content">
                             <CustomTextField
                                 label="Price"
-                                helperText={"Enter the price"}
+                                helperText={validation[planType]?.fee || "Enter the price"}
+                                error={!!validation[planType]?.fee}
                                 value={listingPayload.plan.find(plan => plan.plan_name === planType)?.plan_fee || ""}
                                 defaultValue={listingPayload.plan.find(plan => plan.plan_name === planType)?.plan_fee || ""}
                                 onChange={(e) => updatePlanState(planType, "plan_fee", e.target.value)}
@@ -134,12 +167,16 @@ const ListingModal = ({
                             />
                             <CustomDropdown
                                 label="Duration"
-                                helperText={"Select the duration"}
                                 items={dropdownItems}
                                 activeItem={listingPayload.plan.find(plan => plan.plan_name === planType)?.plan_duration || ""}
                                 isDisabled={!checkBoxIsDisable[planType]}
                                 handleChange={(item) => updatePlanState(planType, "plan_duration", item)}
                             />
+                            {validation[planType]?.duration && (
+                                <div style={{ color: '#d32f2f', fontSize: 12, marginTop: -12, marginBottom: 8 }}>
+                                    {validation[planType]?.duration}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -148,6 +185,7 @@ const ListingModal = ({
                     <div className="save-button">
                         <CustomButton
                             label={loading ? <CircularProgress size={24} color="inherit" /> : "Save"}
+                            isDisabled={loading || isSaveDisabled()}
                             handleClick={addListing} />
                     </div>
                 )}

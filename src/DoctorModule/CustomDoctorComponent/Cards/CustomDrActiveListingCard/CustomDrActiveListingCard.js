@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Chip } from "@mui/material";
 import React from "react";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CustomButton from "../../../../components/CustomButton";
@@ -14,7 +14,9 @@ const CustomDrActiveListingCard = ({
     buttonTwoLabel, 
     onhandleClickButtonTwo,
     onEditClick,
-    showEditButton = true
+    showEditButton = true,
+    statusLabel,
+    statusColor = "default"
 }) => {
     return (
         <>
@@ -43,6 +45,14 @@ const CustomDrActiveListingCard = ({
                         >
                             {label}
                         </Typography>
+                        {statusLabel && (
+                            <Chip
+                                label={statusLabel}
+                                color={statusColor}
+                                size="small"
+                                sx={{ mt: 0.5, mb: 0.5, fontFamily: "poppins" }}
+                            />
+                        )}
                         <Typography
                             style={{
                                 color: "#787579",

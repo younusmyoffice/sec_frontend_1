@@ -44,7 +44,9 @@ const AddPlanCard = ({ planCardData, index, RendenDataAfterDelete, isDeleteVisib
 
     const handleEditClick = () => {
         console.log("EditPlanModal - Plan data being passed:", planCardData);
+        console.log("EditPlanModal - Opening modal, current state:", editModalOpen);
         setEditModalOpen(true);
+        console.log("EditPlanModal - Modal state after setting:", true);
     };
 
     const handlePlanUpdated = () => {

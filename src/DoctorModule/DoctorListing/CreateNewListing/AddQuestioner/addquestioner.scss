@@ -1,37 +1,12 @@
-.NavBar-Box-one {
-    // margin-bottom: 8%;
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    margin-left: -1%;
-    white-space: nowrap;
-    // width: fit-content
-    // width: auto;
-}
+@use '../../shared/design-tokens' as *;
 
-.NavBar-Box-one > a {
-    text-decoration: none;
-    margin: 1%;
-    padding: 10px 16px;
-    border-radius: 12px;
-    color: #e72b4a;
-    font-family: "Poppins";
-    cursor: pointer;
-    width: auto;
-    // width: -webkit-fill-available;
-}
-
-.NavBar-Box-one a.active {
-    text-decoration: none;
-    margin: 0.7%;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-family: "Poppins";
-    cursor: pointer;
-    background-color: #e72b4a;
-    color: white;
-    // width: 8em;
-    width: auto;
+.main-container {
+  position: relative;
+  margin-top: $space-6;
+  width: 100%;
+  max-width: $container-max;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
@@ -116,12 +91,11 @@
 .question-answer-container{
     display: flex;
     position: relative;
-    padding: 2rem;
-    width: 1016px;
-    border: 1px solid #EFEFEF;
-    margin-top: 2rem;
+    padding: $space-6 0;
+    width: 100%;
+    margin-top: $space-4;
     justify-content: space-between;
-    gap: 1rem;
+    gap: $space-4;
 }
 
 .text-fields{
@@ -180,7 +154,53 @@
     margin-top: 2rem;
 }
 
+// Existing Questions Section
+.existing-questions-section {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.question-card {
+    border: 1px solid #E6E1E5;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f0f0f0;
+
+        .question-actions {
+            display: flex;
+            gap: 8px;
+        }
+    }
+
+    .answers-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 8px;
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
 
 
     
-
+/* removed duplicate imports */

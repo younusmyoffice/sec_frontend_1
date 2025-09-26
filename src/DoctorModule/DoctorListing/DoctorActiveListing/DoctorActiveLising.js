@@ -21,6 +21,13 @@ const DoctorActiveListing = () => {
     useEffect(() => {
         localStorage.setItem("activeComponent", "listing");
         localStorage.setItem("path", "doctoractiveListing");
+        
+        // Clean up any editing state when returning to active listing
+        const editingListingId = localStorage.getItem("editing_listing_id");
+        if (editingListingId) {
+            console.log("Returned to active listing, cleaning up editing state");
+            localStorage.removeItem("editing_listing_id");
+        }
     }, []);
 
     const fetchActiveListing = async () => {
@@ -43,10 +50,13 @@ const DoctorActiveListing = () => {
     const DeleteDoctorListing = async (listID) => {
         console.log("Doctor list ID : ", listID);
         setDeleteListing(false);
+        // Confirm delete
+        const ok = window.confirm("Are you sure you want to delete this listing? This action cannot be undone.");
+        if (!ok) return;
         try {
             const response = await axiosInstance.post("/sec/doctor/deleteDocListingPlan", {
-                doctor_id: localStorage.getItem("doctor_suid"),
-                doctor_list_id: listID,
+                doctor_id: Number(localStorage.getItem("doctor_suid")),
+                doctor_list_id: Number(listID),
             });
             if (response.status === 200 || response.status === 202) {
                 setDeleteDoctorListFlag(true);
@@ -62,10 +72,12 @@ const DoctorActiveListing = () => {
 
     const ChangeActiveState = async (doctor_id, doctor_list_id) => {  // api for deactivation
         setDeleteDoctorListFlag(false);
+        const ok = window.confirm("Deactivate this listing? Patients will no longer see it.");
+        if (!ok) return;
         try {
             const response = await axiosInstance.post(`/sec/doctor/docListingActiveDeactive`, {
-                doctor_id: doctor_id,
-                doctor_list_id: doctor_list_id,
+                doctor_id: Number(doctor_id),
+                doctor_list_id: Number(doctor_list_id),
                 is_active: 0, //deactive
             });
             setSnackmessage(response?.data?.response?.message);
@@ -127,6 +139,8 @@ const DoctorActiveListing = () => {
                                 borderRadius: "20px",
                             }}
                             handleClick={() => {
+                                // Clear any existing editing state when creating new
+                                localStorage.removeItem("editing_listing_id");
                                 navigate("/doctordashboard/doctorListing/listingdetails");
                             }}
                         />
@@ -171,6 +185,8 @@ const DoctorActiveListing = () => {
                                     label={card?.listing_name}
                                     Idtype={"Listing ID"}
                                     Idnumber={card?.doctor_list_id}
+                                    statusLabel={"Active"}
+                                    statusColor={"success"}
                                     onhandleClickButtonOne={() =>
                                         DeleteDoctorListing(card?.doctor_list_id)
                                     }

@@ -1,37 +1,12 @@
-.NavBar-Box-one {
-    // margin-bottom: 8%;
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    margin-left: -1%;
-    white-space: nowrap;
-    width: fit-content;
-    // width: auto;
-}
+@use '../../shared/design-tokens' as *;
 
-.NavBar-Box-one > a {
-    text-decoration: none;
-    margin: 1%;
-    padding: 10px 16px;
-    border-radius: 8px;
-    color: #e72b4a;
-    font-family: "Poppins";
-    cursor: pointer;
-    // width: -webkit-fill-available;
-    width: auto;
-}
-
-.NavBar-Box-one a.active {
-    text-decoration: none;
-    margin: 0.7%;
-    padding: 10px 16px;
-    border-radius: 16px;
-    font-family: "Poppins";
-    cursor: pointer;
-    background-color: #e72b4a;
-    color: white;
-    // width: 8em;
-    width: auto;
+.main-container {
+  position: relative;
+  margin-top: $space-6;
+  width: 100%;
+  max-width: $container-max;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
@@ -87,15 +62,7 @@
      // border:'1px solid',
 }
 
-.Terms-Conditions-Container{
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid  #E6E1E5;
-    margin-top: 1rem;
-    width: 90%;
-    padding: 4rem;
-}
+/* content wrapped by SectionCard in the React component */
 
 .terms-condition-title{
    display: flex;

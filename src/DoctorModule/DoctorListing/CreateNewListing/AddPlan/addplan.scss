@@ -1,37 +1,12 @@
-.NavBar-Box-one {
-    // margin-bottom: 8%;
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    margin-left: -1%;
-    white-space: nowrap;
-    width: fit-content;
-    // width: auto;
-}
-
-.NavBar-Box-one > a {
-    text-decoration: none;
-    margin: 1%;
-    padding: 10px 16px;
-    border-radius: 8px;
-    color: #e72b4a;
-    font-family: "Poppins";
-    cursor: pointer;
-    // width: auto;
-    // width: -webkit-fill-available;
-}
-
-.NavBar-Box-one a.active {
-    text-decoration: none;
-    margin: 0.7%;
-    padding: 10px 16px;
-    border-radius: 16px;
-    font-family: "Poppins";
-    cursor: pointer;
-    background-color: #e72b4a;
-    color: white;
-    width: 8em;
-    width: auto;
+@use '../../shared/design-tokens' as *;
+/* Unified container to match ListingDetails */
+.main-container {
+  position: relative;
+  margin-top: $space-6;
+  width: 100%;
+  max-width: $container-max;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
@@ -39,11 +14,7 @@
 
 
 
-.main-container{
-    position: relative;
-    margin-top: 2rem;
-    width: 100%;
-}
+/* Legacy blocks below are retained for backwards compatibility with any remaining uses */
 
 .Doctor-detail-container{
     display: flex;
@@ -226,7 +197,4 @@
     justify-content: center;
     margin-top: 2rem;
 }
-
-
-
 

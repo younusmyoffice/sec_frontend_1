@@ -19,6 +19,8 @@ import CustomModal from "../../../components/CustomModal";
 import DoctorStatisticsNavbar from "../../CustomDoctorComponent/DoctorStatisticsNavbar/DoctorStatisticsNavbar";
 import "./doctorPayout.scss";
 import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import axiosInstance from "../../../config/axiosInstance";
+import CustomSnackBar from "../../../components/CustomSnackBar";
 
 function createData(name, calories, fat, carbs, protein) {
     return { name, calories, fat, carbs, protein };
@@ -44,23 +46,12 @@ const Payout = () => {
     });
 
     const [value, setValue] = useState([null, null]);
-
-    // Simulate loading state for rows and pagination
     const [loading, setLoading] = useState(true);
-
-    // Simulating rows data
-    const rows = [
-        createData("Jan, 2022", "Account No:00110044446", `$ ${120}`, "processing"),
-        createData("Feb, 2022", "Account No:00110044447", `$ ${150}`, "completed"),
-        createData("Mar, 2022", "Account No:00110044448", `$ ${200}`, "pending"),
-        createData("Apr, 2022", "Account No:00110044449", `$ ${250}`, "processing"),
-        createData("May, 2022", "Account No:00110044450", `$ ${180}`, "completed"),
-        createData("Jun, 2022", "Account No:00110044451", `$ ${220}`, "pending"),
-        createData("Jul, 2022", "Account No:00110044452", `$ ${300}`, "completed"),
-        createData("Aug, 2022", "Account No:00110044453", `$ ${400}`, "processing"),
-        createData("Sep, 2022", "Account No:00110044454", `$ ${350}`, "completed"),
-        createData("Oct, 2022", "Account No:00110044455", `$ ${500}`, "pending"),
-    ];
+    const [snackOpen, setSnackOpen] = useState(false);
+    const [snackMsg, setSnackMsg] = useState("");
+    const [snackType, setSnackType] = useState("success");
+    const [balance, setBalance] = useState({ settled: 0, paid: 0, balance: 0 });
+    const [rows, setRows] = useState([]);
     // Simulating pagination data
     const [page, setPage] = useState(0); // starting at page 0 for TablePagination
     const [rowsPerPage, setRowsPerPage] = useState(5); // Set how many rows per page
@@ -74,12 +65,49 @@ const Payout = () => {
         setPage(0); // Reset to the first page when changing rows per page
     };
 
-    // Simulate data loading
     useEffect(() => {
-        setTimeout(() => {
-            setLoading(false); // Simulate loading completion
-        }, 2000);
+        const doctorId = Number(localStorage.getItem("doctor_suid"));
+        const load = async () => {
+            try {
+                setLoading(true);
+                const balRes = await axiosInstance.get(`/sec/payment/doctor/balance`, { params: { doctor_id: doctorId } });
+                if (balRes?.data) setBalance(balRes.data);
+                const listRes = await axiosInstance.get(`/sec/payment/payouts`, { params: { doctor_id: doctorId, limit: 50, offset: 0 } });
+                if (Array.isArray(listRes?.data?.response)) setRows(listRes.data.response);
+            } catch (e) {
+                setSnackType("error");
+                setSnackMsg(e?.response?.data?.error || e?.message || "Failed to load payouts");
+                setSnackOpen(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
     }, []);
+
+    const [toEmail, setToEmail] = useState("");
+    const [amount, setAmount] = useState("");
+    const onRequestPayout = async () => {
+        try {
+            const doctorId = Number(localStorage.getItem("doctor_suid"));
+            const amt = Number(amount);
+            if (!toEmail || !amt || isNaN(amt) || amt <= 0) {
+                setSnackType("error");
+                setSnackMsg("Enter a valid email and amount");
+                setSnackOpen(true);
+                return;
+            }
+            const res = await axiosInstance.post(`/sec/payment/payout`, { toEmail, amount: amt, doctor_id: doctorId, memo: "Doctor cashout" });
+            setSnackType("success");
+            setSnackMsg(`Payout requested. Batch: ${res?.data?.response?.batch_id || "created"}`);
+            setSnackOpen(true);
+            setOpenDialog(false);
+        } catch (e) {
+            setSnackType("error");
+            setSnackMsg(e?.response?.data?.error || e?.message || "Payout failed");
+            setSnackOpen(true);
+        }
+    };
 
     return (
         <>
@@ -107,7 +135,7 @@ const Payout = () => {
                                 color: "white",
                             }}
                         >
-                            Earning Balance Sales Overview $120 ShareEcare Affiliation Program $0
+                            Earning Balance Sales Overview ${balance?.settled?.toFixed ? balance.settled.toFixed(2) : balance.settled}
                             <br></br>
                             Amount you earned from Sales, Custom order and Affiliation Balance. You
                             can cashout this balance.
@@ -117,7 +145,7 @@ const Payout = () => {
                                 color: "white",
                             }}
                         >
-                            $120
+                            ${balance?.balance?.toFixed ? balance.balance.toFixed(2) : balance.balance}
                         </Typography>
                     </div>
                     <div className="Request-cashout">
@@ -168,18 +196,15 @@ const Payout = () => {
                                 isElevated
                                 handleClick={() => setOpenDialog(!openDialog)}
                             ></CustomButton>
-                            <CustomModal
-                                style={{
-                                    display: "flex",
-                                }}
-                                isOpen={openDialog}
-                            >
-                                <NavLink to={"/patientdashboard/statistics/bokinghistory"}>
-                                    BokingHistory
-                                </NavLink>
-                                <NavLink to={"/patientdashboard/statistics/tansactions"}>
-                                    Tansaction
-                                </NavLink>
+                            <CustomModal isOpen={openDialog} conditionOpen={() => setOpenDialog(false)} title={<Typography variant="h6">Request Payout</Typography>}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 1 }}>
+                                    <input type="email" placeholder="PayPal Email" value={toEmail} onChange={(e)=>setToEmail(e.target.value)} style={{ padding: 10, borderRadius: 8, border: '1px solid #E6E1E5' }} />
+                                    <input type="number" placeholder="Amount" value={amount} onChange={(e)=>setAmount(e.target.value)} style={{ padding: 10, borderRadius: 8, border: '1px solid #E6E1E5' }} />
+                                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                        <CustomButton label="Cancel" isTransaprent handleClick={()=>setOpenDialog(false)} />
+                                        <CustomButton label="Send" handleClick={onRequestPayout} />
+                                    </Box>
+                                </Box>
                             </CustomModal>
                         </Box>
                     </div>
@@ -200,9 +225,9 @@ const Payout = () => {
                                 >
                                     <TableRow>
                                         <TableCell>Date</TableCell>
-                                        <TableCell align="right">Account No</TableCell>
-                                        <TableCell align="right">Amount</TableCell>
-                                        <TableCell align="right">Status</TableCell>
+                                        <TableCell align="left">Batch ID</TableCell>
+                                        <TableCell align="left">Amount</TableCell>
+                                        <TableCell align="left">Status</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -233,23 +258,15 @@ const Payout = () => {
                                         </TableRow>
                                     ) : (
                                         rows
-                                            .slice(
-                                                page * rowsPerPage,
-                                                page * rowsPerPage + rowsPerPage,
-                                            )
+                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             .map((row) => (
-                                                <TableRow key={row.name}>
+                                                <TableRow key={row.payout_id}>
                                                     <TableCell component="th" scope="row">
-                                                        {row.name}
+                                                        {new Date(row.created_at).toLocaleString()}
                                                     </TableCell>
-                                                    <TableCell align="right">
-                                                        {row.calories}
-                                                    </TableCell>
-                                                    <TableCell align="right">{row.fat}</TableCell>
-                                                    <TableCell align="right">{row.carbs}</TableCell>
-                                                    <TableCell align="right">
-                                                        {row.protein}
-                                                    </TableCell>
+                                                    <TableCell align="left">{row.payout_batch_id || '-'}</TableCell>
+                                                    <TableCell align="left">{row.currency || 'INR'} {row.amount}</TableCell>
+                                                    <TableCell align="left">{row.status}</TableCell>
                                                 </TableRow>
                                             ))
                                     )}
@@ -268,6 +285,7 @@ const Payout = () => {
                     </div>
                 </Box>
             </Box>
+            <CustomSnackBar isOpen={snackOpen} message={snackMsg} type={snackType} />
         </>
     );
 };

@@ -22,6 +22,8 @@ import CustomSnackBar from "../../../../components/CustomSnackBar";
 import AddPlanCard from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/AddPlanCard";
 import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import ListingModal from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/ListingModal";
+import HCFAddQuestioner from "./HCFAddQuestioner";
+import HCFAddTerms from "./HCFAddTerms";
 import AddIcon from "@mui/icons-material/Add";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -63,6 +65,7 @@ const HCFAddDoctors = () => {
     const [enableLising, setEnableListing] = useState(false);
     const [doctorsuid, setDoctorsuid] = useState("");
     const [openDialog, setOpenDialog] = useState(false);
+    const [doctorListId, setDoctorListId] = useState(null);
     // Modal
     const [isModalOpen, setModalOpen] = useState(false);
     const [addPlanVisible , setAddPlanVisible] = useState(false);
@@ -206,6 +209,9 @@ const HCFAddDoctors = () => {
             console.log("post create listing : ", response);
             setSnacksuccessMessage("Listing created succesfully")
             setSnacksuccess(true);
+            // Capture doctor_list_id if returned
+            const listId = response?.data?.response?.docListingCreate?.doctor_list_id || response?.data?.response?.docListingUpdated?.[0]?.doctor_list_id;
+            if (listId) setDoctorListId(listId);
             setCreateListing({
                 hcf_id: null,
                 doctor_id: null,
@@ -734,6 +740,13 @@ const HCFAddDoctors = () => {
                                         // postCreateListing();
                                     }}
                                 />
+                            {/* Render Questions and Terms when we have a listing id */}
+                            {postcreatelisting && doctorListId && (
+                                <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    <HCFAddQuestioner doctor_id={createListing?.doctor_id} doctor_list_id={doctorListId} />
+                                    <HCFAddTerms doctor_id={createListing?.doctor_id} doctor_list_id={doctorListId} />
+                                </Box>
+                            )}
                         </div>
                     </Box>
                 </Box>

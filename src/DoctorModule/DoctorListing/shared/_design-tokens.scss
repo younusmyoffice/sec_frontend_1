@@ -1,0 +1,33 @@
+$container-max: 960px;
+
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+
+$radius-1: 8px;
+$radius-2: 12px;
+
+$color-primary: #E72B4A;
+$color-text: #313033;
+$color-muted: #787579;
+$color-border: #E6E1E5;
+
+$border: 1px solid $color-border;
+
+// Optional utility classes (use as needed)
+.container-narrow {
+  max-width: $container-max;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-spacing {
+  margin-top: $space-6;
+  margin-bottom: $space-6;
+}
+

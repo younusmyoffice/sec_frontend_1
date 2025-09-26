@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Box, Typography, Skeleton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Box, Typography, Skeleton, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CustomButton from "../../../../components/CustomButton";
 import "./addplan.scss";
@@ -9,11 +9,25 @@ import ListingModal from "./ListingModal";
 import AddPlanCard from "./AddPlanCard";
 import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
+import { useListingMode } from "../../shared/useListingMode";
+import SectionCard from "../../shared/SectionCard";
+import StepHeader from "../../shared/StepHeader";
 
 const AddPlans = () => {
+    const { mode, listingId, doctorId, setUnifiedListingId } = useListingMode();
+
     useEffect(() => {
         localStorage.setItem("activeComponent", "listing");
         localStorage.setItem("path", "addplans");
+        
+        // Ensure listing_id is set consistently in edit mode
+        setUnifiedListingId();
+
+        // Step guard: require listing_id to proceed
+        if (!listingId) {
+            console.warn("No listing_id found. Redirecting to listing details.");
+            navigate("/doctordashboard/doctorListing/listingdetails", { replace: true });
+        }
     }, []);
 
     const [plandata, setPlandata] = useState([]);
@@ -30,8 +44,8 @@ const AddPlans = () => {
         setLoading(true);
         try {
             const response = await axiosInstance.post("/sec/createUpdatedoctorlisting/planAll", {
-                doctor_id: localStorage.getItem("doctor_suid"),
-                doctor_list_id: localStorage.getItem("listing_id"),
+                doctor_id: doctorId,
+                doctor_list_id: listingId,
             });
             setSnackmessage(response?.data?.response?.body || "Plans fetched successfully.");
             setSnackType("success");
@@ -85,52 +99,36 @@ const AddPlans = () => {
         <>
             <CustomSnackBar type={snackType} isOpen={isOpen} message={snackmessage} />
 
-            <nav className="NavBar-Box-one">
-                <NavLink to="/doctordashboard/doctorListing/listingdetails">
-                    Listing Details
-                </NavLink>
-                <NavLink to="/doctordashboard/doctorListing/addplans">Add Plans</NavLink>
-                <NavLink to="/doctordashboard/doctorListing/addquestioner">
-                    Add Questioner
-                </NavLink>
-                <NavLink to="/doctordashboard/doctorListing/termandcondition">
-                    Term & Conditions
-                </NavLink>
-            </nav>
-
-            <div className="main-container">
-                <div className="Add-container">
-                    <Typography>Add Plan</Typography>
-                    <div className="Add-addicon">
-                        <Box sx={{ marginTop: "0.5rem" }}>
-                            <AddIcon />
-                        </Box>
-                        <div className="Add-btn">
-                            <ListingModal RenderDataAfterAddingPlan={RenderDataAfterAddingPlan} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Skeleton Loader or Plans */}
-                {loading ? (
-                    Array.from({ length: 3 }).map((_, index) => (
-                        <Box key={index} sx={{ marginBottom: 2 }}>
-                            <Skeleton variant="rectangular" width="100%" height={80} />
-                        </Box>
-                    ))
-                ) : plandata.length === 0 ? (
-                    <NoAppointmentCard text_one="No listing found" />
-                ) : (
-                    plandata.map((plan, index) => (
-                        <AddPlanCard
-                            key={index}
-                            planCardData={plan}
-                            index={index}
-                            RendenDataAfterDelete={RendenDataAfterDelete}
-                            onPlanUpdated={handlePlanUpdated}
-                        />
-                    ))
-                )}
+            <div className="main-container" style={{ width: '100%', maxWidth: 960, margin: '0 auto' }}>
+                <StepHeader />
+                <SectionCard
+                  title="Add Plans"
+                  subtitle="Create consultation plans (message or video) with price and duration"
+                  actions={
+                    <ListingModal RenderDataAfterAddingPlan={RenderDataAfterAddingPlan} />
+                  }
+                >
+                  {/* Skeleton Loader or Plans */}
+                  {loading ? (
+                      Array.from({ length: 3 }).map((_, index) => (
+                          <Box key={index} sx={{ marginBottom: 2 }}>
+                              <Skeleton variant="rectangular" width="100%" height={80} />
+                          </Box>
+                      ))
+                  ) : plandata.length === 0 ? (
+                      <NoAppointmentCard text_one="No listing found" />
+                  ) : (
+                      plandata.map((plan, index) => (
+                          <AddPlanCard
+                              key={index}
+                              planCardData={plan}
+                              index={index}
+                              RendenDataAfterDelete={RendenDataAfterDelete}
+                              onPlanUpdated={handlePlanUpdated}
+                          />
+                      ))
+                  )}
+                </SectionCard>
 
                 {/* Save and Next buttons */}
                 <Box sx={{ marginTop: "1%" }}>
@@ -139,13 +137,18 @@ const AddPlans = () => {
                         label="Save As Draft"
                         isTransaprent={true}
                     />
-                    <CustomButton
-                        buttonCss={{ width: "10.625rem", borderRadius: "6.25rem", margin: "0.5%" }}
-                        label="Next"
-                        handleClick={() =>
-                            navigate("/doctordashboard/doctorListing/addquestioner")
-                        }
-                    />
+                    <Tooltip title={plandata.length === 0 ? "Add at least one plan to continue" : ""} disableHoverListener={plandata.length !== 0}>
+                        <div style={{ display: 'inline-block' }}>
+                            <CustomButton
+                                buttonCss={{ width: "10.625rem", borderRadius: "6.25rem", margin: "0.5%" }}
+                                label="Next"
+                                isDisabled={plandata.length === 0}
+                                handleClick={() =>
+                                    navigate("/doctordashboard/doctorListing/addquestioner")
+                                }
+                            />
+                        </div>
+                    </Tooltip>
                 </Box>
             </div>
         </>

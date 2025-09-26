@@ -57,6 +57,10 @@ const DoctorListingDetails = () => {
             setIsEditing(true);
             // Load existing listing data for editing
             loadExistingListing(editingListingId);
+        } else {
+            // Clear any stale editing state when creating new
+            setIsEditing(false);
+            setIsLoadingListing(false);
         }
     }, []);
 
@@ -210,16 +214,22 @@ const DoctorListingDetails = () => {
             
             if (editingListingId) {
                 setMessage("Listing updated successfully!");
-                localStorage.removeItem("editing_listing_id");
+                // Keep the editing_listing_id for continuing to next tabs
+                // localStorage.removeItem("editing_listing_id"); // Don't remove yet
+                // For editing, also go to next tab (Add Plans) to continue the flow
+                setIsOpen(true);
+                setTimeout(() => {
+                    navigate("/doctordashboard/doctorListing/addplans", { replace: true });
+                }, 1500);
             } else {
                 localStorage.setItem("listing_id", response?.data?.response?.docListingCreate?.doctor_list_id);
                 setMessage(response?.data?.response?.message);
+                // For creating new, go to next tab (Add Plans)
+                setIsOpen(true);
+                setTimeout(() => {
+                    navigate("/doctordashboard/doctorListing/addplans", { replace: true });
+                }, 1500);
             }
-            
-            setIsOpen(true);
-            setTimeout(() => {
-                navigate("/doctordashboard/doctorListing/doctoractiveListing", { replace: true });
-            }, 2500);
         } catch (error) {
             console.error("Error saving listing:", error);
             console.error("Error response:", error.response);
@@ -232,6 +242,50 @@ const DoctorListingDetails = () => {
             }
             
             setMessage(errorMessage);
+            setIsOpen(true);
+        }
+    };
+
+    // Save as draft handler
+    const handleSaveAsDraft = async () => {
+        setIsOpen(false);
+        try {
+            const editingListingId = localStorage.getItem("editing_listing_id");
+            
+            // Prepare payload with doctor_list_id for updates
+            const payload = {
+                ...data,
+                doctor_id: parseInt(data.doctor_id),
+                is_active: 0, // Set as draft
+                ...(editingListingId && { doctor_list_id: parseInt(editingListingId) })
+            };
+
+            // Use the same endpoint for both create and update
+            const response = await axiosInstance.post(
+                "/sec/createUpdatedoctorlisting/listing",
+                payload
+            );
+            
+            if (editingListingId) {
+                setMessage("Draft updated successfully!");
+                // For editing, go back to active listing when saving as draft
+                localStorage.removeItem("editing_listing_id");
+                setIsOpen(true);
+                setTimeout(() => {
+                    navigate("/doctordashboard/doctorListing/doctoractiveListing", { replace: true });
+                }, 2500);
+            } else {
+                localStorage.setItem("listing_id", response?.data?.response?.docListingCreate?.doctor_list_id);
+                setMessage("Draft saved successfully!");
+                // For creating new, also go back to active listing when saving as draft
+                setIsOpen(true);
+                setTimeout(() => {
+                    navigate("/doctordashboard/doctorListing/doctoractiveListing", { replace: true });
+                }, 2500);
+            }
+        } catch (error) {
+            console.error("Error saving draft:", error);
+            setMessage("Error saving draft. Please try again.");
             setIsOpen(true);
         }
     };
@@ -402,7 +456,7 @@ const DoctorListingDetails = () => {
                                     borderRadius: "100px",
                                     marginRight: "16px"
                                 }}
-                                handleClick={fetchData}
+                                handleClick={handleSaveAsDraft}
                             />
                             <CustomButton
                                 label={isEditing ? "Update Listing" : "Next"}

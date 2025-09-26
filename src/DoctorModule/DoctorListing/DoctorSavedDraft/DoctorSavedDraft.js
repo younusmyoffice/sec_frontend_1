@@ -40,10 +40,12 @@ const DoctorSavedDraft = () => {
     const DeleteDoctorListing = async (listID) => {
         setDeleteListing(false);
         setDeleteDoctorListFlag(false);
+        const ok = window.confirm("Are you sure you want to delete this listing? This action cannot be undone.");
+        if (!ok) return;
         try {
             const response = await axiosInstance.post("/sec/doctor/deleteDocListingPlan", {
-                doctor_id: localStorage.getItem("doctor_suid"),
-                doctor_list_id: listID,
+                doctor_id: Number(localStorage.getItem("doctor_suid")),
+                doctor_list_id: Number(listID),
             });
             if (response.status === 200 || response.status === 202) {
                 setDeleteDoctorListFlag(true);
@@ -61,10 +63,12 @@ const DoctorSavedDraft = () => {
 
     const ChangeActiveState = async (doctor_id, doctor_list_id) => {
         setDeleteDoctorListFlag(false);
+        const ok = window.confirm("Activate this listing? It will be visible to patients.");
+        if (!ok) return;
         try {
             const response = await axiosInstance.post(`/sec/doctor/docListingActiveDeactive`, {
-                doctor_id: doctor_id,
-                doctor_list_id: doctor_list_id,
+                doctor_id: Number(doctor_id),
+                doctor_list_id: Number(doctor_list_id),
                 is_active: 1, // activate
             });
             setSnackmessage(response?.data?.response?.message);
@@ -144,6 +148,8 @@ const DoctorSavedDraft = () => {
                                     label={card?.listing_name}
                                     Idtype={"Listing ID"}
                                     Idnumber={card?.doctor_list_id}
+                                    statusLabel={"Draft"}
+                                    statusColor={"default"}
                                     onhandleClickButtonOne={() =>
                                         DeleteDoctorListing(card?.doctor_list_id)
                                     }
