@@ -33,7 +33,14 @@ const CustomCountryCodeSelector = ({
     noSpacing = false, // New prop to disable default spacing
     ...props
 }) => {
-    const [countries, setCountries] = useState([]);
+    const [countries, setCountries] = useState(() => {
+        try {
+            return countryService.getFallbackCountries() || [];
+        } catch (error) {
+            console.error("Error initializing fallback countries:", error);
+            return [];
+        }
+    });
     const [selectedCountry, setSelectedCountry] = useState({
         code: defaultCountryCode,
         name: defaultCountryName,
@@ -66,16 +73,37 @@ const CustomCountryCodeSelector = ({
             const response = await countryService.getCountries();
             const transformedCountries = countryService.transformCountriesData(response);
             
-            setCountries(transformedCountries);
-            
-            // Set default country if not already set
-            if (!selectedCountry.code || selectedCountry.code === defaultCountryCode) {
-                const defaultCountry = transformedCountries.find(
-                    (country) => country.code === defaultCountryCode
-                ) || transformedCountries[0];
-                if (defaultCountry) {
-                    setSelectedCountry(defaultCountry);
+            // Validate that transformedCountries is an array and contains valid objects
+            if (Array.isArray(transformedCountries) && transformedCountries.length > 0) {
+                // Filter out any invalid country objects
+                const validCountries = transformedCountries.filter(country => 
+                    country && 
+                    typeof country === 'object' && 
+                    country.name && 
+                    country.code
+                );
+                
+                if (validCountries.length > 0) {
+                    setCountries(validCountries);
+                    
+                    // Set default country if not already set
+                    if (!selectedCountry.code || selectedCountry.code === defaultCountryCode) {
+                        const defaultCountry = validCountries.find(
+                            (country) => country.code === defaultCountryCode
+                        ) || validCountries[0];
+                        if (defaultCountry) {
+                            setSelectedCountry(defaultCountry);
+                        }
+                    }
+                } else {
+                    // If no valid countries, use fallback
+                    const fallbackCountries = countryService.getFallbackCountries();
+                    setCountries(fallbackCountries);
                 }
+            } else {
+                // If response is invalid, use fallback
+                const fallbackCountries = countryService.getFallbackCountries();
+                setCountries(fallbackCountries);
             }
         } catch (error) {
             console.error("Error fetching countries:", error);
@@ -90,10 +118,14 @@ const CustomCountryCodeSelector = ({
     // Filter countries based on search query
     const filteredCountries = useMemo(() => {
         if (!searchQuery) return countries;
-        return countries.filter((country) =>
-            country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            country.code.includes(searchQuery)
-        );
+        return countries.filter((country) => {
+            // Safely check if country and its properties exist
+            if (!country) return false;
+            const name = country.name || '';
+            const code = country.code || '';
+            return name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                   code.includes(searchQuery);
+        });
     }, [countries, searchQuery]);
 
     // Handle country selection

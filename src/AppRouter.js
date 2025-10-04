@@ -5,14 +5,14 @@ import Skeleton from "@mui/material/Skeleton";
 import Usage from "./pages/Usage";
 // import SelectRoleLogin from "./auth/RoleSelection/SelectRoleLogin";
 import PatientLogin from "./Role/Login/PatientModule/PatientLogin/PatientLogin";
-import ForgotPassword from "./Role/Login/PatientModule/ForgotPassword/ForgotPassword";
-import ForgotPasswordOTP from "./Role/Login/PatientModule/ForgotPasswordOTP/ForgotPasswordOTP";
-import ForgotPasswordChange from "./Role/Login/PatientModule/ForgotPasswordChange/ForgotPasswordChange";
-import LoginWithOtp from "./Role/Login/PatientModule/LoginwithOTP/LoginWithOTP";
-import LoginWithOtpVerify from "./Role/Login/PatientModule/LoginWithOTPVerify/LoginWithOTPVerify";
+import ForgotPassword from "./Role/ForgotPassword/ForgotPassword";
+import ForgotPasswordOTP from "./Role/ForgotPasswordOTP/ForgotPasswordOTP";
+import ForgotPasswordChange from "./Role/ForgotPasswordChange/ForgotPasswordChange";
+import LoginWithOtp from "./Role/LoginwithOTP/LoginWithOTP";
+import LoginWithOtpVerify from "./Role/LoginWithOTPVerify/LoginWithOTPVerify";
 import SignupPage from "./Role/Signup/SignupPage/SignupPage";
 import PatientCompleteProfile from "./Role/Signup/PatientCompleteProfile/PatientCompleteProfile";
-import EmailVerification from "./Role/Login/PatientModule/EmailVerification/EmailVerification";
+import EmailVerification from "./Role/EmailVerification/EmailVerification";
 import PatientPersonalInformation from "./Role/Login/PatientModule/PatientPersonalInformation/patientpersonalinformation";
 import PatientContactInformation from "./Role/Login/PatientModule/PatientContactInformation/patientcontactinformation";
 import PatientPaymentInformation from "./Role/Login/PatientModule/PatientPaymentInformation/patientpaymentinformation";
@@ -70,8 +70,8 @@ import ClinicProfile from "./HCFModule/Clinic/ClinicProfile/ClinicProfile";
 import ClinicManage from "./HCFModule/Clinic/ClinicManage/ClinicManage";
 import ClinicSalesActivities from "./HCFModule/Clinic/ClinicManage/ClinicStaff/ClinicSalesActivities";
 import SelectRoleSignup from "./Role/RoleSelection/SelectRoleSignup/SelectRoleSignup";
-import DoctorSignup from "./Role/Signup/DoctorSignUp/DoctorSignup";
-import SelectHCFSignup from "./Role/Signup/HCFSignup/SelectHCFSignup";
+import DoctorCompleteProfile from "./Role/Signup/DoctorCompleteProfile/DoctorCompleteProfile";
+import SelectHCFSignup from "./Role/Signup/HCFCompleteProfile/SelectHCFSignup";
 import AdminMainDashboard from "./HCFModule/HCFDashboard/AdminDashboard/AdminDashboard";
 import AdminDoctor from "./HCFModule/HCFAdmin/AdminDoctor/AdminDoctor";
 import AdminProfile from "./HCFModule/HCFAdmin/AdminProfile/AdminProfile"
@@ -82,9 +82,9 @@ import AdminDiagnosticCenter from "./HCFModule/HCFAdmin/AdminDiagnosticCenter/Ad
 import AdminManage from "./HCFModule/HCFAdmin/AdminManage/AdminManage";
 // import AdminManageStaff from "./HCFModule/HCFAdmin/AdminManage/AdminManageStaff/AdminManageStaff";
 import AdminManageAuditLog from "./HCFModule/HCFAdmin/AdminManage/AdminManageAuditLog/AdminManageAuditLog";
-import DiagnostSignUp from "./Role/Signup/HCFSignup/DiagnosticSignup/DiagnosticSignup";
-import ClinicSignUp from "./Role/Signup/HCFSignup/ClinicSignup/ClinicSignup";
-import AdminSignUp from "./Role/Signup/HCFSignup/HCFAdminSignup/HCFAdminSignup";
+import DiagnostSignUp from "./Role/Signup/HCFCompleteProfile/DiagnosticCompleteProfile/DiagnosticCompleteProfile";
+import ClinicSignUp from "./Role/Signup/HCFCompleteProfile/ClinicCompleteProfile/ClinicCompleteProfile";
+import HcfAdminSignUp from "./Role/Signup/HCFCompleteProfile/HCFAdminCompleteProfile/HCFAdminCompleteProfile";
 import TermsAndCondition from "./DoctorModule/DoctorListing/CreateNewListing/TermsAndCondition/TermsAndCondition";
 import DoctorPersonalInfo from "./DoctorModule/DoctorProfile/DoctorProfileInfo/DoctorPersonalInfo";
 import DoctorProssionalInfo from "./DoctorModule/DoctorProfile/DoctorProfessionalInfo/DoctorProfessionalInfo";
@@ -400,11 +400,11 @@ export const AppRouter = () => (
 
                         {/* ------ signup routes start------ */}
                         <Route path="/selectRoleSignup" element={<SelectRoleSignup />}></Route>
-                        <Route path="/doctorSignup" element={<DoctorSignup />}></Route>
+                        <Route path="/doctorCompleteProfile" element={<DoctorCompleteProfile />}></Route>
                         <Route path="/selectHcfSignup" element={<SelectHCFSignup />}></Route>
                         <Route path="/diagnostCenterSignup" element={<DiagnostSignUp />}></Route>
                         <Route path="/diagnostClinicSignup" element={<ClinicSignUp />}></Route>
-                        <Route path="/hcfAdminSignup" element={<AdminSignUp />}></Route>
+                        <Route path="/hcfAdminSignup" element={<HcfAdminSignUp />}></Route>
                         {/* ------ signup routes ends------ */}
                         <Route path="/ForgotPassword" element={<ForgotPassword />} />
                         <Route

@@ -6,17 +6,32 @@ const DiagnosticCenterReports = () => {
     const navigate = useNavigate();
 
     const [navigateToRoute, setNavigateToRoute] = useState(
-        localStorage.getItem("path") == "request"
-            ? "/diagnostCenterDashboard/dignosticCenterReports/request"
-            : localStorage.getItem("path") == "examination"
-            ? "/diagnostCenterDashboard/dignosticCenterReports/examination"
-            : localStorage.getItem("path") == "report"
-            ? "/diagnostCenterDashboard/dignosticCenterReports/report"
-            : localStorage.getItem("path") == "Chart"
-            ? "/diagnostCenterDashboard/dignosticCenterReports/Chart"
-            : "/diagnostCenterDashboard/dignosticCenterReports/request",
+        (() => {
+            const pathFromStorage = localStorage.getItem("path");
+            console.log("Path from localStorage:", pathFromStorage);
+            
+            // Clear any cached misspelled paths and ensure we use the correct route
+            if (pathFromStorage === "request") {
+                return "/diagnostCenterDashboard/diagnosticCenterReports/request";
+            } else if (pathFromStorage === "examination") {
+                return "/diagnostCenterDashboard/diagnosticCenterReports/examination";
+            } else if (pathFromStorage === "report") {
+                return "/diagnostCenterDashboard/diagnosticCenterReports/report";
+            } else if (pathFromStorage === "Chart") {
+                return "/diagnostCenterDashboard/diagnosticCenterReports/Chart";
+            }
+            // Default to request page
+            return "/diagnostCenterDashboard/diagnosticCenterReports/request";
+        })()
     );
     useEffect(() => {
+        // Clear any cached misspelled paths from localStorage
+        const cachedPath = localStorage.getItem("path");
+        if (cachedPath && cachedPath.includes("dignostic")) {
+            console.log("Clearing cached misspelled path:", cachedPath);
+            localStorage.removeItem("path");
+        }
+        
         navigate(String(navigateToRoute));
     }, []);
     useEffect( () => {

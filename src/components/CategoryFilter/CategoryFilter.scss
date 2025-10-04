@@ -1,0 +1,60 @@
+.category-filter {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 24px 0;
+    padding: 0 4px;
+}
+
+.category-chip {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    height: auto !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    
+    &.MuiChip-outlined {
+        border: 2px solid #e0e0e0 !important;
+        color: #666 !important;
+        background: white !important;
+        
+        &:hover {
+            border-color: #E82B4A !important;
+            color: #E82B4A !important;
+            background: rgba(232, 43, 74, 0.05) !important;
+        }
+    }
+    
+    &.MuiChip-filled {
+        background: #E82B4A !important;
+        color: white !important;
+        border: 2px solid #E82B4A !important;
+        
+        &:hover {
+            background: #c41e3a !important;
+            border-color: #c41e3a !important;
+        }
+    }
+    
+    &.active {
+        background: #E82B4A !important;
+        color: white !important;
+        border-color: #E82B4A !important;
+    }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .category-filter {
+        gap: 8px;
+        margin: 16px 0;
+    }
+    
+    .category-chip {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+    }
+}

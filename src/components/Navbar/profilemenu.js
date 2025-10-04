@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import { Box, Button, IconButton, Link } from "@mui/material";
+import { 
+    Box, 
+    Button, 
+    IconButton, 
+    Link, 
+    Typography, 
+    Divider,
+    Avatar,
+    Chip,
+    Tooltip,
+    Fade,
+    Backdrop
+} from "@mui/material";
 import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
+import SettingsIcon from "@mui/icons-material/Settings";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { useAuthentication } from "../../loginComponent/UserProvider";
 import { useAuth } from "../../hooks/useAuth";
+import axiosInstance from "../../config/axiosInstance";
+import { processProfileImage } from "../../utils/imageUtils";
 import "./profilemenu.scss";
 // import DocImg from "../../static/images/DrImages/doctor_alter.jpeg";
 import DocImg from "../../static/images/DrImages/doctor_alter.jpeg";
@@ -20,6 +36,10 @@ const profilemenu = ({ profilepath }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
     const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+    const [profileImage, setProfileImage] = useState(null);
+    const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+    
+    // Get profile from localStorage as fallback
     const profile = localStorage.getItem("profile");
 
     const isMenuOpen = Boolean(anchorEl);
@@ -38,6 +58,99 @@ const profilemenu = ({ profilepath }) => {
 
     const Authentication = useAuthentication();
     const { logout, isAuthenticated } = useAuth();
+
+    // Function to fetch user profile image from API
+    const fetchUserProfileImage = async () => {
+        setIsLoadingProfile(true);
+        try {
+            let response;
+            
+            // Use different API endpoints based on user type
+            if (profilepath === "doctor") {
+                const doctor_id = localStorage.getItem("doctor_suid");
+                if (!doctor_id) {
+                    console.log("No doctor SUID found, skipping profile fetch");
+                    return;
+                }
+                response = await axiosInstance.get(`/sec/Doctor/doctorProfileDetailsbyId?doctor_id=${doctor_id}`);
+                console.log("Doctor profile image fetch response:", response?.data);
+            } else if (profilepath === "hcfadmin") {
+                const hcf_id = localStorage.getItem("hcfadmin_suid");
+                if (!hcf_id) {
+                    console.log("No HCF admin SUID found, skipping profile fetch");
+                    return;
+                }
+                response = await axiosInstance.get(`/sec/hcf/getHcfprofile/${hcf_id}`);
+                console.log("HCF admin profile image fetch response:", response?.data);
+            } else {
+                // Default to patient/user API
+                response = await axiosInstance.get("/sec/auth/getUserDetails/");
+                console.log("User profile image fetch response:", response?.data);
+            }
+            
+            // Extract profile picture based on response structure
+            let profilePicture = null;
+            if (profilepath === "doctor" && response?.data?.profile_picture) {
+                profilePicture = response.data.profile_picture;
+            } else if (profilepath === "hcfadmin" && response?.data?.response && response.data.response.length > 0) {
+                // HCF admin response structure: { response: [{ profile_picture: "..." }] }
+                profilePicture = response.data.response[0].profile_picture;
+            } else if (response?.data?.profile_picture) {
+                profilePicture = response.data.profile_picture;
+            }
+            
+            if (profilePicture) {
+                console.log("Raw profile picture data:", profilePicture);
+                
+                // Use utility function to process and convert to base64
+                const processedImage = await processProfileImage(profilePicture, DocImg);
+                
+                if (processedImage && processedImage !== DocImg) {
+                    setProfileImage(processedImage);
+                    localStorage.setItem("profile", processedImage);
+                    console.log("✅ Profile image processed and set successfully");
+                } else {
+                    console.log("⚠️ Using fallback image");
+                }
+            } else {
+                console.log("❌ No profile picture found in response");
+            }
+        } catch (error) {
+            console.error("Error fetching profile image:", error);
+        } finally {
+            setIsLoadingProfile(false);
+        }
+    };
+
+    // Fetch profile image on component mount
+    useEffect(() => {
+        fetchUserProfileImage();
+    }, []);
+
+    // Listen for profile updates from other components
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'profile') {
+                setProfileImage(e.newValue);
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        
+        // Also listen for custom events (for same-tab updates)
+        const handleProfileUpdate = (e) => {
+            if (e.detail?.profile) {
+                setProfileImage(e.detail.profile);
+            }
+        };
+
+        window.addEventListener('profileUpdated', handleProfileUpdate);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('profileUpdated', handleProfileUpdate);
+        };
+    }, []);
 
     const HandleLogout = async () => {
         try {
@@ -93,13 +206,13 @@ const profilemenu = ({ profilepath }) => {
                 
                 // Call authentication logout methods
                 if (Authentication.LogoutPatient) {
-                    Authentication.LogoutPatient();
+        Authentication.LogoutPatient();
                 }
                 if (Authentication.LogoutDoctor) {
-                    Authentication.LogoutDoctor();
+        Authentication.LogoutDoctor();
                 }
                 if (Authentication.LoginHcf) {
-                    Authentication.LoginHcf();
+        Authentication.LoginHcf();
                 }
                 
                 navigate("/");
@@ -111,8 +224,8 @@ const profilemenu = ({ profilepath }) => {
             // Fallback to local logout
             localStorage.clear();
             sessionStorage.clear();
-            Cookies.remove("token");
-            Cookies.remove("patientEmail");
+        Cookies.remove("token");
+        Cookies.remove("patientEmail");
             
             if (Authentication.LogoutPatient) {
                 Authentication.LogoutPatient();
@@ -136,7 +249,7 @@ const profilemenu = ({ profilepath }) => {
         <Menu
             anchorEl={anchorEl}
             anchorOrigin={{
-                vertical: "top",
+                vertical: "bottom",
                 horizontal: "right",
             }}
             id={menuId}
@@ -147,31 +260,79 @@ const profilemenu = ({ profilepath }) => {
             }}
             open={isMenuOpen}
             onClose={handleMenuClose}
+            TransitionComponent={Fade}
             PaperProps={{
                 style: {
-                    borderRadius: 8,             // Rounded corners for the menu
-                    padding: 8,                  // Add padding inside the menu
-                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-                    minWidth: 150,               // Set a minimum width for better readability
+                    borderRadius: 12,                    // More rounded corners
+                    padding: "8px 0",                    // Better padding
+                    boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)", // Enhanced shadow
+                    minWidth: 200,                       // Wider for better content
                     backgroundColor: "#fff", 
-                    marginTop:35,   // White background color
+                    marginTop: 8,                        // Better spacing
+                    border: "1px solid rgba(0, 0, 0, 0.05)", // Subtle border
+                    backdropFilter: "blur(10px)",       // Modern glass effect
                 }
             }}
         >
+            {/* User Info Header */}
+            <Box sx={{ 
+                padding: "12px 16px 8px", 
+                borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
+                marginBottom: "4px"
+            }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Avatar
+                        src={profileImage || profile || DocImg}
+                        alt="Profile"
+                        sx={{
+                            width: 40,
+                            height: 40,
+                            border: "2px solid #E72B4A",
+                            boxShadow: "0 2px 8px rgba(231, 43, 74, 0.2)"
+                        }}
+                        onError={(e) => {
+                            e.target.src = DocImg;
+                        }}
+                    />
+                    <Box>
+                        <Typography variant="subtitle2" sx={{ 
+                            fontWeight: 600, 
+                            color: "#313033",
+                            fontSize: "14px"
+                        }}>
+                            {profilepath === "patient" ? "Patient" : 
+                             profilepath === "doctor" ? "Doctor" :
+                             profilepath === "clinic" ? "Clinic" :
+                             profilepath === "diagnostic" ? "Diagnostic" :
+                             profilepath === "hcfadmin" ? "HCF Admin" : "User"}
+                        </Typography>
+                        <Typography variant="caption" sx={{ 
+                            color: "#666",
+                            fontSize: "11px"
+                        }}>
+                            {localStorage.getItem("patient_Email") || "user@example.com"}
+                        </Typography>
+                    </Box>
+                </Box>
+            </Box>
+
+            {/* Profile Menu Item */}
             <MenuItem
                 onClick={handleMenuClose}
-
-                sx={profilepath === "hcfadmin" ? { display: "block" } : profilepath === 'superadmin' ? {display : "none"} :  { display: "block" }}
-            >
-                {" "}
-                <AccountCircle />
-                {/* <Link to={'/patientdashboard/dashboard/profile'} >Profile logo!!!</Link> */}
-                <Button
-                    className={
-                        profilepath === "hcfadmin"
-                            ? "profile-button-dont-display"
-                            : "profile-button-display"
+                sx={{
+                    display: profilepath === "hcfadmin" ? "block" : 
+                             profilepath === 'superadmin' ? "none" : "block",
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    margin: "4px 8px",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                        backgroundColor: "#f8f9fa",
+                        transform: "translateX(4px)"
                     }
+                }}
+            >
+                <Box
                     onClick={() => {
                         profilepath === "patient"
                             ? localStorage.getItem("activeComponent") === "dashboard"
@@ -201,10 +362,26 @@ const profilemenu = ({ profilepath }) => {
                             ? navigate("adminprofile")
                             : console.log("this is null");
                     }}
-                    sx={{color: "black",}}
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        width: "100%",
+                        cursor: "pointer"
+                    }}
                 >
+                    <PersonIcon sx={{ 
+                        color: "#E72B4A", 
+                        fontSize: "20px" 
+                    }} />
+                    <Typography sx={{ 
+                        color: "#313033",
+                        fontWeight: 500,
+                        fontSize: "14px"
+                    }}>
                     Profile
-                </Button>
+                    </Typography>
+                </Box>
             </MenuItem>
 
 {/* 
@@ -219,28 +396,107 @@ const profilemenu = ({ profilepath }) => {
             </MenuItem> */}
             {/* Debug info - remove in production */}
             {process.env.NODE_ENV === 'development' && (
-                <MenuItem onClick={handleMenuClose}>
-                    <Box sx={{ fontSize: '12px', color: '#666', padding: '4px 0' }}>
-                        Auth: {isAuthenticated ? '✅' : '❌'} | 
-                        Loading: {isLoggingOut ? '⏳' : '✅'}
-                    </Box>
-                </MenuItem>
+                <>
+                    <Divider sx={{ margin: "8px 0" }} />
+                    <MenuItem 
+                        onClick={handleMenuClose}
+                        sx={{ 
+                            padding: "8px 16px",
+                            "&:hover": { backgroundColor: "transparent" }
+                        }}
+                    >
+                        <Box sx={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            gap: 1,
+                            width: "100%"
+                        }}>
+                            <Chip 
+                                label={`Auth: ${isAuthenticated ? '✅' : '❌'}`}
+                                size="small"
+                                sx={{ 
+                                    fontSize: "10px",
+                                    height: "20px",
+                                    backgroundColor: isAuthenticated ? "#e8f5e8" : "#ffeaea",
+                                    color: isAuthenticated ? "#2e7d32" : "#d32f2f"
+                                }}
+                            />
+                            <Chip 
+                                label={`Loading: ${isLoggingOut ? '⏳' : '✅'}`}
+                                size="small"
+                                sx={{ 
+                                    fontSize: "10px",
+                                    height: "20px",
+                                    backgroundColor: isLoggingOut ? "#fff3e0" : "#e8f5e8",
+                                    color: isLoggingOut ? "#f57c00" : "#2e7d32"
+                                }}
+                            />
+                            <Chip 
+                                label={`Profile: ${profileImage ? '✅' : '❌'}`}
+                                size="small"
+                                sx={{ 
+                                    fontSize: "10px",
+                                    height: "20px",
+                                    backgroundColor: profileImage ? "#e8f5e8" : "#ffeaea",
+                                    color: profileImage ? "#2e7d32" : "#d32f2f"
+                                }}
+                            />
+                            <Chip 
+                                label={isLoadingProfile ? '⏳' : '🔄'}
+                                size="small"
+                                onClick={fetchUserProfileImage}
+                                sx={{ 
+                                    fontSize: "10px",
+                                    height: "20px",
+                                    backgroundColor: "#e3f2fd",
+                                    color: "#1976d2",
+                                    cursor: "pointer",
+                                    "&:hover": {
+                                        backgroundColor: "#bbdefb"
+                                    }
+                                }}
+                            />
+                        </Box>
+                    </MenuItem>
+                </>
             )}
             
-            <MenuItem onClick={handleMenuClose}>
+            {/* Logout Menu Item */}
+            <MenuItem 
+                onClick={handleMenuClose}
+                sx={{
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    margin: "4px 8px",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                        backgroundColor: "#ffebee",
+                        transform: "translateX(4px)"
+                    }
+                }}
+            >
                 <Box 
-                    component={"span"} 
                     onClick={HandleLogout}
                     sx={{ 
                         display: "flex", 
                         alignItems: "center", 
-                        gap: 1,
+                        gap: 2,
+                        width: "100%",
                         cursor: isLoggingOut ? "not-allowed" : "pointer",
                         opacity: isLoggingOut ? 0.6 : 1
                     }}
                 >
-                    <LogoutIcon />
-                    {isLoggingOut ? "Logging out..." : "Log Out"}
+                    <LogoutIcon sx={{ 
+                        color: isLoggingOut ? "#f57c00" : "#d32f2f",
+                        fontSize: "20px"
+                    }} />
+                    <Typography sx={{ 
+                        color: isLoggingOut ? "#f57c00" : "#d32f2f",
+                        fontWeight: 500,
+                        fontSize: "14px"
+                    }}>
+                        {isLoggingOut ? "Logging out..." : "Log Out"}
+                    </Typography>
                 </Box>
             </MenuItem>
         </Menu>
@@ -248,6 +504,7 @@ const profilemenu = ({ profilepath }) => {
 
     return (
         <Box>
+            <Tooltip title="Profile Menu" arrow>
    <IconButton
     size="large"
     edge="end"
@@ -255,31 +512,57 @@ const profilemenu = ({ profilepath }) => {
     aria-controls={menuId}
     aria-haspopup="true"
     onClick={handleProfileMenuOpen}
-    color="inherit"
->
-    {profile ? (
-        <img
-            src={profile} // Use the profile if available
+                    sx={{
+                        padding: "8px",
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                            backgroundColor: "rgba(231, 43, 74, 0.1)",
+                            transform: "scale(1.05)"
+                        }
+                    }}
+                >
+                    {(profileImage || profile) ? (
+                        <Avatar
+                            src={profileImage || profile}
             alt="Profile"
-            style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%", // Circular shape
-                objectFit: "cover", // Ensure the image fits well
+                            sx={{
+                                width: 40,
+                                height: 40,
+                                border: "2px solid #E72B4A",
+                                boxShadow: "0 2px 8px rgba(231, 43, 74, 0.2)",
+                                transition: "all 0.2s ease",
+                                "&:hover": {
+                                    boxShadow: "0 4px 12px rgba(231, 43, 74, 0.3)",
+                                    transform: "scale(1.05)"
+                                }
             }}
             onError={(e) => {
-                e.target.src = DocImg; // Fallback to default image on error
+                                e.target.src = DocImg;
             }}
         />
     ) : (
-        <AccountCircle sx={{ backgroundColor: "#AEAAAE" }} />
+                        <Avatar
+                            sx={{
+                                width: 40,
+                                height: 40,
+                                backgroundColor: "#E72B4A",
+                                border: "2px solid #E72B4A",
+                                boxShadow: "0 2px 8px rgba(231, 43, 74, 0.2)",
+                                transition: "all 0.2s ease",
+                                "&:hover": {
+                                    boxShadow: "0 4px 12px rgba(231, 43, 74, 0.3)",
+                                    transform: "scale(1.05)"
+                                }
+                            }}
+                        >
+                            <AccountCircle sx={{ color: "white", fontSize: "24px" }} />
+                        </Avatar>
     )}
 </IconButton>
-
+            </Tooltip>
 
     {renderMenu}
 </Box>
-
     );
 };
 

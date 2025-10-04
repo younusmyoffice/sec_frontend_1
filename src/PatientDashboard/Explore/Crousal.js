@@ -8,15 +8,7 @@ import "./Crousal.scss";
 import Skeleton from "@mui/material/Skeleton";
 
 const useStyles = makeStyles(() => ({
-  gridList: {
-    flexWrap: "nowrap",
-    width: "100%",
-    overflowX: "auto", // Changed from "hidden" to "auto" to enable scrolling
-    scrollBehavior: "smooth", // Add smooth scrolling behavior
-  },
-  card: {
-    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-  },
+  // CSS classes are now handled in Crousal.scss
 }));
 
 // Define card data to avoid repetition
@@ -40,17 +32,7 @@ const Card = ({ title, image, isLoading }) => {
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          borderRadius: "12px",
-          border: "1px solid #E6E1E5",
-          height: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          p: 2,
-          bgcolor: "#ffffff",
-        }}
-      >
+      <Box className="carousel-skeleton">
         <Skeleton variant="text" width="60%" height={40} />
         <Skeleton variant="rectangular" width="35%" height={100} />
       </Box>
@@ -58,46 +40,27 @@ const Card = ({ title, image, isLoading }) => {
   }
 
   return (
-    <Box
-      className={classes.card}
-      sx={{
-        borderRadius: "12px",
-        border: "1px solid #E6E1E5",
-        height: "100%",
-        display: "flex",
-        justifyContent: "space-between",
-        p: 2,
-        bgcolor: "#ffffff",
-      }}
-    >
-      <Box
-        sx={{
-          width: "60%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
-          gap: 1,
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333", textAlign: "left" }}>
+    <Box className="carousel-card">
+      <Box className="carousel-card-content">
+        <Typography className="carousel-card-title">
           {title}
         </Typography>
         <CustomButton
-          buttonCss={{ border: "none", mt: 1 }}
+          className="carousel-button"
+          buttonCss={{ 
+            border: "none", 
+            mt: 1,
+            fontSize: "12px",
+            padding: "6px 16px"
+          }}
           label="Book Now"
           isTransaprent={true}
         />
       </Box>
-      <Box sx={{ width: "35%", display: "flex", alignItems: "center" }}>
+      <Box className="carousel-card-image">
         <img
           src={image}
           alt="Doctor"
-          style={{
-            width: "100%",
-            height: "auto",
-            borderRadius: "12px",
-          }}
         />
       </Box>
     </Box>
@@ -114,36 +77,48 @@ export default function SingleLineGridList({ isLoading = false }) {
   const scrollCarousel = useCallback(() => {
     const slider = sliderRef.current;
     if (!slider) {
-      console.log("Slider ref not found");
       return;
     }
 
     // Check if we can scroll
     if (slider.scrollWidth <= slider.clientWidth) {
-      console.log("No scroll needed - content fits");
       return;
     }
 
-    slider.scrollLeft += 1; // Slower scroll speed for smoother effect
+    // Smooth scroll with better speed control
+    slider.scrollLeft += 0.5; // Even slower for smoother effect
     
-    // Reset to start when we reach the end
-    if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth) {
+    // Reset to start when we reach the end (with some buffer)
+    if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 10) {
       slider.scrollLeft = 0; // Reset to start
     }
     
     animationFrameRef.current = requestAnimationFrame(scrollCarousel);
   }, []);
 
+  // Pause animation on hover
+  const handleMouseEnter = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      setIsScrolling(false);
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (!isLoading && !isScrolling) {
+      setIsScrolling(true);
+      animationFrameRef.current = requestAnimationFrame(scrollCarousel);
+    }
+  }, [isLoading, scrollCarousel, isScrolling]);
+
   useEffect(() => {
     if (!isLoading && !isScrolling) {
-      console.log("Starting carousel animation");
       setIsScrolling(true);
       animationFrameRef.current = requestAnimationFrame(scrollCarousel);
     }
     
     return () => {
       if (animationFrameRef.current) {
-        console.log("Stopping carousel animation");
         cancelAnimationFrame(animationFrameRef.current);
         setIsScrolling(false);
       }
@@ -153,25 +128,45 @@ export default function SingleLineGridList({ isLoading = false }) {
   // Duplicate cardData for seamless looping
   const extendedCardData = [...cardData, ...cardData, ...cardData];
 
-  console.log("Carousel render - isLoading:", isLoading, "isScrolling:", isScrolling, "cards:", extendedCardData.length);
-
   return (
-    <Box sx={{ display: "flex", width: "100%", overflow: "hidden" }}>
+    <Box 
+      className="carousel-container"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <ImageList 
-        className={classes.gridList} 
+        className="carousel-slider" 
         id="slider" 
         cols={2.5} 
         ref={sliderRef}
         sx={{
-          '&::-webkit-scrollbar': {
-            display: 'none',
+          '& .MuiImageListItem-root': {
+            transition: 'transform 0.3s ease',
+            '&:hover': {
+              transform: 'scale(1.02)',
+            }
           },
-          msOverflowStyle: 'none',
-          scrollbarWidth: 'none',
+          '@media (max-width: 600px)': {
+            '&': {
+              cols: 1.5,
+            }
+          },
+          '@media (min-width: 900px)': {
+            '&': {
+              cols: 3,
+            }
+          },
         }}
       >
         {extendedCardData.map((card, index) => (
-          <ImageListItem key={`${card.title}-${index}`} sx={{ minWidth: '300px' }}>
+          <ImageListItem 
+            key={`${card.title}-${index}`} 
+            className="carousel-item"
+            sx={{ 
+              minWidth: { xs: '250px', sm: '300px', md: '350px' },
+              maxWidth: { xs: '250px', sm: '300px', md: '350px' }
+            }}
+          >
             <Card title={card.title} image={card.image} isLoading={isLoading} />
           </ImageListItem>
         ))}

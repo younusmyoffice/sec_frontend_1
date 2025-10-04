@@ -13,14 +13,66 @@ const CustomDropdown = ({
     fabIcon,
     menuItemValue = "All",
     CustomSx,
-    // isDisabled,
+    variant = "outlined",
+    size = "medium"
 }) => {
     const labelId = `dropdown-list-label-${label}`;
     const inputRef = useRef(null);
 
+    const defaultStyles = {
+        fontFamily: "Poppins, sans-serif",
+        borderRadius: "8px",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#e0e0e0",
+            transition: "border-color 0.3s ease",
+        },
+        "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#1976d2",
+            borderWidth: "2px",
+        },
+        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#1976d2",
+            borderWidth: "2px",
+        },
+        "& .MuiSelect-select": {
+            padding: size === "small" ? "8px 12px" : size === "large" ? "16px 20px" : "12px 16px",
+            fontSize: "14px",
+            color: "#333",
+        },
+        "& .MuiInputLabel-root": {
+            fontSize: "14px",
+            fontWeight: 500,
+            color: "#666",
+            "&.Mui-focused": {
+                color: "#1976d2",
+            }
+        },
+        "& .MuiMenuItem-root": {
+            fontSize: "14px",
+            padding: "12px 16px",
+            transition: "background-color 0.2s ease",
+            "&:hover": {
+                backgroundColor: "#f5f5f5",
+            },
+            "&.Mui-selected": {
+                backgroundColor: "#e3f2fd",
+                "&:hover": {
+                    backgroundColor: "#bbdefb",
+                }
+            }
+        }
+    };
+
     return (
-        <FormControl variant="standard" sx={dropdowncss}>
-            {/* < variant="standard" sx={{ m: 1, minWidth: 150 }}> */}
+        <FormControl 
+            variant={variant} 
+            sx={{
+                ...defaultStyles,
+                ...dropdowncss
+            }}
+            size={size}
+        >
             {isFabIcon ? (
                 <Select
                     className="fab-icon-class"
@@ -30,17 +82,16 @@ const CustomDropdown = ({
                     onChange={({ target }) => handleChange(target.value)}
                     inputRef={inputRef}
                     disabled={isDisabled}
-                    // sx={{width : "200px"}}
                     renderValue={() => (
                         <div
                             onClick={() => {
                                 inputRef.current.parentNode.click();
                             }}
+                            style={{ display: "flex", alignItems: "center" }}
                         >
                             {fabIcon}
                         </div>
                     )}
-                    // sx={{width : "100px"}}
                 >
                     {items.map((item, idx) => (
                         <MenuItem key={idx} value={item}>
@@ -74,13 +125,15 @@ const CustomDropdown = ({
 };
 
 CustomDropdown.defaultProps = {
-    label: "items",
-    items: ["item1", "item2", "item3"],
-    activeItem: "item1",
+    label: "Select Option",
+    items: ["Option 1", "Option 2", "Option 3"],
+    activeItem: "",
     isFabIcon: false,
     fabIcon: <Fragment></Fragment>,
     handleChange: () => {},
     isDisabled: false,
+    variant: "outlined",
+    size: "medium",
 };
 
 CustomDropdown.propTypes = {
@@ -93,6 +146,8 @@ CustomDropdown.propTypes = {
     handleChange: PropTypes.func,
     menuItemValue: PropTypes.string,
     isDisabled: PropTypes.bool,
+    variant: PropTypes.oneOf(["standard", "outlined", "filled"]),
+    size: PropTypes.oneOf(["small", "medium", "large"]),
 };
 
 export default CustomDropdown;

@@ -1,22 +1,24 @@
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "@mui/material";
 import { data, CallCardData, baseURL } from "../../constants/const";
-import Drcard from "../../constants/drcard/drcard";
+// import Drcard from "../../constants/drcard/drcard";
+import PromotionalBanner from "../../components/PromotionalBanner";
+import HorizontalScrollCards from "../../components/HorizontalScrollCards";
+import CategoryFilter from "../../components/CategoryFilter";
+import DoctorCard from "../../components/DoctorCard";
+import HealthcareFacilityCard from "../../components/HealthcareFacilityCard";
 import CustomButton from "../../components/CustomButton/custom-button";
-import { AutoScrollCarousel } from "../../components/Carousel";
-import SectionHeader from "../../components/SectionHeader";
-import NavigationTabs from "../../components/NavigationTabs";
-import LoadingSkeleton from "../../components/LoadingSkeleton";
-import EmptyState from "../../components/EmptyState";
+import SingleLineGridList from "./Crousal";
 import "./Explore.scss";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import axiosInstance from "../../config/axiosInstance";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import LogoutButton from "../../components/LogoutButton";
-import { useAuth } from "../../hooks/useAuth";
+import NoAppointmentCard from "../PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const Explore = () => {
     const [cardData, setCardData] = useState([]);
@@ -28,20 +30,13 @@ const Explore = () => {
     const [specializationDoc, setSpecializationDoc] = useState("CARDIOLOGIST");
     const [specializationCardData, setspecializationCardData] = useState("");
     const [loading, setLoading] = useState(true);
-    
-    // Get authentication status
-    const { isAuthenticated, user, logout, checkLoginStatus, checkForceLogoutStatus } = useAuth();
 
     const fetchDataNew = async () => {
         try {
-            console.log("Fetching doctor details...");
             const response = await axiosInstance.get("/sec/patient/DashboardDoctordetail");
-            console.log("Doctor details response:", response?.data);
-            setCardData(response?.data?.response || []);
+            setCardData(response?.data?.response);
         } catch (error) {
-            console.error("Error fetching doctor details:", error);
-            console.error("Error response:", error.response?.data);
-            setCardData([]);
+            console.log(error.response);
         } finally {
             setLoading(false);
         }
@@ -163,14 +158,10 @@ const Explore = () => {
     };
     const fetchDataHCFCards = async () => {
         try {
-            console.log("Fetching HCF details...");
             const response = await axiosInstance.get("/sec/patient/DashboardHcfdetails");
-            console.log("HCF details response:", response?.data);
-            setHCFData(response?.data?.response || []);
+            setHCFData(response?.data?.response);
         } catch (error) {
-            console.error("Error fetching HCF details:", error);
-            console.error("Error response:", error.response?.data);
-            setHCFData([]);
+            console.log(error.response);
         }
     };
 
@@ -184,14 +175,10 @@ const Explore = () => {
 
     const navSpecializtion = async () => {
         try {
-            console.log("Fetching doctor departments...");
             const resp = await axiosInstance(`/sec/patient/doctorDepartments`);
-            console.log("Departments response:", resp?.data);
-            setNav_spelization(resp?.data?.response || []);
+            setNav_spelization(resp?.data?.response);
         } catch (err) {
-            console.error("Nav specialization error:", err);
-            console.error("Error response:", err.response?.data);
-            setNav_spelization([]);
+            console.log("Nav specialization error : ", err);
         }
     };
 
@@ -215,14 +202,10 @@ const Explore = () => {
 
     const DoctorSpecialization = async (specialist) => {
         try {
-            console.log("Fetching doctors by specialization:", specialist);
             const response = await axiosInstance(`/sec/patient/getdoctorsByDept/${specialist}/3`);
-            console.log("Specialization response:", response?.data);
-            setspecializationCardData(response?.data?.response[`${specializationDoc}`] || []);
+            setspecializationCardData(response?.data?.response[`${specializationDoc}`]);
         } catch (err) {
-            console.error("Specialization error:", err);
-            console.error("Error response:", err.response?.data);
-            setspecializationCardData([]);
+            console.log("specialization error : ", err);
         }
     };
 
@@ -232,233 +215,141 @@ const Explore = () => {
         }
     }, [specializationDoc]);
 
-    // Navigation tabs configuration
-    const navigationTabs = [
-        { label: "Explore", path: "/patientdashboard/dashboard/explore" },
-        { label: "My Activity", path: "/patientdashboard/dashboard/myactivity" }
-    ];
-
     return (
-        <Box className="explore-page">
-            <Box className="explore-container">
-                {/* Navigation Tabs */}
-                <NavigationTabs tabs={navigationTabs} />
-                
-                {/* Advertisement Carousel */}
-                <Box className="carousel-section">
-                    <AutoScrollCarousel
-                        isLoading={loading}
-                        speed={0.5}
-                    />
-                </Box>
-
-            {/* Popular Doctors Section */}
-            <Box className="section">
-                <SectionHeader 
-                    title="Popular Doctors" 
+        <Box sx={{ width: "90%" }}>
+            <Box className="NavBar-Box" sx={{ marginLeft: 0, marginBottom: 0 }}>
+                <NavLink to={"/patientdashboard/dashboard/explore"}>Explore</NavLink>
+                <NavLink to={"/patientdashboard/dashboard/myactivity"}>My Activity</NavLink>
+            </Box>
+            <Box sx={{ width: "100%" }}>
+                {/* Horizontal slider starts */}
+                {/* <Box sx={{ width: "100%", height: "fit-content", overflow: "hidden" }}>
+                <HorizontalScrollCards
+                    title=""
                     subtitle="Most booked doctors in your area"
+                    loading={loading}
                 />
-                {loading ? (
-                    <LoadingSkeleton variant="card" count={4} className="skeleton-container--horizontal" />
-                ) : populardoc.length > 0 ? (
-                    <CallCardData
-                        linkPath={`/patientdashboard/drdetailscard/`}
-                        sendCardData={populardoc}
-                        CardData={data}
-                        textField={""}
-                        loading={false}
-                        hcfID={null}
+                </Box>
+                <Box sx={{ width: "100%", height: "fit-content", overflow: "hidden" }}>
+                    <SingleLineGridList
+                        loading={loading} // Add this line to pass the loading prop
                     />
-                ) : (
-                    <EmptyState 
-                        title="No Popular Doctors"
-                        description="Popular doctors will appear here once we have enough data."
-                        onAction={() => window.location.reload()}
-                    />
-                )}
-            </Box>
+                </Box> */}
+                {/* Popular Field starts */}
 
-            {/* Featured Doctors Section */}
-            <Box className="section">
-                <SectionHeader 
-                    title="Featured Doctors" 
-                    subtitle="Handpicked doctors for you"
+                <CallCardData
+                    linkPath={`/patientdashboard/drdetailscard/`}
+                    sendCardData={populardoc}
+                    CardData={data}
+                    textField={"Popular"}
+                    loading={loading} // Add this line to pass the loading prop
                 />
-                {loading ? (
-                    <LoadingSkeleton variant="card" count={4} className="skeleton-container--horizontal" />
-                ) : cardData.length > 0 ? (
-                    <CallCardData
-                        linkPath={`/patientdashboard/drdetailscard/`}
-                        sendCardData={cardData}
-                        CardData={data}
-                        textField={""}
-                        loading={false}
-                        hcfID={null}
-                    />
-                ) : (
-                    <EmptyState 
-                        title="No Featured Doctors"
-                        description="Featured doctors will appear here soon."
-                        onAction={() => window.location.reload()}
-                    />
-                )}
-            </Box>
-            {/* Categories Section */}
-            <Box className="section">
-                <SectionHeader 
-                    title="Browse by Specialization" 
-                    subtitle="Find doctors by their area of expertise"
+                {/* Featured Fields starts */}
+
+                <CallCardData
+                    linkPath={`/patientdashboard/drdetailscard/`}
+                    sendCardData={cardData}
+                    CardData={data}
+                    textField={"Featured"}
+                    loading={loading} // Add this line to pass the loading prop
                 />
-                
-                {/* Specialization Navigation */}
-                <Box className="specialization-nav">
-                    <Box className="nav-scroll-container">
-                        <div 
-                            ref={scrollContainerRef}
-                            className="nav-scroll-content"
+                {/* Category component starts */}
+                <Box>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "flex-start",
+                            position: "relative",
+                            paddingBottom: "10px",
+                        }}
+                    >
+                        <h4 sx={{ fontWeight: "bold", position: "absolute", top: 0, left: 0 }}>
+                            Categories
+                        </h4>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <div onClick={handleScrollLeft}>
+                            <ChevronLeftIcon />
+                        </div>
+                        <Box
+                            sx={{ display: "flex", position: "relative" }}
+                            className={"horizontal-scroll-container NavBar-Container-one"}
                         >
-                            {loading ? (
-                                <LoadingSkeleton variant="text" count={1} />
-                            ) : Array.isArray(nav_specialization) && nav_specialization.length > 0 ? (
-                                nav_specialization.map((specialization, index) => (
-                                    <CustomButton
-                                        key={index}
-                                        to={`/patientdashboard/${specialization?.department_name.toLowerCase()}`}
-                                        label={`${specialization?.department_name}`}
-                                        isTransaprent={
-                                            specialization.department_name.toLowerCase() !==
-                                            specializationDoc.toLowerCase()
-                                        }
-                                        buttonCss={{
-                                            borderRadius: "50px",
-                                            padding: "0.5rem 1.5rem",
-                                            marginRight: "0.75rem",
-                                            whiteSpace: "nowrap",
-                                            fontSize: "0.9rem",
-                                            fontWeight: "500",
-                                            minWidth: "auto",
-                                        }}
-                                        handleClick={() => {
-                                            setSpecializationDoc(
-                                                specialization?.department_name,
-                                            );
-                                        }}
-                                    />
-                                ))
-                            ) : (
-                                <EmptyState 
-                                    title="No Specializations"
-                                    description="Specializations will be available soon."
-                                    variant="minimal"
-                                />
-                            )}
+                            <div
+                                ref={scrollContainerRef}
+                                style={{ overflowX: "auto", display: "flex" }}
+                            >
+                                {Array.isArray(nav_specialization) &&
+                                    nav_specialization.map((specialization, index) => (
+                                        <CustomButton
+                                            key={index}
+                                            to={`/patientdashboard/${specialization?.department_name.toLowerCase()}`}
+                                            label={`${specialization?.department_name}`}
+                                            isTransaprent={
+                                                specialization.department_name.toLowerCase() ===
+                                                specializationDoc.toLowerCase()
+                                                    ? false
+                                                    : true
+                                            }
+                                            buttonCss={{
+                                                borderRadius: "50px",
+                                                padding: "0 6.5%",
+                                                marginRight: "1%",
+                                                whiteSpace: "normal",
+                                            }}
+                                            handleClick={() => {
+                                                setSpecializationDoc(
+                                                    specialization?.department_name,
+                                                );
+                                            }}
+                                        />
+                                    ))}
+                            </div>
+                        </Box>
+                        <div onClick={handleScrollRight}>
+                            <ChevronRightIcon />
                         </div>
                     </Box>
-                    
-                    {/* Scroll Controls */}
-                    <Box className="scroll-controls">
-                        <CustomButton
-                            label=""
-                            handleClick={handleScrollLeft}
-                            buttonCss={{
-                                minWidth: "40px",
-                                height: "40px",
-                                borderRadius: "50%",
-                                padding: "0",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <ChevronLeftIcon />
-                        </CustomButton>
-                        <CustomButton
-                            label=""
-                            handleClick={handleScrollRight}
-                            buttonCss={{
-                                minWidth: "40px",
-                                height: "40px",
-                                borderRadius: "50%",
-                                padding: "0",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <ChevronRightIcon />
-                        </CustomButton>
-                    </Box>
+                    {loading ? (
+                        <div style={{ display: "flex", flexWrap: "overflow", gap: "10px" }}>
+                            {[...Array(4)].map((_, index) => (
+                                <Skeleton
+                                    key={index}
+                                    height="8rem"
+                                    width="20em"
+                                    style={{ borderRadius: "8px" }}
+                                />
+                            ))}
+                        </div>
+                    ) : (specializationCardData?.length || 0) > 0 ? (
+                        <CallCardData
+                            linkPath={`/patientdashboard/drdetailscard/`}
+                            sendCardData={specializationCardData}
+                            loading={loading}
+                        />
+                    ) : (
+                        <NoAppointmentCard style={{ height: "8rem" }} text_one="No Data found" />
+                    )}
                 </Box>
+                {/* Near you component starts */}
 
-                {/* Specialization Results */}
-                {loading ? (
-                    <LoadingSkeleton variant="card" count={4} className="skeleton-container--horizontal" />
-                ) : (specializationCardData?.length || 0) > 0 ? (
-                    <CallCardData
-                        linkPath={`/patientdashboard/drdetailscard/`}
-                        sendCardData={specializationCardData}
-                        loading={false}
-                        hcfID={null}
-                    />
-                ) : (
-                    <EmptyState 
-                        title="No Doctors Found"
-                        description={`No doctors found for ${specializationDoc} specialization.`}
-                        onAction={() => window.location.reload()}
-                    />
-                )}
-            </Box>
-            {/* Near You Section */}
-            <Box className="section">
-                <SectionHeader 
-                    title="Doctors Near You" 
-                    subtitle="Find doctors in your local area"
+                <CallCardData
+                    linkPath={`/patientdashboard/drdetailscard/`}
+                    sendCardData={docnearme}
+                    CardData={data}
+                    textField={"Near You"}
+                    loading={loading} // Add this line to pass the loading prop
                 />
-                {loading ? (
-                    <LoadingSkeleton variant="card" count={4} className="skeleton-container--horizontal" />
-                ) : docnearme.length > 0 ? (
-                    <CallCardData
-                        linkPath={`/patientdashboard/drdetailscard/`}
-                        sendCardData={docnearme}
-                        CardData={data}
-                        textField={""}
-                        loading={false}
-                        hcfID={null}
-                    />
-                ) : (
-                    <EmptyState 
-                        title="No Doctors Nearby"
-                        description="No doctors found in your area. Try expanding your search radius."
-                        onAction={() => window.location.reload()}
-                    />
-                )}
-            </Box>
+                {/* Hcf Cards component starts */}
 
-            {/* Healthcare Facilities Section */}
-            <Box className="section">
-                <SectionHeader 
-                    title="Healthcare Facilities" 
-                    subtitle="Browse hospitals and clinics"
+                <CallCardData
+                    linkPath={`/patientdashboard/hcfDetailCard/`}
+                    sendCardData={hcfData}
+                    CardData={data}
+                    textField={"Healthcare Facility"}
+                    loading={loading} // Add this line to pass the loading prop
                 />
-                {loading ? (
-                    <LoadingSkeleton variant="card" count={4} className="skeleton-container--horizontal" />
-                ) : hcfData.length > 0 ? (
-                    <CallCardData
-                        linkPath={`/patientdashboard/hcfDetailCard/`}
-                        sendCardData={hcfData}
-                        CardData={data}
-                        textField={""}
-                        loading={false}
-                        hcfID={null}
-                    />
-                ) : (
-                    <EmptyState 
-                        title="No Healthcare Facilities"
-                        description="Healthcare facilities will be available soon."
-                        onAction={() => window.location.reload()}
-                    />
-                )}
-            </Box>
             </Box>
         </Box>
     );

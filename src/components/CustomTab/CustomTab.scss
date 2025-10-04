@@ -1,0 +1,384 @@
+// Custom Tab Component Styles
+
+.custom-tab {
+  width: 100%;
+  position: relative;
+  
+  .tab-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    
+    .tab-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+      
+      svg {
+        transition: color 0.3s ease;
+      }
+    }
+    
+    .tab-label {
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    
+    .tab-badge {
+      .MuiBadge-badge {
+        font-family: "Poppins", sans-serif;
+        font-weight: 600;
+        font-size: "10px";
+        min-width: "18px";
+        height: "18px";
+        border-radius: "9px";
+        animation: badgePulse 2s infinite;
+      }
+    }
+    
+    .tab-chip {
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+  
+  // Enhanced tab styling
+  .MuiTabs-root {
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+    }
+  }
+  
+  // Tab indicator styling
+  .MuiTabs-indicator {
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+    }
+  }
+  
+  // Individual tab styling
+  .MuiTab-root {
+    position: relative;
+    overflow: hidden;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    &:hover::after {
+      left: 100%;
+    }
+    
+    // Active tab glow effect
+    &.Mui-selected {
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 143, 171, 0.1));
+        border-radius: 14px;
+        z-index: -2;
+        animation: tabGlow 2s infinite;
+      }
+    }
+  }
+  
+  // Scroll buttons styling
+  .MuiTabs-scrollButtons {
+    position: relative;
+    transition: all 0.3s ease;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    &:hover::before {
+      opacity: 1;
+    }
+    
+    svg {
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover svg {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Animations
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes tabGlow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes tabSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Size variants
+.custom-tab {
+  &.small {
+    .tab-content {
+      gap: 4px;
+      
+      .tab-label {
+        font-size: 12px;
+      }
+      
+      .tab-icon svg {
+        font-size: 16px;
+      }
+    }
+  }
+  
+  &.large {
+    .tab-content {
+      gap: 12px;
+      
+      .tab-label {
+        font-size: 16px;
+      }
+      
+      .tab-icon svg {
+        font-size: 24px;
+      }
+    }
+  }
+}
+
+// Color variants
+.custom-tab {
+  &.primary {
+    .MuiTabs-indicator {
+      background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+    }
+  }
+  
+  &.secondary {
+    .MuiTabs-indicator {
+      background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+    }
+  }
+  
+  &.success {
+    .MuiTabs-indicator {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+    }
+  }
+  
+  &.warning {
+    .MuiTabs-indicator {
+      background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    }
+  }
+  
+  &.error {
+    .MuiTabs-indicator {
+      background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+    }
+  }
+}
+
+// Orientation variants
+.custom-tab {
+  &.vertical {
+    .MuiTabs-flexContainer {
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .MuiTab-root {
+      justify-content: flex-start;
+      text-align: left;
+    }
+    
+    .MuiTabs-indicator {
+      width: 3px;
+      height: auto;
+      left: 0;
+      right: auto;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .custom-tab {
+    .tab-content {
+      gap: 6px;
+      
+      .tab-label {
+        font-size: 12px;
+      }
+      
+      .tab-icon svg {
+        font-size: 18px;
+      }
+    }
+    
+    .MuiTabs-scrollButtons {
+      width: 32px;
+      height: 32px;
+      
+      svg {
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-tab {
+    .tab-content {
+      gap: 4px;
+      
+      .tab-label {
+        font-size: 10px;
+      }
+      
+      .tab-icon svg {
+        font-size: 16px;
+      }
+      
+      .tab-chip {
+        font-size: 8px;
+        height: 16px;
+      }
+    }
+    
+    .MuiTabs-scrollButtons {
+      width: 28px;
+      height: 28px;
+      
+      svg {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .custom-tab {
+    .tab-label {
+      color: #e9ecef;
+    }
+    
+    .MuiTabs-root::before {
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .custom-tab {
+    .tab-label {
+      font-weight: 700;
+    }
+    
+    .MuiTab-root {
+      border: 1px solid currentColor;
+      
+      &.Mui-selected {
+        border-width: 2px;
+      }
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .custom-tab {
+    .tab-content,
+    .MuiTab-root,
+    .MuiTabs-indicator,
+    .MuiTabs-scrollButtons {
+      transition: none;
+    }
+    
+    .tab-content .tab-icon,
+    .tab-content .tab-chip {
+      transition: none;
+    }
+    
+    .MuiTab-root::after {
+      display: none;
+    }
+  }
+  
+  @keyframes badgePulse,
+  @keyframes tabGlow,
+  @keyframes tabSlideIn {
+    0%, 100% {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}

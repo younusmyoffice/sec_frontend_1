@@ -1,1 +1,1 @@
-export { default } from "./maindashboard";
+export { default } from "./MainDashboard";

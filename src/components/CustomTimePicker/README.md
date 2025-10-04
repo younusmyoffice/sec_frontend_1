@@ -4,12 +4,14 @@ A reusable time picker component that provides consistent styling and behavior a
 
 ## Features
 
-- **Consistent Styling**: Uses Material-UI `variant="standard"` for uniform appearance
-- **Clock Icon**: Automatically displays clock icon on the right side
+- **Consistent Styling**: Uses Material-UI `variant="standard"` by default for uniform appearance with other form components
+- **Clock Icon**: Automatically displays clock icon in the label for better UX
 - **Error Handling**: Red borders and text when validation fails
 - **Spacing Control**: Configurable spacing between fields
-- **Value Conversion**: Handles Date objects, strings, and dayjs objects
+- **Value Conversion**: Handles Date objects, strings, and dayjs objects seamlessly
 - **Accessibility**: Full accessibility support through Material-UI
+- **Blue Theme**: Consistent blue color scheme (#1976d2) matching other form components
+- **Responsive Design**: Adapts to different screen sizes
 
 ## Usage
 
@@ -70,12 +72,14 @@ The `onChange` callback always receives a Date object for consistency.
 
 ## Styling
 
-The component uses the same styling pattern as `CustomDatePicker`:
-- Standard Material-UI underline style
-- Consistent color scheme (#787579)
-- Proper spacing between fields
-- Red error styling when validation fails
-- Clock icon styling to match the design system
+The component uses consistent styling with other form components:
+- **Standard Variant**: Material-UI underline style by default
+- **Color Scheme**: Blue theme (#1976d2) for focus states and icons
+- **Label Color**: Gray (#787579) matching other form fields
+- **Error States**: Red (#d32f2f) for validation errors
+- **Clock Icon**: Integrated into label with consistent styling
+- **Popup Design**: Blue gradient theme for time picker popup
+- **Responsive**: Adapts to different screen sizes
 
 ## Examples
 

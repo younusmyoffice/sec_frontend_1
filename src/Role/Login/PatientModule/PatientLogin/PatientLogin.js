@@ -3,7 +3,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import "./PatientLogin.scss";
+import "./patientlogin.scss";
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";

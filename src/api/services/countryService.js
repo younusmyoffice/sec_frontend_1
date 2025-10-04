@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getCountryEndpoints } from '../endpoints';
+import { API_ENDPOINTS } from '../endpoints';
 
 /**
  * Country Service
@@ -12,7 +12,7 @@ import { getCountryEndpoints } from '../endpoints';
 
 class CountryService {
   constructor() {
-    this.baseURL = getCountryEndpoints().LIST;
+    this.baseURL = API_ENDPOINTS.MASTER_DATA.COUNTRIES;
   }
 
   /**

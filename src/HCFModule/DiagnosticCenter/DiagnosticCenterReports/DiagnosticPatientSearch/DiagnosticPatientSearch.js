@@ -65,16 +65,16 @@ const DiagnosticPatientSearch = () => {
             >
                 <nav className="NavBar-Container-Appoinement">
                     <nav className="NavBar-Container-Appoinement">
-                        <NavLink to={"/diagnostCenterDashboard/dignosticCenterReports/request"}>
+                        <NavLink to={"/diagnostCenter/diagnosticCenterReports/request"}>
                             Request
                         </NavLink>
-                        <NavLink to={"/diagnostCenterDashboard/dignosticCenterReports/examination"}>
+                        <NavLink to={"/diagnostCenterDashboard/diagnosticCenterReports/examination"}>
                             Examination
                         </NavLink>
-                        <NavLink to={"/diagnostCenterDashboard/dignosticCenterReports/report"}>
+                        <NavLink to={"/diagnostCenterDashboard/diagnosticCenterReports/report"}>
                             Report
                         </NavLink>
-                        {/* <NavLink to={"/diagnostCenterDashboard/dignosticCenterReports/Chart"}>
+                        {/* <NavLink to={"/diagnostCenterDashboard/diagnosticCenterReports/Chart"}>
                             Chart
                         </NavLink> */}
                     </nav>

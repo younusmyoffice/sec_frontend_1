@@ -1,0 +1,337 @@
+// Custom Progress Components Styles
+
+// Linear Progress Styles
+.custom-linear-progress {
+  width: 100%;
+  
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    .progress-label {
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: #495057;
+      transition: color 0.3s ease;
+    }
+    
+    .progress-percentage {
+      font-family: "Poppins", sans-serif;
+      font-weight: 700;
+      transition: color 0.3s ease;
+    }
+  }
+  
+  .progress-container {
+    position: relative;
+    width: 100%;
+    
+    .MuiLinearProgress-root {
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        animation: progressShimmer 3s infinite;
+        border-radius: 10px;
+      }
+    }
+  }
+}
+
+// Circular Progress Styles
+.custom-circular-progress {
+  display: inline-block;
+  position: relative;
+  
+  .circular-progress-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .circular-progress-svg {
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+    
+    .circular-track {
+      transition: opacity 0.3s ease;
+    }
+    
+    .circular-indicator {
+      transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      
+      &.animated {
+        stroke-dasharray: 0 1000;
+        animation: circularProgressAnimation 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      
+      &.spinner-mode {
+        stroke-dasharray: 0 1000;
+        animation: circularSpinner 1s linear infinite;
+      }
+    }
+  }
+  
+  .circular-progress-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    
+    .circular-percentage {
+      font-family: "Poppins", sans-serif;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .circular-label {
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      color: #6c757d;
+      transition: color 0.3s ease;
+    }
+  }
+}
+
+// Animations
+@keyframes progressShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes circularProgressAnimation {
+  0% {
+    stroke-dasharray: 0 1000;
+  }
+  100% {
+    stroke-dasharray: var(--dash-array) 1000;
+  }
+}
+
+@keyframes circularSpinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// Pulse animation for progress bars
+@keyframes progressPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Hover effects
+.custom-linear-progress:hover {
+  .progress-label {
+    color: #ff6b9d;
+  }
+}
+
+.custom-circular-progress:hover {
+  .circular-percentage {
+    transform: scale(1.05);
+  }
+  
+  .circular-indicator {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  }
+}
+
+// Size variants
+.custom-linear-progress {
+  &.small {
+    .progress-header {
+      margin-bottom: 4px;
+    }
+  }
+  
+  &.large {
+    .progress-header {
+      margin-bottom: 12px;
+    }
+  }
+}
+
+.custom-circular-progress {
+  &.small {
+    .circular-progress-content {
+      .circular-percentage {
+        font-size: 10px;
+      }
+      
+      .circular-label {
+        font-size: 8px;
+      }
+    }
+  }
+  
+  &.large {
+    .circular-progress-content {
+      .circular-percentage {
+        font-size: 24px;
+      }
+      
+      .circular-label {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Color variants
+.custom-linear-progress {
+  &.primary {
+    .progress-percentage {
+      color: #1976d2;
+    }
+  }
+  
+  &.secondary {
+    .progress-percentage {
+      color: #ff6b9d;
+    }
+  }
+  
+  &.success {
+    .progress-percentage {
+      color: #4caf50;
+    }
+  }
+  
+  &.warning {
+    .progress-percentage {
+      color: #ff9800;
+    }
+  }
+  
+  &.error {
+    .progress-percentage {
+      color: #f44336;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .custom-linear-progress {
+    .progress-header {
+      .progress-label,
+      .progress-percentage {
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .custom-circular-progress {
+    .circular-progress-content {
+      .circular-percentage {
+        font-size: 14px;
+      }
+      
+      .circular-label {
+        font-size: 10px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-linear-progress {
+    .progress-header {
+      .progress-label,
+      .progress-percentage {
+        font-size: 10px;
+      }
+    }
+  }
+  
+  .custom-circular-progress {
+    .circular-progress-content {
+      .circular-percentage {
+        font-size: 12px;
+      }
+      
+      .circular-label {
+        font-size: 8px;
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .custom-linear-progress {
+    .progress-label {
+      color: #e9ecef;
+    }
+  }
+  
+  .custom-circular-progress {
+    .circular-label {
+      color: #adb5bd;
+    }
+  }
+}
+
+// Accessibility improvements
+.custom-linear-progress,
+.custom-circular-progress {
+  &:focus-within {
+    outline: 2px solid #ff6b9d;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .custom-linear-progress {
+    .progress-label,
+    .progress-percentage {
+      font-weight: 700;
+    }
+  }
+  
+  .custom-circular-progress {
+    .circular-percentage {
+      font-weight: 800;
+    }
+  }
+}

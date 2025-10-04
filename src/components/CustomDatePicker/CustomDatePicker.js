@@ -3,7 +3,10 @@ import PropTypes from "prop-types";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers-pro/AdapterDayjs";
+import { Box, Typography } from "@mui/material";
+import { CalendarToday } from "@mui/icons-material";
 import dayjs from "dayjs";
+import "./CustomDatePicker.scss";
 
 const CustomDatePicker = ({
     label = "Date",
@@ -16,6 +19,9 @@ const CustomDatePicker = ({
     placeholder = "",
     textcss = {},
     noSpacing = false,
+    size = "medium",
+    variant = "outlined",
+    fullWidth = true,
     ...props
 }) => {
     // Convert value to dayjs object if it's a Date or string
@@ -33,57 +39,149 @@ const CustomDatePicker = ({
         }
     };
 
+    const getSizeStyles = () => {
+        switch (size) {
+            case "small":
+                return {
+                    fontSize: "14px",
+                    padding: "8px 12px",
+                    minHeight: "40px"
+                };
+            case "large":
+                return {
+                    fontSize: "18px",
+                    padding: "16px 20px",
+                    minHeight: "56px"
+                };
+            default:
+                return {
+                    fontSize: "16px",
+                    padding: "12px 16px",
+                    minHeight: "48px"
+                };
+        }
+    };
+
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-                label={label}
-                value={dayjsValue}
-                onChange={handleChange}
-                disabled={disabled}
-                slotProps={{
-                    textField: {
-                        variant: "standard",
-                        fullWidth: true,
-                        required: required,
-                        error: error,
-                        helperText: helperText,
-                        placeholder: placeholder,
-                        sx: {
-                            width: "100%",
-                            color: "#787579",
-                            marginBottom: noSpacing ? 0 : "1.5rem", // Consistent spacing between fields
-                            // Ensure calendar icon is visible and properly styled
-                            "& .MuiInputAdornment-root": {
-                                color: "#787579",
-                            },
-                            "& .MuiSvgIcon-root": {
-                                color: "#787579",
-                            },
-                            // Red error styling when error prop is true
-                            "& .MuiFormHelperText-root": {
-                                color: error ? "#d32f2f !important" : "inherit"
-                            },
-                            "& .MuiInput-root": {
-                                "&:before": {
-                                    borderBottom: error ? "2px solid #d32f2f !important" : "1px solid rgba(0, 0, 0, 0.42)"
+        <Box className={`custom-date-picker ${error ? 'error' : ''} ${disabled ? 'disabled' : ''}`}>
+            {label && (
+                <Typography 
+                    variant="body2" 
+                    className="date-picker-label"
+                    sx={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontWeight: 600,
+                        fontSize: size === "small" ? "12px" : size === "large" ? "16px" : "14px",
+                        color: error ? "#d32f2f" : "#495057",
+                        marginBottom: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                    }}
+                >
+                    <CalendarToday sx={{ fontSize: size === "small" ? "16px" : size === "large" ? "20px" : "18px" }} />
+                    {label}
+                    {required && <span style={{ color: "#d32f2f" }}>*</span>}
+                </Typography>
+            )}
+            
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                    value={dayjsValue}
+                    onChange={handleChange}
+                    disabled={disabled}
+                    slotProps={{
+                        textField: {
+                            variant: variant,
+                            fullWidth: fullWidth,
+                            required: required,
+                            error: error,
+                            helperText: helperText,
+                            placeholder: placeholder,
+                            size: size,
+                            sx: {
+                                fontFamily: "Poppins, sans-serif",
+                                ...getSizeStyles(),
+                                marginBottom: noSpacing ? 0 : "1.5rem",
+                                
+                                // Modern input styling
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: "12px",
+                                    backgroundColor: disabled ? "#f5f5f5" : "#ffffff",
+                                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                    border: `2px solid ${error ? "#d32f2f" : "#e0e0e0"}`,
+                                    
+                                    "&:hover": {
+                                        borderColor: error ? "#d32f2f" : "#ff6b9d",
+                                        boxShadow: `0 0 0 3px ${error ? "rgba(211, 47, 47, 0.1)" : "rgba(255, 107, 157, 0.1)"}`,
+                                    },
+                                    
+                                    "&.Mui-focused": {
+                                        borderColor: error ? "#d32f2f" : "#ff6b9d",
+                                        boxShadow: `0 0 0 3px ${error ? "rgba(211, 47, 47, 0.2)" : "rgba(255, 107, 157, 0.2)"}`,
+                                    },
+                                    
+                                    "&.Mui-disabled": {
+                                        backgroundColor: "#f5f5f5",
+                                        borderColor: "#e0e0e0",
+                                        cursor: "not-allowed",
+                                    },
                                 },
-                                "&:hover:not(.Mui-disabled):before": {
-                                    borderBottom: error ? "2px solid #d32f2f !important" : "2px solid rgba(0, 0, 0, 0.87)"
+                                
+                                "& .MuiInputBase-input": {
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontWeight: 500,
+                                    color: "#2c3e50",
+                                    
+                                    "&::placeholder": {
+                                        color: "#adb5bd",
+                                        opacity: 1,
+                                    },
                                 },
-                                "&.Mui-focused:after": {
-                                    borderBottom: error ? "2px solid #d32f2f !important" : "2px solid #1976d2"
-                                }
+                                
+                                "& .MuiInputLabel-root": {
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontWeight: 500,
+                                    color: error ? "#d32f2f" : "#6c757d",
+                                    
+                                    "&.Mui-focused": {
+                                        color: error ? "#d32f2f" : "#ff6b9d",
+                                    },
+                                },
+                                
+                                "& .MuiFormHelperText-root": {
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    fontWeight: 500,
+                                    marginTop: "6px",
+                                    color: error ? "#d32f2f" : "#6c757d",
+                                },
+                                
+                                "& .MuiInputAdornment-root": {
+                                    color: error ? "#d32f2f" : "#ff6b9d",
+                                    
+                                    "&:hover": {
+                                        color: error ? "#d32f2f" : "#ff8fab",
+                                    },
+                                },
+                                
+                                "& .MuiSvgIcon-root": {
+                                    color: error ? "#d32f2f" : "#ff6b9d",
+                                    transition: "color 0.3s ease",
+                                    
+                                    "&:hover": {
+                                        color: error ? "#d32f2f" : "#ff8fab",
+                                    },
+                                },
+                                
+                                ...textcss,
                             },
-                            "& .MuiInputLabel-root": {
-                                color: error ? "#d32f2f !important" : "inherit"
-                            },
-                            ...textcss, // Allow override of styling if needed
                         },
-                    },
-                }}
-                {...props}
-            />
-        </LocalizationProvider>
+                    }}
+                    {...props}
+                />
+            </LocalizationProvider>
+        </Box>
     );
 };
 
@@ -103,6 +201,9 @@ CustomDatePicker.propTypes = {
     placeholder: PropTypes.string,
     textcss: PropTypes.object,
     noSpacing: PropTypes.bool,
+    size: PropTypes.oneOf(["small", "medium", "large"]),
+    variant: PropTypes.oneOf(["standard", "outlined", "filled"]),
+    fullWidth: PropTypes.bool,
 };
 
 CustomDatePicker.defaultProps = {
@@ -116,6 +217,9 @@ CustomDatePicker.defaultProps = {
     placeholder: "",
     textcss: {},
     noSpacing: false,
+    size: "medium",
+    variant: "outlined",
+    fullWidth: true,
 };
 
 export default CustomDatePicker;

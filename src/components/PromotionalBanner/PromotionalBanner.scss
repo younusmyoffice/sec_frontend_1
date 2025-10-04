@@ -1,0 +1,119 @@
+.promotional-banner {
+    background: linear-gradient(135deg, #E82B4A 0%, #FF6B6B 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 24px 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+        pointer-events: none;
+    }
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+}
+
+.text-content {
+    flex: 1;
+    max-width: 60%;
+}
+
+.banner-title {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    margin-bottom: 12px !important;
+    line-height: 1.2 !important;
+    color: white !important;
+}
+
+.banner-description {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    margin-bottom: 24px !important;
+    line-height: 1.5 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    opacity: 0.95;
+}
+
+.banner-button {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-family: "Poppins, sans-serif" !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    text-transform: none !important;
+    transition: all 0.3s ease !important;
+    
+    &:hover {
+        background: rgba(255, 255, 255, 0.3) !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
+        transform: translateY(-2px);
+    }
+}
+
+.image-content {
+    flex: 0 0 auto;
+    margin-left: 32px;
+}
+
+.banner-image {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .promotional-banner {
+        padding: 24px;
+        margin: 16px 0;
+    }
+    
+    .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .text-content {
+        max-width: 100%;
+        margin-bottom: 24px;
+    }
+    
+    .banner-title {
+        font-size: 24px !important;
+    }
+    
+    .banner-description {
+        font-size: 14px !important;
+    }
+    
+    .image-content {
+        margin-left: 0;
+    }
+    
+    .banner-image {
+        width: 150px;
+        height: 150px;
+    }
+}

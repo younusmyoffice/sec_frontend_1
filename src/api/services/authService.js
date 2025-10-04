@@ -1,187 +1,122 @@
 /**
- * Authentication Service
- * 
- * Handles all authentication-related API calls including login, logout, and token management
+ * Authentication Service - API calls for authentication-related operations
  */
 
+import axios from 'axios';
 import axiosInstance from '../../config/axiosInstance';
 import { API_ENDPOINTS } from '../endpoints';
-import { getCurrentUser, getCurrentUserId, getCurrentUserEmail, clearAuthData } from '../../utils/jwtUtils';
+import { baseURL } from '../../constants/const';
 
-/**
- * Logout user from the system
- * @param {Object} options - Logout options
- * @param {boolean} options.clearLocalData - Whether to clear local storage data (default: true)
- * @param {boolean} options.callServer - Whether to call server logout endpoint (default: true)
- * @returns {Promise<Object>} - Logout response
- */
-export const logoutUser = async (options = {}) => {
-    const { clearLocalData = true, callServer = true } = options;
-    
-    try {
-        let serverResponse = null;
-        
-        // Call server logout endpoint if requested
-        if (callServer) {
-            try {
-                const userInfo = getCurrentUser();
-                const logoutData = {
-                    email: getCurrentUserEmail(),
-                    suid: getCurrentUserId(),
-                    access_token: localStorage.getItem('access_token')
-                };
-                
-                console.log('Calling server logout with data:', logoutData);
-                
-                serverResponse = await axiosInstance.post(
-                    API_ENDPOINTS.AUTH.LOGOUT,
-                    JSON.stringify(logoutData),
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                        },
-                    }
-                );
-                
-                console.log('Server logout response:', serverResponse.data);
-            } catch (serverError) {
-                console.warn('Server logout failed, but continuing with local logout:', serverError);
-                // Continue with local logout even if server call fails
-            }
-        }
-        
-        // Clear local authentication data if requested
-        if (clearLocalData) {
-            clearAuthData();
-            console.log('Local authentication data cleared');
-        }
-        
-        return {
-            success: true,
-            message: 'Logout successful',
-            serverResponse: serverResponse?.data || null,
-            timestamp: new Date().toISOString()
-        };
-        
-    } catch (error) {
-        console.error('Logout error:', error);
-        
-        // Even if logout fails, clear local data for security
-        if (clearLocalData) {
-            clearAuthData();
-        }
-        
-        return {
-            success: false,
-            message: error?.response?.data?.error || 'Logout failed',
-            error: error,
-            timestamp: new Date().toISOString()
-        };
-    }
-};
+export class AuthService {
+  // Login
+  static async login(loginData) {
+    const response = await axios.post(
+      API_ENDPOINTS.AUTH.LOGIN,
+      JSON.stringify(loginData),
+      { Accept: "Application/json" }
+    );
+    return response.data;
+  }
 
-/**
- * Force logout - clears all data without server call
- * @returns {Object} - Logout response
- */
-export const forceLogout = async () => {
-    try {
-        clearAuthData();
-        console.log('Force logout completed - all local data cleared');
-        
-        return {
-            success: true,
-            message: 'Force logout successful',
-            timestamp: new Date().toISOString()
-        };
-    } catch (error) {
-        console.error('Force logout error:', error);
-        return {
-            success: false,
-            message: 'Force logout failed',
-            error: error,
-            timestamp: new Date().toISOString()
-        };
-    }
-};
+  // Register
+  static async register(data) {
+    const response = await axios.post(
+      API_ENDPOINTS.AUTH.REGISTER,
+      JSON.stringify(data)
+    );
+    return response.data;
+  }
 
-/**
- * Check if user is currently logged in
- * @returns {boolean} - True if user is logged in, false otherwise
- */
+  // OTP Verification
+  static async verifyOtp(mobile, otp) {
+    const response = await axios.post(API_ENDPOINTS.AUTH.VERIFY_OTP, {
+      mobile,
+      otp_code: otp,
+    });
+    return response.data;
+  }
+
+  // Resend Code
+  static async resendCode(data) {
+    const response = await axios.post(API_ENDPOINTS.AUTH.RESEND_CODE, data);
+    return response.data;
+  }
+
+  // Email Verification
+  static async verifyEmail(payload) {
+    const response = await axios.post(
+      API_ENDPOINTS.AUTH.VERIFY_EMAIL,
+      JSON.stringify(payload),
+      { Accept: "Application/json" }
+    );
+    return response.data;
+  }
+
+  // Forgot Password
+  static async forgotPassword(email) {
+    const response = await axios.post(
+      API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
+      JSON.stringify({ email })
+    );
+    return response.data;
+  }
+
+  // Change Password
+  static async changePassword(data) {
+    const response = await axios.post(
+      API_ENDPOINTS.AUTH.CHANGE_PASSWORD,
+      JSON.stringify(data)
+    );
+    return response.data;
+  }
+
+  // Update Profile
+  static async updateProfile(data) {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.AUTH.UPDATE_PROFILE,
+      JSON.stringify(data)
+    );
+    return response.data;
+  }
+
+  // Logout
+  static async logout() {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT);
+    return response.data;
+  }
+
+  // Check Force Logout
+  static async checkForceLogout() {
+    const response = await axiosInstance.get(API_ENDPOINTS.AUTH.CHECK_FORCE_LOGOUT);
+    return response.data;
+  }
+
+  // Refresh Token
+  static async refreshToken() {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.REFRESH_TOKEN);
+    return response.data;
+  }
+
+  // Reset Password
+  static async resetPassword(data) {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.AUTH.RESET_PASSWORD,
+      JSON.stringify(data)
+    );
+    return response.data;
+  }
+}
+
+// Individual function exports for backward compatibility
+export const loginUser = AuthService.login;
+export const registerUser = AuthService.register;
+export const logoutUser = AuthService.logout;
+export const forceLogout = AuthService.logout;
 export const isUserLoggedIn = () => {
-    try {
-        const userInfo = getCurrentUser();
-        return userInfo !== null && !userInfo.isExpired;
-    } catch (error) {
-        console.error('Error checking login status:', error);
-        return false;
-    }
+  // Check if user is logged in based on localStorage/sessionStorage
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  return !!token;
 };
+export const checkForceLogout = AuthService.checkForceLogout;
 
-/**
- * Check if user was force logged out from server
- * @returns {Promise<Object>} - Force logout status
- */
-export const checkForceLogout = async () => {
-    try {
-        const userInfo = getCurrentUser();
-        const checkData = {
-            email: getCurrentUserEmail(),
-            suid: getCurrentUserId(),
-            access_token: localStorage.getItem('access_token')
-        };
-        
-        console.log('Checking force logout with data:', checkData);
-        
-        const response = await axiosInstance.post(
-            API_ENDPOINTS.AUTH.CHECK_FORCE_LOGOUT,
-            JSON.stringify(checkData),
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            }
-        );
-        
-        console.log('Force logout check response:', response.data);
-        return {
-            success: true,
-            data: response.data.response,
-            timestamp: new Date().toISOString()
-        };
-        
-    } catch (error) {
-        console.error('Error checking force logout:', error);
-        return {
-            success: false,
-            message: error?.response?.data?.error || 'Force logout check failed',
-            error: error,
-            timestamp: new Date().toISOString()
-        };
-    }
-};
-
-/**
- * Get current user information
- * @returns {Object|null} - User information or null if not logged in
- */
-export const getCurrentUserInfo = () => {
-    try {
-        return getCurrentUser();
-    } catch (error) {
-        console.error('Error getting current user info:', error);
-        return null;
-    }
-};
-
-// Default export
-export default {
-    logoutUser,
-    forceLogout,
-    isUserLoggedIn,
-    getCurrentUserInfo,
-    checkForceLogout
-};
+export default AuthService;

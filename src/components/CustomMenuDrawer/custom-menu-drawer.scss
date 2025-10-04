@@ -6,3 +6,139 @@
 #location-search-container{
     display: flex;
 }
+
+// Responsive Design Enhancements
+.drawer-open {
+    transition: margin-left 0.3s ease;
+}
+
+.drawer-closed {
+    transition: margin-left 0.3s ease;
+}
+
+// Sidebar Expand/Shrink Animations
+.MuiDrawer-paper {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow-x: hidden;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 1200 !important;
+    
+    // Smooth logo transition
+    .MuiDrawerHeader-root {
+        transition: all 0.3s ease;
+        
+        img {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    }
+    
+    // Menu item animations
+    .MuiListItem-root {
+        transition: all 0.3s ease;
+        
+        .MuiListItemButton-root {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.04) !important;
+                transform: translateX(4px);
+            }
+        }
+        
+        .MuiListItemIcon-root {
+            transition: margin 0.3s ease, color 0.3s ease;
+        }
+        
+        .MuiListItemText-root {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    }
+}
+
+// Collapsed sidebar styles
+.MuiDrawer-paper[style*="width: 57px"] {
+    .MuiListItemText-root {
+        opacity: 0 !important;
+        transform: translateX(-20px);
+    }
+    
+    .MuiListItemIcon-root {
+        margin-right: 0 !important;
+    }
+    
+    .MuiListItemButton-root {
+        justify-content: center !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}
+
+// Active menu item styles
+.MuiListItem-root.active {
+    .MuiListItemButton-root {
+        background-color: rgba(25, 118, 210, 0.08) !important;
+        border-radius: 8px;
+        margin: 4px 8px;
+        
+        &:hover {
+            background-color: rgba(25, 118, 210, 0.12) !important;
+        }
+    }
+    
+    .MuiListItemIcon-root {
+        color: #ffffff !important;
+    }
+}
+
+// Mobile-specific styles
+@media (max-width: 768px) {
+    .MuiDrawer-paper {
+        width: 280px !important;
+    }
+    
+    .MuiAppBar-root {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .MuiToolbar-root {
+        padding: 0 8px !important;
+        min-height: 56px !important;
+    }
+}
+
+// Tablet-specific styles
+@media (min-width: 769px) and (max-width: 1024px) {
+    .MuiDrawer-paper {
+        width: 270px !important;
+    }
+}
+
+// Desktop-specific styles
+@media (min-width: 1025px) {
+    .MuiDrawer-paper {
+        width: 270px !important;
+    }
+}
+
+// Touch-friendly interactions
+@media (hover: none) and (pointer: coarse) {
+    .MuiListItemButton-root {
+        min-height: 56px !important;
+        padding: 12px 16px !important;
+    }
+    
+    .MuiIconButton-root {
+        min-width: 48px !important;
+        min-height: 48px !important;
+    }
+}
+
+// High DPI displays
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .MuiDrawer-paper {
+        border-right: 0.5px solid rgba(0, 0, 0, 0.12);
+    }
+}

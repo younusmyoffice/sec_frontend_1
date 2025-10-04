@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -105,8 +105,9 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         clientToken: null,
         success: "",
         error: "",
-        instance: "",
+        instance: null,
     });
+    const dropinInstanceRef = useRef(null);
     const [nonce, setNonce] = React.useState(null);
     const [braintreeKey, setBraintreeKey] = React.useState(0); // Key to force re-render
     const [isRefreshing, setIsRefreshing] = React.useState(false); // Loading state for refresh
@@ -337,8 +338,9 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             const freshToken = await generateClientToken();
             console.log("Generated fresh client token:", freshToken);
             
-            // Update values with fresh token
-            setValues({ ...values, clientToken: freshToken });
+            // Update values with fresh token; clear stale instance reference
+            setValues(prev => ({ ...prev, clientToken: freshToken, instance: null }));
+            dropinInstanceRef.current = null;
             
             // Clear any existing nonce and used nonces
             setNonce(null);
@@ -375,18 +377,41 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             console.log(`Getting fresh Braintree ${environment} nonce`);
             
             // Check if Braintree instance is available and not torn down
-            if (!values?.instance) {
-                throw new Error("Braintree payment form not ready. Please wait and try again.");
+            if (!dropinInstanceRef.current && !values?.instance) {
+                console.log("No Braintree instance available, refreshing...");
+                await refreshBraintreeInstance();
+                // Wait a bit for the instance to initialize
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check again after refresh
+                if (!dropinInstanceRef.current && !values?.instance) {
+                    throw new Error("Braintree payment form not ready. Please wait and try again.");
+                }
             }
+            
+            // Use the most current instance (prefer dropinInstanceRef, fallback to values.instance)
+            const currentInstance = dropinInstanceRef.current || values?.instance;
             
             // Check if instance is still valid (not torn down)
             try {
                 // Test if instance is still valid by checking if it has the requestPaymentMethod function
-                if (typeof values.instance.requestPaymentMethod !== 'function') {
-                    throw new Error("Braintree instance is no longer valid. Please refresh the payment form.");
+                if (!currentInstance || typeof currentInstance.requestPaymentMethod !== 'function') {
+                    console.log("Braintree instance is invalid, refreshing...");
+                    await refreshBraintreeInstance();
+                    // Wait a bit for the instance to initialize
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Get the refreshed instance
+                    const refreshedInstance = dropinInstanceRef.current || values?.instance;
+                    if (!refreshedInstance || typeof refreshedInstance.requestPaymentMethod !== 'function') {
+                        throw new Error("Braintree payment form is no longer valid. Please refresh the payment form.");
+                    }
                 }
             } catch (error) {
                 console.error("Braintree instance validation failed:", error);
+                if (error.message.includes("refresh")) {
+                    throw error; // Re-throw refresh errors
+                }
                 throw new Error("Braintree payment form is no longer valid. Please refresh the payment form.");
             }
             
@@ -398,7 +423,8 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             
             while (retryCount < maxRetries) {
                 try {
-                    nonce_value = await get_nonce(values);
+                    const instanceToUse = dropinInstanceRef.current || values?.instance;
+                    nonce_value = await get_nonce({ instance: instanceToUse });
                     console.log(`Generated fresh Braintree ${environment} nonce:`, nonce_value);
                     
                     if (nonce_value && typeof nonce_value === 'string') {
@@ -409,13 +435,13 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                     
                     if (error.message && error.message.includes('teardown')) {
                         console.log("Teardown error detected, refreshing Braintree instance...");
-                        await refreshBraintreeInstance();
-                        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for new instance
-                        retryCount++;
-                        continue;
-                    } else {
-                        throw error; // Re-throw non-teardown errors
-                    }
+                await refreshBraintreeInstance();
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for new instance
+                retryCount++;
+                continue;
+            } else {
+                throw error; // Re-throw non-teardown errors
+            }
                 }
                 
                 retryCount++;
@@ -443,7 +469,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             await bookappointment(nonce_value);
             setIsAppointmentBooked(true);
             clearPaymentForm();
-            
+
         } catch (error) {
             console.error("Error in payment processing:", error);
             setShowSnackError(true);
@@ -452,8 +478,16 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             if (error.message && error.message.includes('teardown')) {
                 setShowSnackErrorMessage("Payment form has been reset. Please refresh the payment form and try again.");
             } else if (error.message && error.message.includes('no longer valid')) {
-                setShowSnackErrorMessage("Payment form is no longer valid. Please refresh the payment form and try again.");
-        } else {
+                // Automatically refresh the Braintree instance for this specific error
+                console.log("Automatically refreshing Braintree instance due to invalid instance error...");
+                try {
+                    await refreshBraintreeInstance();
+                    setShowSnackErrorMessage("Payment form has been automatically refreshed. Please try again.");
+                } catch (refreshError) {
+                    console.error("Failed to auto-refresh Braintree instance:", refreshError);
+                    setShowSnackErrorMessage("Payment form is no longer valid. Please refresh the page and try again.");
+                }
+            } else {
                 setShowSnackErrorMessage(error.message || "Payment processing failed. Please try again.");
             }
         } finally {
@@ -627,12 +661,12 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             
             const token = await generateClientToken();
             console.log(`Generated Braintree ${environment} token:`, token);
-            setValues({ ...values, clientToken: token });
+            setValues(prev => ({ ...prev, clientToken: token }));
         } catch (error) {
             console.error("Error initializing payment token:", error);
             // Fallback to mock token in case of error
             const fallbackToken = `fallback_token_${Date.now()}`;
-            setValues({ ...values, clientToken: fallbackToken });
+            setValues(prev => ({ ...prev, clientToken: fallbackToken }));
         }
     };
 
@@ -1335,11 +1369,12 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                             authorization: values?.clientToken,
                                                         }}
                                                         onInstance={(instance) => {
-                                                    console.log("Braintree Drop-In instance:", instance);
-                                                            setValues({
-                                                                ...values,
+                                                            console.log("Braintree Drop-In instance:", instance);
+                                                            setValues(prev => ({
+                                                                ...prev,
                                                                 instance: instance,
-                                                            });
+                                                            }));
+                                                            dropinInstanceRef.current = instance;
                                                         }}
                                                     />
                                             

@@ -12,24 +12,60 @@ const CustomChip = ({
     rightIcon,
     onChipClick,
     onRightIconClick,
+    color = "primary",
+    size = "medium",
+    variant = "filled"
 }) => {
+    const chipVariant = isTransparent ? "outlined" : variant;
+    
     return (
         <Chip
             label={label}
-            color="primary"
-            className={isElevated ? "elevation" : ""}
-            variant={isTransparent ? "outlined" : "filled"}
+            color={color}
+            variant={chipVariant}
+            size={size}
             disabled={isDisabled}
             onClick={onChipClick}
             onDelete={onRightIconClick}
             icon={leftIcon}
             deleteIcon={rightIcon}
+            sx={{
+                fontFamily: "Poppins, sans-serif",
+                fontWeight: 500,
+                fontSize: size === "small" ? "12px" : "14px",
+                borderRadius: "20px",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: isElevated ? "0 4px 12px rgba(0, 0, 0, 0.15)" : "none",
+                "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: isElevated ? "0 8px 20px rgba(0, 0, 0, 0.2)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+                "&:active": {
+                    transform: "translateY(0px)",
+                },
+                "&.MuiChip-outlined": {
+                    borderWidth: "2px",
+                    "&:hover": {
+                        borderWidth: "2px",
+                    }
+                },
+                "& .MuiChip-icon": {
+                    fontSize: size === "small" ? "16px" : "18px",
+                },
+                "& .MuiChip-deleteIcon": {
+                    fontSize: size === "small" ? "16px" : "18px",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                        transform: "scale(1.1)",
+                    }
+                }
+            }}
         />
     );
 };
 
 CustomChip.defaultProps = {
-    label: "enabled",
+    label: "Chip",
     leftIcon: <MyLocationOutlined />,
     rightIcon: <MyLocationOutlined />,
     isTransparent: false,
@@ -37,6 +73,9 @@ CustomChip.defaultProps = {
     isElevated: false,
     onChipClick: () => {},
     onRightIconClick: () => {},
+    color: "primary",
+    size: "medium",
+    variant: "filled",
 };
 
 CustomChip.propTypes = {
@@ -48,6 +87,9 @@ CustomChip.propTypes = {
     isElevated: PropTypes.bool,
     onChipClick: PropTypes.func,
     onRightIconClick: PropTypes.func,
+    color: PropTypes.oneOf(["default", "primary", "secondary", "error", "info", "success", "warning"]),
+    size: PropTypes.oneOf(["small", "medium"]),
+    variant: PropTypes.oneOf(["filled", "outlined"]),
 };
 
 export default CustomChip;

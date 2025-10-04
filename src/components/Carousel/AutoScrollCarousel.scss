@@ -1,106 +1,262 @@
 .auto-scroll-carousel {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
+  position: relative;
   width: 100%;
-  gap: 16px;
-  padding: 8px 0;
-  scroll-behavior: smooth;
+  padding: 20px 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 16px;
+  overflow: hidden;
   
-  // Hide scrollbar
-  &::-webkit-scrollbar {
-    display: none;
+  .carousel-container {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 20px;
+    padding: 0 20px;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    &:hover {
+      scroll-behavior: auto;
+    }
   }
   
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  .carousel-controls {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    &.left-controls {
+      left: 10px;
+    }
+    
+    &.right-controls {
+      right: 10px;
+    }
+    
+    .control-button {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      
+      &:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+      
+      &:active {
+        transform: scale(0.95);
+      }
+      
+      svg {
+        color: #495057;
+        font-size: 20px;
+        transition: color 0.3s ease;
+      }
+      
+      &:hover svg {
+        color: #ff6b9d;
+      }
+    }
+  }
   
-  // Pause animation on hover
-  &:hover {
-    scroll-behavior: auto;
+  .play-pause-control {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    
+    .play-button {
+      background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+      
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+      }
+      
+      &:active {
+        transform: scale(0.95);
+      }
+      
+      svg {
+        color: white;
+        font-size: 18px;
+      }
+    }
   }
 }
 
 .carousel-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 70px;
-  height: 180px;
-  background: #ffffff;
-  border: 1px solid #E6E1E5;
-  border-radius: 16px;
-  padding: 20px;
+  flex-direction: column;
+  min-width: 280px;
+  height: 320px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid rgba(255, 107, 157, 0.1);
+  border-radius: 20px;
+  padding: 24px;
   flex-shrink: 0;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
   
-  // Add subtle gradient background
+  // Add subtle gradient overlay
   &::before {
     content: '';
     position: absolute;
     top: 0;
+    left: 0;
     right: 0;
-    width: 80px;
-    height: 100%;
-    background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
-    opacity: 0.1;
-    border-radius: 0 16px 16px 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.05) 0%, rgba(255, 143, 171, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 20px;
   }
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-color: #ff6b9d;
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(255, 107, 157, 0.15);
+    border-color: rgba(255, 107, 157, 0.3);
+    
+    &::before {
+      opacity: 1;
+    }
+    
+    .image-overlay {
+      opacity: 1;
+    }
+    
+    .card-image img {
+      transform: scale(1.1);
+    }
   }
   
   &.loading {
-    background: #f5f5f5;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
   }
 }
 
 .card-content {
-  width: 60%;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
   z-index: 2;
   position: relative;
+  height: 100%;
 }
 
-.card-title {
-  font-weight: 600;
-  color: #2c3e50;
-  text-align: left;
-  font-size: 18px;
-  line-height: 1.4;
-  margin: 0;
-  letter-spacing: -0.02em;
+.card-header {
+  margin-bottom: 16px;
+  
+  .card-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+  
+  .card-subtitle {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+  }
+  
+  .card-category {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 }
 
 .card-image {
-  width: 15%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
   position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
   
   img {
     width: 100%;
-    height: auto;
-    border-radius: 12px;
-    max-height: 150px;
+    height: 100%;
     object-fit: cover;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 16px;
   }
   
-  &:hover img {
-    transform: scale(1.05);
+  .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.2) 0%, rgba(255, 143, 171, 0.2) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 16px;
+  }
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  
+  .rating-text {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 }
 
@@ -110,30 +266,51 @@
   height: 20px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: 4px;
-  margin-bottom: 8px;
+  animation: shimmer 1.5s infinite;
+  border-radius: 10px;
+  margin-bottom: 12px;
 }
 
-.skeleton-button {
-  width: 80px;
-  height: 32px;
+.skeleton-subtitle {
+  width: 80%;
+  height: 16px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: 16px;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.skeleton-category {
+  width: 60px;
+  height: 24px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 20px;
+  margin-bottom: 16px;
 }
 
 .skeleton-image {
   width: 100%;
-  height: 80px;
+  height: 160px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+  animation: shimmer 1.5s infinite;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.skeleton-rating {
+  width: 80px;
+  height: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
   border-radius: 8px;
 }
 
-@keyframes loading {
+@keyframes shimmer {
   0% {
     background-position: 200% 0;
   }
@@ -145,52 +322,104 @@
 // Responsive design
 @media (max-width: 768px) {
   .auto-scroll-carousel {
-    gap: 12px;
-    padding: 6px 0;
+    padding: 16px 0;
+    
+    .carousel-container {
+      gap: 16px;
+      padding: 0 16px;
+    }
+    
+    .carousel-controls {
+      .control-button {
+        width: 36px;
+        height: 36px;
+        
+        svg {
+          font-size: 18px;
+        }
+      }
+    }
+    
+    .play-pause-control .play-button {
+      width: 32px;
+      height: 32px;
+      
+      svg {
+        font-size: 16px;
+      }
+    }
   }
   
   .carousel-card {
-    min-width: 126px;
-    height: 220px;
-    padding: 16px;
-    border-radius: 12px;
+    min-width: 240px;
+    height: 280px;
+    padding: 20px;
+    border-radius: 16px;
   }
   
-  .card-title {
-    font-size: 16px;
-    line-height: 1.3;
+  .card-header .card-title {
+    font-size: 18px;
   }
   
-  .card-image img {
-    max-height: 80px;
-    border-radius: 8px;
+  .card-image {
+    height: 140px;
+    margin-bottom: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .auto-scroll-carousel {
-    gap: 8px;
-    padding: 4px 0;
+    padding: 12px 0;
+    
+    .carousel-container {
+      gap: 12px;
+      padding: 0 12px;
+    }
+    
+    .carousel-controls {
+      display: none; // Hide controls on very small screens
+    }
+    
+    .play-pause-control .play-button {
+      width: 28px;
+      height: 28px;
+      
+      svg {
+        font-size: 14px;
+      }
+    }
   }
   
   .carousel-card {
-    min-width: 98px;
-    height: 100px;
-    padding: 12px;
-    border-radius: 10px;
+    min-width: 200px;
+    height: 240px;
+    padding: 16px;
+    border-radius: 12px;
   }
   
-  .card-title {
-    font-size: 14px;
-    line-height: 1.2;
+  .card-header {
+    margin-bottom: 12px;
+    
+    .card-title {
+      font-size: 16px;
+    }
+    
+    .card-subtitle {
+      font-size: 12px;
+    }
+    
+    .card-category {
+      font-size: 10px;
+      padding: 3px 8px;
+    }
   }
   
-  .card-image img {
-    max-height: 60px;
-    border-radius: 6px;
+  .card-image {
+    height: 120px;
+    margin-bottom: 12px;
   }
   
-  .card-content {
-    gap: 8px;
+  .card-footer .rating-text {
+    font-size: 12px;
   }
 }

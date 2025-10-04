@@ -5,7 +5,8 @@ import image1 from "../static/images/DrImages/image1.png";
 import image2 from "../static/images/DrImages/image2.png";
 // import image3 from "../../static/images/DrImages/image3.png";
 import image3 from "../static/images/DrImages/image3.png"
-import Drcard from "./drcard/drcard";
+// import Drcard from "./drcard/drcard";
+import DoctorCard from "../components/DoctorCard/DoctorCard";
 import CustomButton from "../components/CustomButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -14,12 +15,8 @@ import NoAppointmentCard from "../PatientDashboard/PatientAppointment/NoAppointm
 // import HCFDrCard from "../pages/PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
 import HCFDrCard from "../Role/Login/PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
 
-export const baseURL = "http://localhost:3000";
-export const front_end_url = "http://localhost:8000";
-export const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-export const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,55}$/;
-export const numberRegex = /^\d+$/;
+// Re-export constants from apiConstants to maintain backward compatibility
+export { baseURL, front_end_url, emailRegex, passwordRegex, numberRegex } from "./apiConstants";
 
 export const data = [
     {
@@ -142,7 +139,7 @@ export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID
                                     }}
                                     key={index}
                                 >
-                                    <Drcard DrData={dataprop}/>
+                                    <DoctorCard DrData={dataprop}/>
                                 </Link>
                             ))
                         )}

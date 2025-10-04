@@ -2,8 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers-pro/AdapterDayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Box, Typography } from "@mui/material";
+import { AccessTime } from "@mui/icons-material";
 import dayjs from "dayjs";
+import "./CustomTimePicker.scss";
 
 const CustomTimePicker = ({
     label = "Time",
@@ -16,6 +19,9 @@ const CustomTimePicker = ({
     placeholder = "",
     textcss = {},
     noSpacing = false,
+    size = "medium",
+    variant = "standard",
+    fullWidth = true,
     ...props
 }) => {
     // Convert value to dayjs object if it's a Date, string, or number
@@ -33,57 +39,165 @@ const CustomTimePicker = ({
         }
     };
 
+    const getSizeStyles = () => {
+        switch (size) {
+            case "small":
+                return {
+                    fontSize: "14px",
+                    padding: "8px 12px",
+                    minHeight: "40px"
+                };
+            case "large":
+                return {
+                    fontSize: "18px",
+                    padding: "16px 20px",
+                    minHeight: "56px"
+                };
+            default:
+                return {
+                    fontSize: "16px",
+                    padding: "12px 16px",
+                    minHeight: "48px"
+                };
+        }
+    };
+
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <TimePicker
-                label={label}
-                value={dayjsValue}
-                onChange={handleChange}
-                disabled={disabled}
-                slotProps={{
-                    textField: {
-                        variant: "standard",
-                        fullWidth: true,
-                        required: required,
-                        error: error,
-                        helperText: helperText,
-                        placeholder: placeholder,
-                        sx: {
-                            width: "100%",
-                            color: "#787579",
-                            marginBottom: noSpacing ? 0 : "1.5rem", // Consistent spacing between fields
-                            // Ensure clock icon is visible and properly styled
-                            "& .MuiInputAdornment-root": {
-                                color: "#787579",
-                            },
-                            "& .MuiSvgIcon-root": {
-                                color: "#787579",
-                            },
-                            // Red error styling when error prop is true
-                            "& .MuiFormHelperText-root": {
-                                color: error ? "#d32f2f !important" : "inherit"
-                            },
-                            "& .MuiInput-root": {
-                                "&:before": {
-                                    borderBottom: error ? "2px solid #d32f2f !important" : "1px solid rgba(0, 0, 0, 0.42)"
+        <Box className={`custom-time-picker ${error ? 'error' : ''} ${disabled ? 'disabled' : ''}`}>
+            {label && (
+                <Typography 
+                    variant="body2" 
+                    className="time-picker-label"
+                    sx={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontWeight: 600,
+                        fontSize: size === "small" ? "12px" : size === "large" ? "16px" : "14px",
+                        color: error ? "#d32f2f" : "#495057",
+                        marginBottom: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                    }}
+                >
+                    <AccessTime sx={{ fontSize: size === "small" ? "16px" : size === "large" ? "20px" : "18px" }} />
+                    {label}
+                    {required && <span style={{ color: "#d32f2f" }}>*</span>}
+                </Typography>
+            )}
+            
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                    value={dayjsValue}
+                    onChange={handleChange}
+                    disabled={disabled}
+                    slotProps={{
+                        textField: {
+                            variant: variant,
+                            fullWidth: fullWidth,
+                            required: required,
+                            error: error,
+                            helperText: helperText,
+                            placeholder: placeholder,
+                            size: size,
+                            sx: {
+                                fontFamily: "Poppins, sans-serif",
+                                ...getSizeStyles(),
+                                marginBottom: noSpacing ? 0 : "1.5rem",
+                                
+                                // Standard variant styling to match other form components
+                                "& .MuiInputLabel-root": {
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontWeight: 500,
+                                    color: error ? "#d32f2f" : "#787579",
+                                    
+                                    "&.Mui-focused": {
+                                        color: error ? "#d32f2f" : "#1976d2",
+                                    },
                                 },
-                                "&:hover:not(.Mui-disabled):before": {
-                                    borderBottom: error ? "2px solid #d32f2f !important" : "2px solid rgba(0, 0, 0, 0.87)"
+                                
+                                "& .MuiInput-underline": {
+                                    "&:before": {
+                                        borderBottomColor: error ? "#d32f2f" : "#e0e0e0",
+                                    },
+                                    
+                                    "&:hover:not(.Mui-disabled):before": {
+                                        borderBottomColor: error ? "#d32f2f" : "#1976d2",
+                                    },
+                                    
+                                    "&:after": {
+                                        borderBottomColor: error ? "#d32f2f" : "#1976d2",
+                                    },
                                 },
-                                "&.Mui-focused:after": {
-                                    borderBottom: error ? "2px solid #d32f2f !important" : "2px solid #1976d2"
-                                }
+                                
+                                "& .MuiInputBase-input": {
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontWeight: 500,
+                                    color: "#2c3e50",
+                                    padding: "8px 0",
+                                    
+                                    "&::placeholder": {
+                                        color: "#adb5bd",
+                                        opacity: 1,
+                                    },
+                                },
+                                
+                                "& .MuiFormHelperText-root": {
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    fontWeight: 500,
+                                    marginTop: "6px",
+                                    color: error ? "#d32f2f" : "#6c757d",
+                                },
+                                
+                                "& .MuiInputAdornment-root": {
+                                    color: error ? "#d32f2f" : "#1976d2",
+                                    
+                                    "&:hover": {
+                                        color: error ? "#d32f2f" : "#1565c0",
+                                    },
+                                },
+                                
+                                "& .MuiSvgIcon-root": {
+                                    color: error ? "#d32f2f" : "#1976d2",
+                                    transition: "color 0.3s ease",
+                                    
+                                    "&:hover": {
+                                        color: error ? "#d32f2f" : "#1565c0",
+                                    },
+                                },
+                                
+                                // Outlined variant styling (when variant="outlined" is used)
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: "8px",
+                                    backgroundColor: disabled ? "#f5f5f5" : "#ffffff",
+                                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                    border: `1px solid ${error ? "#d32f2f" : "#e0e0e0"}`,
+                                    
+                                    "&:hover": {
+                                        borderColor: error ? "#d32f2f" : "#1976d2",
+                                        boxShadow: `0 0 0 2px ${error ? "rgba(211, 47, 47, 0.1)" : "rgba(25, 118, 210, 0.1)"}`,
+                                    },
+                                    
+                                    "&.Mui-focused": {
+                                        borderColor: error ? "#d32f2f" : "#1976d2",
+                                        boxShadow: `0 0 0 2px ${error ? "rgba(211, 47, 47, 0.2)" : "rgba(25, 118, 210, 0.2)"}`,
+                                    },
+                                    
+                                    "&.Mui-disabled": {
+                                        backgroundColor: "#f5f5f5",
+                                        borderColor: "#e0e0e0",
+                                        cursor: "not-allowed",
+                                    },
+                                },
+                                
+                                ...textcss,
                             },
-                            "& .MuiInputLabel-root": {
-                                color: error ? "#d32f2f !important" : "inherit"
-                            },
-                            ...textcss, // Allow override of styling if needed
                         },
-                    },
-                }}
-                {...props}
-            />
-        </LocalizationProvider>
+                    }}
+                    {...props}
+                />
+            </LocalizationProvider>
+        </Box>
     );
 };
 
@@ -103,6 +217,9 @@ CustomTimePicker.propTypes = {
     placeholder: PropTypes.string,
     textcss: PropTypes.object,
     noSpacing: PropTypes.bool,
+    size: PropTypes.oneOf(["small", "medium", "large"]),
+    variant: PropTypes.oneOf(["standard", "outlined", "filled"]),
+    fullWidth: PropTypes.bool,
 };
 
 CustomTimePicker.defaultProps = {
@@ -116,6 +233,9 @@ CustomTimePicker.defaultProps = {
     placeholder: "",
     textcss: {},
     noSpacing: false,
+    size: "medium",
+    variant: "standard",
+    fullWidth: true,
 };
 
 export default CustomTimePicker;

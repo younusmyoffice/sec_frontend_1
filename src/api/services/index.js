@@ -1,24 +1,37 @@
 /**
- * API Services Index
- * 
- * Centralized export for all API services
- * This provides a clean interface for importing services throughout the application
+ * API Services Index - Centralized exports for all API services
  */
 
 // Export all services
-export { default as countryService } from './countryService';
-export { CountryService } from './countryService';
-export { default as authService } from './authService';
-export { logoutUser, forceLogout, isUserLoggedIn, getCurrentUserInfo, checkForceLogout } from './authService';
+export { default as AuthService } from './authService';
+export { default as PatientService } from './patientService';
+export { default as DoctorService } from './doctorService';
+export { default as HCFService } from './hcfService';
+export { default as PaymentService } from './paymentService';
+export { default as MasterDataService } from './masterDataService';
+export { default as ReportsService } from './reportsService';
+export { default as CountryService } from './countryService';
 
-// Export endpoints for direct use if needed
-export { API_ENDPOINTS, getEndpoint, getCountryEndpoints, getAuthEndpoints, getUserEndpoints } from '../endpoints';
-
-// Re-export commonly used endpoints for convenience
+// Export individual auth functions for backward compatibility
 export { 
-  API_ENDPOINTS as ENDPOINTS,
-  getEndpoint,
-  getCountryEndpoints,
+  loginUser, 
+  registerUser, 
+  logoutUser, 
+  forceLogout, 
+  isUserLoggedIn, 
+  checkForceLogout 
+} from './authService';
+
+// Export endpoints
+export { default as API_ENDPOINTS } from '../endpoints';
+export { 
+  getEndpoint, 
+  getEndpointWithParams,
   getAuthEndpoints,
-  getUserEndpoints
+  getPatientEndpoints,
+  getDoctorEndpoints,
+  getHCFEndpoints,
+  getPaymentEndpoints,
+  getMasterDataEndpoints,
+  getExternalEndpoints
 } from '../endpoints';

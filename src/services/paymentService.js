@@ -1,4 +1,13 @@
 import axiosInstance from '../config/axiosInstance';
+import axios from 'axios';
+// Import from lightweight constants to avoid circular imports
+import { baseURL } from '../constants/apiConstants';
+
+// Create a separate axios instance for Braintree token generation (no auth headers)
+const braintreeAxios = axios.create({
+  baseURL: baseURL,
+  timeout: 10000,
+});
 
 /**
  * Payment Service with Environment-Based Handling
@@ -12,10 +21,14 @@ import axiosInstance from '../config/axiosInstance';
  */
 export const generateClientToken = async () => {
   try {
-    const response = await axiosInstance.get('/sec/payment/generateToken');
-    return response.data;
+    console.log("Fetching Braintree client token from paymentService");
+    const response = await braintreeAxios.get('/sec/payment/generateToken'); // Use axios without auth headers
+    console.log("Braintree client token response from paymentService:", response?.data);
+    return response?.data?.clientToken || response?.data;
   } catch (error) {
     console.error('Error generating client token:', error);
+    console.error('Error response:', error.response?.data);
+    console.error('Error status:', error.response?.status);
     throw error;
   }
 };

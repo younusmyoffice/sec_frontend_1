@@ -58,7 +58,7 @@ const DoctorLogin = () => {
             if (res?.body === "INCOMPLETE_PROFILE") {
                 localStorage.setItem("doctor_suid", res?.suid);
                 localStorage.setItem("email", email);
-                navigate("/doctorsignup");
+                navigate("/doctorCompleteProfile");
             } else if (response?.data?.error === "invalid user") {
                 setInvalidUser(true);
                 setInvalidUserMessage(response?.data?.error);

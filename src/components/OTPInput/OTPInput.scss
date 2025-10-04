@@ -1,30 +1,323 @@
 .custom-otp-input {
-  .otp-input {
-    input {
-      &:focus {
-        border-color: #e72b49 !important;
-        box-shadow: 0 0 0 2px rgba(231, 43, 73, 0.2) !important;
-      }
-      
-      &:hover {
-        border-color: #e72b49;
-      }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'Poppins', sans-serif;
+
+    // Size variants
+    &--small {
+        .otp-input-field {
+            width: 36px;
+            height: 36px;
+            font-size: 1.2rem;
+        }
     }
-  }
-  
-  // Animation for when OTP is complete
-  &.otp-complete {
-    .otp-input input {
-      border-color: #4caf50;
-      background-color: #f8fff8;
+
+    &--large {
+        .otp-input-field {
+            width: 56px;
+            height: 56px;
+            font-size: 1.8rem;
+        }
     }
-  }
-  
-  // Error state
-  &.otp-error {
-    .otp-input input {
-      border-color: #f44336;
-      background-color: #fff5f5;
+
+    // Variants
+    &--minimal {
+        .otp-input-field {
+            border: none;
+            border-bottom: 2px solid #e0e0e0;
+            border-radius: 0;
+            background: transparent;
+            
+            &:focus {
+                border-bottom-color: #e72b4a;
+                box-shadow: none;
+            }
+        }
     }
-  }
+
+    &--outlined {
+        .otp-input-field {
+            border: 2px solid #e0e0e0;
+            background: transparent;
+            
+            &:focus {
+                border-color: #e72b4a;
+                background: rgba(231, 43, 74, 0.05);
+            }
+        }
+    }
+
+    &--filled {
+        .otp-input-field {
+            border: none;
+            background: #f5f5f5;
+            
+            &:focus {
+                background: rgba(231, 43, 74, 0.1);
+            }
+        }
+    }
+
+    .otp-input-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .otp-input-field {
+        width: 48px;
+        height: 48px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        background: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Poppins', sans-serif;
+        color: #333;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(231, 43, 74, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        &:hover {
+            border-color: #e72b4a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 43, 74, 0.15);
+        }
+
+        &--focused {
+            border-color: #e72b4a;
+            box-shadow: 0 0 0 4px rgba(231, 43, 74, 0.1);
+            transform: scale(1.05);
+            
+            &::before {
+                left: 100%;
+            }
+        }
+
+        &--filled {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%);
+            color: #2e7d32;
+            animation: fillPulse 0.3s ease-out;
+        }
+
+        &--error {
+            border-color: #f44336;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            color: #d32f2f;
+            animation: errorShake 0.5s ease-out;
+        }
+
+        &--success {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%);
+            color: #2e7d32;
+            animation: successBounce 0.6s ease-out;
+        }
+
+        &--disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #f5f5f5;
+            
+            &:hover {
+                transform: none;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        &::placeholder {
+            color: #ccc;
+            font-weight: 400;
+        }
+
+        // Remove number input arrows
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        &[type=number] {
+            -moz-appearance: textfield;
+        }
+    }
+
+    .otp-input-message {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 0.875rem;
+        text-align: center;
+        margin-top: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &--error {
+            color: #d32f2f;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.2);
+        }
+
+        &--success {
+            color: #2e7d32;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+    }
+
+    // Animations
+    @keyframes fillPulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes errorShake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-4px);
+        }
+        75% {
+            transform: translateX(4px);
+        }
+    }
+
+    @keyframes successBounce {
+        0%, 100% {
+            transform: scale(1);
+        }
+        25% {
+            transform: scale(1.1);
+        }
+        50% {
+            transform: scale(0.95);
+        }
+        75% {
+            transform: scale(1.05);
+        }
+    }
+
+    // Responsive design
+    @media (max-width: 768px) {
+        .otp-input-field {
+            width: 44px;
+            height: 44px;
+            font-size: 1.3rem;
+        }
+
+        &--small {
+            .otp-input-field {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+        }
+
+        &--large {
+            .otp-input-field {
+                width: 52px;
+                height: 52px;
+                font-size: 1.6rem;
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        .otp-input-container {
+            gap: 0.375rem;
+        }
+
+        .otp-input-field {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+    }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+    .custom-otp-input {
+        .otp-input-field {
+            background: #2d3748;
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #f7fafc;
+
+            &:hover {
+                border-color: #e72b4a;
+            }
+
+            &--focused {
+                border-color: #e72b4a;
+                background: rgba(231, 43, 74, 0.1);
+            }
+
+            &--filled {
+                border-color: #4caf50;
+                background: rgba(76, 175, 80, 0.1);
+                color: #81c784;
+            }
+
+            &--error {
+                border-color: #f44336;
+                background: rgba(244, 67, 54, 0.1);
+                color: #e57373;
+            }
+
+            &--success {
+                border-color: #4caf50;
+                background: rgba(76, 175, 80, 0.1);
+                color: #81c784;
+            }
+
+            &--disabled {
+                background: #4a5568;
+            }
+
+            &::placeholder {
+                color: #a0aec0;
+            }
+        }
+
+        .otp-input-message {
+            &--error {
+                background: rgba(244, 67, 54, 0.15);
+                border-color: rgba(244, 67, 54, 0.3);
+                color: #e57373;
+            }
+
+            &--success {
+                background: rgba(76, 175, 80, 0.15);
+                border-color: rgba(76, 175, 80, 0.3);
+                color: #81c784;
+            }
+        }
+    }
 }

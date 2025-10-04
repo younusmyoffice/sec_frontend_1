@@ -1,0 +1,310 @@
+.custom-date-picker {
+  position: relative;
+  width: 100%;
+  
+  .date-picker-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    color: #495057;
+    transition: color 0.3s ease;
+    
+    svg {
+      transition: color 0.3s ease;
+    }
+  }
+  
+  // Enhanced focus states
+  &:focus-within {
+    .date-picker-label {
+      color: #ff6b9d;
+      
+      svg {
+        color: #ff6b9d;
+      }
+    }
+  }
+  
+  // Error state
+  &.error {
+    .date-picker-label {
+      color: #d32f2f;
+      
+      svg {
+        color: #d32f2f;
+      }
+    }
+  }
+  
+  // Disabled state
+  &.disabled {
+    .date-picker-label {
+      color: #adb5bd;
+      
+      svg {
+        color: #adb5bd;
+      }
+    }
+  }
+  
+  // Custom date picker popup styling
+  .MuiPickersPopper-root {
+    .MuiPaper-root {
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 107, 157, 0.1);
+      overflow: hidden;
+      
+      .MuiPickersCalendarHeader-root {
+        background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+        color: white;
+        padding: 16px;
+        
+        .MuiTypography-root {
+          font-family: "Poppins", sans-serif;
+          font-weight: 600;
+          color: white;
+        }
+        
+        .MuiIconButton-root {
+          color: white;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+      
+      .MuiDayCalendar-root {
+        .MuiPickersDay-root {
+          font-family: "Poppins", sans-serif;
+          font-weight: 500;
+          border-radius: 8px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          
+          &:hover {
+            background: rgba(255, 107, 157, 0.1);
+            color: #ff6b9d;
+          }
+          
+          &.Mui-selected {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            
+            &:hover {
+              background: linear-gradient(135deg, #ff5a8a 0%, #ff7fa0 100%);
+            }
+          }
+          
+          &.MuiPickersDay-today {
+            border: 2px solid #ff6b9d;
+            color: #ff6b9d;
+            font-weight: 600;
+            
+            &:not(.Mui-selected) {
+              background: rgba(255, 107, 157, 0.05);
+            }
+          }
+        }
+      }
+      
+      .MuiPickersMonth-root {
+        font-family: "Poppins", sans-serif;
+        font-weight: 500;
+        
+        &:hover {
+          background: rgba(255, 107, 157, 0.1);
+          color: #ff6b9d;
+        }
+        
+        &.Mui-selected {
+          background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+          color: white;
+        }
+      }
+      
+      .MuiPickersYear-root {
+        font-family: "Poppins", sans-serif;
+        font-weight: 500;
+        
+        &:hover {
+          background: rgba(255, 107, 157, 0.1);
+          color: #ff6b9d;
+        }
+        
+        &.Mui-selected {
+          background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+          color: white;
+        }
+      }
+    }
+  }
+  
+  // Calendar header styling
+  .MuiPickersCalendarHeader-root {
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+    
+    .MuiTypography-root {
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .MuiIconButton-root {
+      color: white;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+  
+  // Day calendar styling
+  .MuiDayCalendar-root {
+    .MuiPickersDay-root {
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        background: rgba(255, 107, 157, 0.1);
+        color: #ff6b9d;
+      }
+      
+      &.Mui-selected {
+        background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+        color: white;
+        
+        &:hover {
+          background: linear-gradient(135deg, #ff5a8a 0%, #ff7fa0 100%);
+        }
+      }
+      
+      &.MuiPickersDay-today {
+        border: 2px solid #ff6b9d;
+        color: #ff6b9d;
+        font-weight: 600;
+        
+        &:not(.Mui-selected) {
+          background: rgba(255, 107, 157, 0.05);
+        }
+      }
+    }
+  }
+  
+  // Month/Year picker styling
+  .MuiPickersMonth-root,
+  .MuiPickersYear-root {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      background: rgba(255, 107, 157, 0.1);
+      color: #ff6b9d;
+    }
+    
+    &.Mui-selected {
+      background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+      color: white;
+    }
+  }
+  
+  // Action buttons styling
+  .MuiPickersActionBar-root {
+    padding: 16px;
+    border-top: 1px solid #e0e0e0;
+    
+    .MuiButton-root {
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      text-transform: none;
+      border-radius: 8px;
+      
+      &.MuiButton-textPrimary {
+        color: #ff6b9d;
+        
+        &:hover {
+          background: rgba(255, 107, 157, 0.1);
+        }
+      }
+      
+      &.MuiButton-containedPrimary {
+        background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+        
+        &:hover {
+          background: linear-gradient(135deg, #ff5a8a 0%, #ff7fa0 100%);
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .custom-date-picker {
+    .date-picker-label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      
+      svg {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-date-picker {
+    .date-picker-label {
+      font-size: 12px;
+      margin-bottom: 4px;
+      
+      svg {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Animation for smooth transitions
+@keyframes datePickerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.custom-date-picker {
+  .MuiPickersPopper-root {
+    animation: datePickerSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+// Dark mode support (if needed)
+@media (prefers-color-scheme: dark) {
+  .custom-date-picker {
+    .date-picker-label {
+      color: #e9ecef;
+    }
+    
+    &.error .date-picker-label {
+      color: #ff6b6b;
+    }
+    
+    &.disabled .date-picker-label {
+      color: #6c757d;
+    }
+  }
+}

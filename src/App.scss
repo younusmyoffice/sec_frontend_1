@@ -1,7 +1,8 @@
-// @import "./static/scss/base/variables";
+// Import SCSS variables
 @use "./static/scss/base/variables" as *;
 
-html{
+// Base HTML and app styling
+html {
     background: #ffff;
 }
 
@@ -9,6 +10,7 @@ html{
     background-color: #ffff;
 }
 
+// Material-UI Button styling
 .MuiButton-root.MuiButton-contained,
 .MuiButton-root.MuiButton-outlined {
     border-radius: 12px;
@@ -37,6 +39,7 @@ html{
     }
 }
 
+// Material-UI Chip styling
 .MuiChip-root.MuiChip-filled.elevation {
     box-shadow: $box-shadow-color;
 }
@@ -66,6 +69,7 @@ html{
     color: $input-chip-text-color !important;
 }
 
+// Material-UI Input and Form styling
 .MuiInputLabel-root,
 .MuiFormHelperText-root,
 .MuiInputLabel-root.Mui-focused,
@@ -90,12 +94,14 @@ html{
     color: $teritiary-text-color !important;
 }
 
+// Material-UI Tabs styling
 .MuiTabs-root {
     .MuiButtonBase-root {
         text-transform: capitalize;
     }
 }
 
+// Material-UI List styling
 .MuiList-root {
     .MuiListItem-root {
         .MuiButtonBase-root.MuiListItemButton-root {
@@ -112,12 +118,14 @@ html{
     }
 }
 
+// Material-UI Select styling
 .MuiSelect-select.MuiInputBase-input {
     &:focus {
         background-color: transparent;
     }
 }
 
+// Material-UI Menu styling
 .MuiPaper-root.MuiMenu-paper {
     background-color: $white-color;
 
@@ -132,6 +140,7 @@ html{
     }
 }
 
+// Material-UI Input with FAB icon styling
 .MuiInputBase-root.MuiInput-root.MuiInput-underline.MuiInputBase-formControl.fab-icon-class {
     &:before,
     &:after {
@@ -154,6 +163,7 @@ html{
     padding-top: 0;
 }
 
+// Material-UI Drawer styling
 .MuiDrawer-root {
     color: $primary-color;
     
@@ -175,7 +185,7 @@ html{
         z-index: 1200;
         
         .MuiList-root {
-            padding: 2px;
+            padding: 20px;
             .MuiListItem-root {
                 .MuiButtonBase-root.MuiListItemButton-root {
                     align-items: center;
@@ -202,6 +212,7 @@ html{
     }
 }
 
+// Material-UI Box and Toolbar styling
 .MuiBox-root {
     .MuiPaper-root {
         .MuiToolbar-root {
@@ -215,10 +226,12 @@ html{
     }
 }
 
+// Material-UI Progress styling
 .MuiLinearProgress-root.MuiLinearProgress-determinate {
     background-color: $disabled-background;
 }
 
+// Material-UI Dialog styling
 .MuiDialog-root.MuiModal-root {
     .MuiDialog-container {
         .MuiPaper-root {
@@ -238,6 +251,7 @@ html{
     }
 }
 
+// Material-UI Snackbar styling
 .MuiSnackbar-root {
     .MuiPaper-root.MuiSnackbarContent-root {
         background-color: $white-color;
@@ -249,15 +263,17 @@ html{
 .MuiBox-root {
     // Ensure main content doesn't get pushed by drawer
     &.drawer-open {
-        margin-left: 200px !important;
-        width: calc(100% - 240px) !important;
+        margin-left: 270px !important;
+        width: calc(100% - 270px) !important;
         transition: all 0.3s ease !important;
+        padding-top: 0 !important;
     }
     
     &.drawer-closed {
-        margin-left: 47px !important;
+        margin-left: 57px !important;
         width: calc(100% - 57px) !important;
         transition: all 0.3s ease !important;
+        padding-top: 0 !important;
     }
 }
 
@@ -282,8 +298,28 @@ html{
 main {
     position: relative;
     z-index: 1;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-left: 20% !important;
+    width: 85% !important;
 }
 
+// Remove extra spacing below navbar
+.MuiToolbar-root {
+    min-height: 48px !important;
+    padding: 0 !important;
+}
+
+.MuiAppBar-root {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+// Global body styling
 body {
-    font-family: "Poppins";
+    // font-family: "Poppins";
+    // font-family: "Roboto";
+    // font-family: "Poppins", sans-serif;
+    // font-family: "Roboto", sans-serif;
+    font-family: "math";
+    // font-family: "ui-monospace";
 }

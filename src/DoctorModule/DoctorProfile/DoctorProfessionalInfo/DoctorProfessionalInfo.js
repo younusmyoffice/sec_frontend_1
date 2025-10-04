@@ -1,20 +1,43 @@
-import { Box, Typography, Skeleton } from "@mui/material";
+import {
+    Box,
+    Typography,
+    Skeleton,
+    Card,
+    CardContent,
+    Grid,
+    Stack,
+    Chip,
+    Paper,
+    IconButton,
+    Tooltip,
+    Divider,
+    Avatar,
+    Button
+} from "@mui/material";
 import React, { useEffect, useState, useCallback } from "react";
 import "./doctorprofessionalinfo.scss";
 import { NavLink, Outlet } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
+import WorkIcon from "@mui/icons-material/Work";
+import SchoolIcon from "@mui/icons-material/School";
+import AddIcon from "@mui/icons-material/Add";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import CustomDropdown from "../../../components/CustomDropdown/custom-dropdown";
 import CustomTextField from "../../../components/CustomTextField/custom-text-field";
 import CustomButton from "../../../components/CustomButton/custom-button";
 import CustomModal from "../../../components/CustomModal";
 import CustomDatePicker from "../../../components/CustomDatePicker";
 import axiosInstance from "../../../config/axiosInstance";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers";
 import WorkExperience from "./WorkExperience";
 import Awards from "./Awards";
-import AddIcon from "@mui/icons-material/Add";
 import License from "./License";
-import dayjs from "dayjs";
-import { WashTwoTone } from "@mui/icons-material";
 
 const ProfessionalDetails = () => {
     const [loading, setLoading] = useState(false);
@@ -45,13 +68,49 @@ const ProfessionalDetails = () => {
     const doctor_id = localStorage.getItem("doctor_suid");
     const [profileData, setProfileData] = useState([]);
 
+    // Work Experience Modal States
+    const [openDialog, setOpenDialog] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [experienceData, setExperienceData] = useState({
+        jobTitle: "",
+        organization: "",
+        startDate: null,
+        endDate: null,
+        exp_id: "",
+    });
+
+    // License Modal States
+    const [openDialog1, setOpenDialog1] = useState(false);
+    const [isEditMode1, setIsEditMode1] = useState(false);
+    const [licenseData, setLicenseData] = useState({
+        lic_title: "",
+        lic_certificate_no: "",
+        lic_issuedby: "",
+        lic_date: null,
+        lic_description: "",
+        license_id: "",
+    });
+
+    // Awards Modal States
+    const [openDialog2, setopenDialog22] = useState(false);
+    const [isEditMode2, setisEditMode2] = useState(false);
+    const [awardData, setAwardData] = useState({
+        award_title: "",
+        award_issuedby: "",
+        award_date: null,
+        award_description: "",
+        award_id: "",
+    });
+
     const fetchProfileInfo = async () => {
         setLoading(true);
         try {
             const response = await axiosInstance.get(
                 `sec/Doctor/doctorProfileDetailsbyId?doctor_id=${doctor_id}`,
             );
-            if (response?.data?.response && response.data.response.length > 0) {
+            const profileDataRaw = response?.data?.response[0];
+            console.log("Profile Data Raw:", profileDataRaw);
+            if (profileDataRaw) {
                 const profileData = response.data.response[0];
 
                 // Log the entire response to verify the data
@@ -77,126 +136,167 @@ const ProfessionalDetails = () => {
             setLoading(false);
         }
     };
+
+    // Fetch Education Details
+    const fetchEducationDetails = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `/sec/Doctor/getDoctorEducation/${doctor_id}`,
+            );
+            console.log("Education Details Response:", response?.data);
+            const educationData = response?.data?.response?.[0];
+            
+            if (educationData) {
+                setData((prevData) => ({
+                    ...prevData,
+                    qualification: educationData.qualification || "",
+                    qualified_year: educationData.qualified_year || "",
+                    university_name: educationData.university_name || "",
+                    degree: educationData.degree || "",
+                    speciality_id: educationData.speciality_id || "",
+                }));
+            }
+        } catch (error) {
+            console.error("Error fetching education details:", error.response);
+        }
+    };
+
+    // Fetch Professional Registration Details
+    const fetchProfessionalDetails = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `/sec/Doctor/getDoctorProfession/${doctor_id}`,
+            );
+            console.log("Professional Details Response:", response?.data);
+            const professionalData = response?.data?.response?.[0];
+            
+            if (professionalData) {
+                setProfessional((prevData) => ({
+                    ...prevData,
+                    state_reg_number: professionalData.state_reg_number || "",
+                    country_reg_number: professionalData.country_reg_number || "",
+                    state_reg_date: professionalData.state_reg_date || "",
+                    country_reg_date: professionalData.country_reg_date || "",
+                }));
+            }
+        } catch (error) {
+            console.error("Error fetching professional details:", error.response);
+        }
+    };
     useEffect(() => {
         fetchProfileInfo();
+        fetchEducationDetails();
+        fetchProfessionalDetails();
     }, []);
+
 
     const fetchData = async () => {
         try {
             const response = await axiosInstance.post(
-                `/sec/Doctor/updateDoctorEducation`,
+                `/sec/Doctor/updateDoctorEducation?doctor_id=${doctor_id}`,
                 JSON.stringify(data),
             );
-            console.log(response);
+            console.log("Education Update Response:", response);
+            // Refresh education data after update
+            fetchEducationDetails();
         } catch (error) {
             alert("Fill the details properly", error);
             console.log(error.response);
         }
     };
+
     const fetchProfessional = async () => {
         try {
             const response = await axiosInstance.post(
-                `/sec/Doctor/updateDoctorProfession`,
+                `/sec/Doctor/updateDoctorProfession?doctor_id=${doctor_id}`,
                 JSON.stringify(professional),
             );
-            console.log(response);
+            console.log("Professional Update Response:", response);
+            // Refresh professional data after update
+            fetchProfessionalDetails();
         } catch (error) {
             alert("Fill the details properly", error);
             console.log(error.response);
         }
     };
-    //specilization list fetch api
-    const fetchLabs = async () => {
+
+    const fetchDepartments = async () => {
         try {
-            const response = await axiosInstance.get(`/sec/departments`);
-            setLabDepartments(response?.data?.response || []);
+            const response = await axiosInstance.get("/sec/departments");
+            const departments = response?.data?.response || [];
+            setLabDepartments(departments);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
+            console.error("Error fetching departments:", error);
         }
     };
 
     useEffect(() => {
-        fetchLabs();
+        fetchDepartments();
     }, []);
+
+    // Department dropdown handler
     const departmentItems = labDepartments.map((department) => ({
         id: department.department_id,
         name: department.department_name,
     }));
+
     const handleDropdownChange = (selectedDepartment) => {
         const departmentId = departmentItems.find((item) => item.name === selectedDepartment)?.id;
         setSelectedDepartment(selectedDepartment);
 
         setData((prevState) => ({
             ...prevState,
-            speciality_id: String(departmentId), // Ensure lab_dept_id is stored as a string
+            speciality_id: String(departmentId),
         }));
     };
 
-    const getexprience = async () => {
-        setLoading(true);
+    const fetchExperience = async () => {
         try {
             const response = await axiosInstance.get(
-                `sec/Doctor/getDoctorExperience?doctor_id=${doctor_id}`,
+                `/sec/Doctor/getDoctorExperience?doctor_id=${doctor_id}`,
             );
             setExperience(response?.data?.response || []);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
-        } finally {
-            setLoading(false);
+            console.error("Error fetching experience:", error);
         }
     };
 
-    const getawards = async () => {
-        setLoading(true);
+    const fetchAwards = async () => {
         try {
             const response = await axiosInstance.get(
-                `sec/Doctor/getDoctorAwards?doctor_id=${doctor_id}`,
+                `/sec/Doctor/getDoctorAwards?doctor_id=${doctor_id}`,
             );
             setAward(response?.data?.response || []);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
-        } finally {
-            setLoading(false);
+            console.error("Error fetching awards:", error);
         }
     };
 
-    const getlicenses = async () => {
-        setLoading(true);
+    const fetchLicenses = async () => {
         try {
             const response = await axiosInstance.get(
-                `sec/Doctor/getDoctorLicense?doctor_id=${doctor_id}`,
+                `/sec/Doctor/getDoctorLicense?doctor_id=${doctor_id}`,
             );
             setLicenses(response?.data?.response || []);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
-        } finally {
-            setLoading(false);
+            console.error("Error fetching licenses:", error);
         }
     };
+
     useEffect(() => {
-        getawards();
-        getexprience();
-        getlicenses();
+        fetchExperience();
+        fetchAwards();
+        fetchLicenses();
     }, []);
-    const toggleEditMode = () => {
-        setIsEditing(!isEditing);
+
+    const handleDateChange = (field, value) => {
+        setProfessional((prev) => ({
+            ...prev,
+            [field]: value ? dayjs(value) : null, // Ensure value is a dayjs object or null
+        }));
     };
-    const EditMode = () => {
-        setIsEditing1(!isEditing1);
-    };
 
-    // add and update exprience start here
-    const [openDialog, setOpenDialog] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false); // Tracks whether modal is for editing or adding
-
-    const [experienceData, setExperienceData] = useState({
-        jobTitle: "",
-        organization: "",
-        startDate: null,
-        endDate: null,
-        exp_id: "",
-    });
-
+    // Work Experience Handlers
     const handleAdd = () => {
         setExperienceData({
             jobTitle: "",
@@ -208,19 +308,13 @@ const ProfessionalDetails = () => {
         setIsEditMode(false);
         setOpenDialog(true);
     };
-    const dates =
-        experience.to_date === "present"
-            ? `${dayjs(experience.from_date).format("DD/MM/YYYY")} - Present`
-            : `${dayjs(experience.from_date).format("DD/MM/YYYY")} - ${dayjs(
-                  experience.to_date,
-              ).format("DD/MM/YYYY")}`;
 
     const handleEdit = (index) => {
         setExperienceData({
             jobTitle: experience[index]?.job,
             organization: experience[index]?.organisation,
-            startDate: dates[index] ? dayjs(dates.from_date) : null,
-            endDate: dates[index] && dates.to_date === "present" ? null : dayjs(dates.to_date),
+            startDate: experience[index]?.from_date ? dayjs(experience[index].from_date) : null,
+            endDate: experience[index]?.to_date && experience[index].to_date !== "present" ? dayjs(experience[index].to_date) : null,
             exp_id: experience[index]?.doctor_experience_id,
         });
         setIsEditMode(true);
@@ -240,7 +334,7 @@ const ProfessionalDetails = () => {
         };
 
         if (isEditMode) {
-            payload.doctor_experience_id = exp_id; // Add ID for editing
+            payload.doctor_experience_id = exp_id;
         }
 
         try {
@@ -252,7 +346,8 @@ const ProfessionalDetails = () => {
             if (response.status === 200 || response.status === 201) {
                 console.log("Success:", response.data);
                 alert(isEditMode ? "Work Experience Updated" : "Work Experience Added");
-                setOpenDialog(false); // Close modal on success
+                setOpenDialog(false);
+                fetchExperience(); // Refresh the list
             } else {
                 console.error("Error:", response.data);
                 alert("Failed to save work experience.");
@@ -266,27 +361,16 @@ const ProfessionalDetails = () => {
     const handleChange = (field, value) => {
         setExperienceData((prev) => ({
             ...prev,
-            [field]: value ? dayjs(value) : null, // Ensure value is a dayjs object or null
+            [field]: value ? dayjs(value) : null,
         }));
     };
 
     const getModalTitle = () => {
         const action = isEditMode ? "Edit" : "Add";
-        return `${action} ${"Work Exprience"}`;
+        return `${action} Work Experience`;
     };
-    // add and edit licence
-    const [openDialog1, setOpenDialog1] = useState(false);
-    const [isEditMode1, setIsEditMode1] = useState(false); // Tracks whether modal is for editing or adding
 
-    const [licenseData, setLicenseData] = useState({
-        lic_title: "",
-        lic_certificate_no: "",
-        lic_issuedby: "",
-        lic_date: null,
-        lic_description: "",
-        license_id: "",
-    });
-
+    // License Handlers
     const handleAddLic = () => {
         setLicenseData({
             lic_title: "",
@@ -327,7 +411,7 @@ const ProfessionalDetails = () => {
         };
 
         if (isEditMode1) {
-            payload.doctor_license_id = lic_id; // Add ID for editing
+            payload.doctor_license_id = lic_id;
         }
 
         try {
@@ -339,7 +423,8 @@ const ProfessionalDetails = () => {
             if (response.status === 200 || response.status === 201) {
                 console.log("Success:", response.data);
                 alert(isEditMode1 ? "License Details Updated" : "License Details Added");
-                setOpenDialog1(false); // Close modal on success
+                setOpenDialog1(false);
+                fetchLicenses(); // Refresh the list
             } else {
                 console.error("Error:", response.data);
                 alert("Failed to save License Details.");
@@ -353,27 +438,16 @@ const ProfessionalDetails = () => {
     const handleChangeLic = (field, value) => {
         setLicenseData((prev) => ({
             ...prev,
-            [field]: value ? dayjs(value) : null, // Ensure `value` is converted to `dayjs`
+            [field]: value ? dayjs(value) : null,
         }));
     };
 
     const getLicModalTitle = () => {
         const action = isEditMode1 ? "Edit" : "Add";
-        return `${action} ${"License & Certificates"}`;
+        return `${action} Certification`;
     };
 
-    //add and edit awards
-    const [openDialog2, setopenDialog22] = useState(false);
-    const [isEditMode2, setisEditMode2] = useState(false); // Tracks whether modal is for editing or adding
-
-    const [awardData, setAwardData] = useState({
-        award_title: "",
-        award_issuedby: "",
-        award_date: null,
-        award_description: "",
-        award_id: "",
-    });
-
+    // Awards Handlers
     const handleAddAwa = () => {
         setAwardData({
             award_title: "",
@@ -390,15 +464,14 @@ const ProfessionalDetails = () => {
         setAwardData({
             award_title: award[index]?.award_title,
             award_issuedby: award[index]?.award_issuedby,
-            award_date: dayjs(award[index]?.award_date), // Example start date
-            award_description: award[index]?.award_description, // Example end date
+            award_date: dayjs(award[index]?.award_date),
+            award_description: award[index]?.award_description,
             award_id: award[index]?.doctor_awards_id,
         });
         setisEditMode2(true);
         setopenDialog22(true);
-        console.log(index);
     };
-    console.log("award data", award);
+
     const handleSaveAwa = async (id) => {
         const payload = {
             suid: localStorage.getItem("doctor_suid"),
@@ -410,7 +483,7 @@ const ProfessionalDetails = () => {
         };
 
         if (isEditMode2) {
-            payload.doctor_awards_id = id; // Add ID for editing
+            payload.doctor_awards_id = id;
         }
 
         try {
@@ -422,7 +495,8 @@ const ProfessionalDetails = () => {
             if (response.status === 200 || response.status === 201) {
                 console.log("Success:", response.data);
                 alert(isEditMode2 ? "Award Updated" : "Award Added");
-                setopenDialog22(false); // Close modal on success
+                setopenDialog22(false);
+                fetchAwards(); // Refresh the list
             } else {
                 console.error("Error:", response.data);
                 alert("Failed to save award details.");
@@ -431,516 +505,1092 @@ const ProfessionalDetails = () => {
             console.error("Error:", error.response || error);
             alert("An error occurred while saving award details.");
         }
-
-        console.log("edit id", id);
     };
 
     const handleChangeAwa = (field, value) => {
         setAwardData((prev) => ({
             ...prev,
-            [field]: value ? dayjs(value) : null, // Ensure value is a dayjs object or null
+            [field]: value ? dayjs(value) : null,
         }));
     };
 
     const getAwaModalTitle = () => {
         const action = isEditMode2 ? "Edit" : "Add";
-        return `${action} ${"Awards"}`;
+        return `${action} Awards`;
     };
+
     return (
-        <>
-            <Box sx={{ width: "98%", display: "flex", flexDirection: "column" }}>
-                <Box className="NavBar-Box" sx={{ marginLeft: 0, marginBottom: 0 }}>
-                    <NavLink to={"/doctordashboard/doctorpersonalinfo"}>
+        <Box sx={{ width: "100%", padding: "24px", backgroundColor: "#ffffff", minHeight: "100vh" }}>
+            {/* Header Section */}
+            <Paper
+                elevation={0}
+                sx={{
+                    padding: "24px",
+                    marginBottom: "24px",
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    backgroundColor: "white"
+                }}
+            >
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                    <Typography variant="h4" sx={{
+                        fontWeight: 600,
+                        color: "#313033",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1
+                    }}>
+                        <WorkIcon sx={{ color: "#E72B4A" }} />
+                        Professional Details
+                    </Typography>
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <Chip
+                            label={`Doctor ID: ${localStorage.getItem("doctor_suid") || "DOC001"}`}
+                            sx={{
+                                backgroundColor: "#E72B4A",
+                                color: "white",
+                                fontWeight: 500
+                            }}
+                        />
+                        <Tooltip title="Close">
+                            <IconButton
+                                onClick={() => window.history.back()}
+                                sx={{
+                                    backgroundColor: "#f5f5f5",
+                                    "&:hover": { backgroundColor: "#e0e0e0" }
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+                </Box>
+
+                {/* Navigation Tabs */}
+                <Box sx={{ display: "flex", gap: 1 }}>
+                    <NavLink
+                        to="/doctordashboard/doctorpersonalinfo"
+                        style={({ isActive }) => ({
+                            textDecoration: "none",
+                            padding: "12px 24px",
+                            borderRadius: "8px",
+                            color: isActive ? "white" : "#313033",
+                            backgroundColor: isActive ? "#E72B4A" : "transparent",
+                            fontWeight: 500,
+                            transition: "all 0.2s ease",
+                            border: isActive ? "none" : "1px solid #e0e0e0"
+                        })}
+                    >
                         Profile Information
                     </NavLink>
-                    <NavLink to={"/doctordashboard/doctorprofessionalinfo"}>
+                    <NavLink
+                        to="/doctordashboard/doctorprofessionalinfo"
+                        style={({ isActive }) => ({
+                            textDecoration: "none",
+                            padding: "12px 24px",
+                            borderRadius: "8px",
+                            color: isActive ? "white" : "#313033",
+                            backgroundColor: isActive ? "#E72B4A" : "transparent",
+                            fontWeight: 500,
+                            transition: "all 0.2s ease",
+                            border: isActive ? "none" : "1px solid #e0e0e0"
+                        })}
+                    >
                         Professional Details
                     </NavLink>
                 </Box>
-            </Box>
-            <div className="Main-cont">
-                <div className="Education-cont">
-                    <Typography
-                        style={{
-                            color: "#313033",
-                            fontFamily: "poppins",
-                            fontSize: "20px",
-                            fontStyle: "normal",
-                            fontWeight: "500",
-                            fontHeight: "30px",
-                        }}
-                    >
-                        Education Details
-                    </Typography>
-                    <Box
-                        sx={{
-                            border: "1px solid  #E6E1E5",
-                            width: "60%",
-                            borderBottom: "1px",
-                        }}
-                    ></Box>
-                    <div className="Edit-session">
-                        <EditIcon
-                            style={{
-                                color: "#E72B4A",
-                            }}
-                        />
-                        <CustomButton
-                            label={isEditing ? "Cancel" : "Edit"}
-                            isTransaprent={"True"}
-                            handleClick={toggleEditMode}
-                            buttonCss={{
-                                color: "#E72B4A",
-                                borderBottom: "1px",
-                                borderTop: "1px",
-                                borderRight: "1px",
-                                borderLeft: "1px",
-                            }}
-                        ></CustomButton>
-                    </div>
-                </div>
-                <div className="edu-textfields">
-                    <div className="A-B-C">
-                        <CustomTextField
-                            defaultValue={data?.qualification}
-                            CustomValue={data?.qualification}
-                            label="Qualification"
-                            isDisabled={!isEditing}
-                            helperText={""}
-                            textcss={{
-                                width: "350px",
-                            }}
-                            onInput={(event) => {
-                                const Copy = {
-                                    ...data,
-                                    qualification: event.target.value,
-                                };
-                                console.log("first name is entered :", event.target.value);
-                                setData(Copy);
-                            }}
-                        ></CustomTextField>
-                        <CustomTextField
-                            defaultValue={data?.university_name}
-                            CustomValue={data?.university_name}
-                            label="University"
-                            isDisabled={!isEditing}
-                            helperText={""}
-                            textcss={{
-                                width: "350px",
-                            }}
-                            onInput={(event) => {
-                                const Copy = {
-                                    ...data,
-                                    university_name: event.target.value,
-                                };
-                                console.log("first name is entered :", event.target.value);
-                                setData(Copy);
-                            }}
-                        ></CustomTextField>
-                        <CustomDatePicker
-                            value={
-                                data.qualified_year ? dayjs(`${data.qualified_year}`) : null
-                            }
-                            disabled={!isEditing}
-                            label="Year of Passing"
-                            views={["year"]} // Focus only on year selection
-                            sx={{ width: "300px" }}
-                            onChange={(newValue) => {
-                                setData({
-                                    ...data,
-                                    qualified_year: newValue?.$y, // Extract only the year
-                                });
-                            }}
-                        />
-                    </div>
-                    <div className="deg-spe">
-                        <CustomTextField
-                            defaultValue={data?.degree}
-                            CustomValue={data?.degree}
-                            label="Degree"
-                            helperText={""}
-                            isDisabled={!isEditing}
-                            textcss={{
-                                width: "350px",
-                            }}
-                            onInput={(event) => {
-                                setData({
-                                    ...data,
-                                    degree: event.target.value,
-                                });
-                            }}
-                        ></CustomTextField>
+            </Paper>
 
-                        <CustomDropdown
-                            label={"Specialization"}
-                            isDisabled={!isEditing}
-                            items={departmentItems.map((item) => item.name)} // Extract just names for display
-                            activeItem={selectedDepartment} // State to hold active selected value
-                            handleChange={handleDropdownChange} // Function to handle dropdown changes
-                            dropdowncss={{
-                                width: "360px",
-                                color: "#787579",
+            {/* Education Details Section */}
+            <Card
+                elevation={0}
+                sx={{
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    marginBottom: "24px",
+                    backgroundColor: "white"
+                }}
+            >
+                <CardContent sx={{ padding: "32px" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                        <Typography variant="h6" sx={{
+                            fontWeight: 600,
+                            color: "#313033",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1
+                        }}>
+                            <SchoolIcon sx={{ color: "#E72B4A" }} />
+                            Education Details
+                        </Typography>
+
+                        <CustomButton
+                            label={isEditing ? "Cancel Edit" : "Edit Education"}
+                            isTransaprent={!isEditing}
+                            leftIcon={<EditIcon />}
+                            buttonCss={{
+                                borderRadius: "8px",
+                                padding: "8px 16px",
+                                fontWeight: 500,
+                                border: isEditing ? "1px solid #d32f2f" : "1px solid #E72B4A",
+                                color: isEditing ? "#d32f2f" : "#E72B4A"
                             }}
+                            handleClick={() => setIsEditing(!isEditing)}
                         />
-                        {isEditing && (
+                    </Box>
+
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                defaultValue={data?.qualification}
+                                CustomValue={data?.qualification}
+                                label="Qualification"
+                                helperText=""
+                                isDisabled={!isEditing}
+                                textcss={{ width: "100%" }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
+                                }}
+                                onInput={(event) => {
+                                    const Copy = {
+                                        ...data,
+                                        qualification: event.target.value,
+                                    };
+                                    setData(Copy);
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                defaultValue={data?.qualified_year}
+                                CustomValue={data?.qualified_year}
+                                label="Qualified Year"
+                                helperText=""
+                                isDisabled={!isEditing}
+                                textcss={{ width: "100%" }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
+                                }}
+                                onInput={(event) => {
+                                    const Copy = {
+                                        ...data,
+                                        qualified_year: event.target.value,
+                                    };
+                                    setData(Copy);
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                defaultValue={data?.university_name}
+                                CustomValue={data?.university_name}
+                                label="University Name"
+                                helperText=""
+                                isDisabled={!isEditing}
+                                textcss={{ width: "100%" }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
+                                }}
+                                onInput={(event) => {
+                                    const Copy = {
+                                        ...data,
+                                        university_name: event.target.value,
+                                    };
+                                    setData(Copy);
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                defaultValue={data?.degree}
+                                CustomValue={data?.degree}
+                                label="Degree"
+                                helperText=""
+                                isDisabled={!isEditing}
+                                textcss={{ width: "100%" }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
+                                }}
+                                onInput={(event) => {
+                                    const Copy = {
+                                        ...data,
+                                        degree: event.target.value,
+                                    };
+                                    setData(Copy);
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomDropdown
+                                label="Specialization"
+                                isDisabled={!isEditing}
+                                items={departmentItems.map((item) => item.name)}
+                                activeItem={selectedDepartment}
+                                handleChange={handleDropdownChange}
+                                dropdowncss={{
+                                    width: "100%",
+                                    color: "#787579",
+                                }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    {/* Action Buttons */}
+                    {isEditing && (
+                        <Box sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            marginTop: "32px",
+                            paddingTop: "24px",
+                            borderTop: "1px solid #e0e0e0"
+                        }}>
                             <CustomButton
-                                label={"Save"}
+                                label="Save Education Details"
                                 isTransaprent={false}
+                                isDisabled={false}
                                 isElevated={false}
+                                buttonCss={{
+                                    width: "200px",
+                                    height: "48px",
+                                    borderRadius: "8px",
+                                    fontWeight: 600
+                                }}
                                 handleClick={() => {
-                                    setIsEditing(false);
                                     fetchData();
-                                }}
-                                buttonCss={{
-                                    MarginTop: "200px",
-                                    width: "155px",
-                                    height: "41px",
+                                    setIsEditing(false);
                                 }}
                             />
-                        )}
-                    </div>
-                </div>
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
 
-                <div className="Education-cont1">
-                    <Typography
-                        style={{
+            {/* Professional Registration Section */}
+            <Card
+                elevation={0}
+                sx={{
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    marginBottom: "24px",
+                    backgroundColor: "white"
+                }}
+            >
+                <CardContent sx={{ padding: "32px" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                        <Typography variant="h6" sx={{
+                            fontWeight: 600,
                             color: "#313033",
-                            fontFamily: "poppins",
-                            fontSize: "20px",
-                            fontStyle: "normal",
-                            fontWeight: "500",
-                            fontHeight: "30px",
-                        }}
-                    >
-                        Professional Credentials
-                    </Typography>
-                    <Box
-                        sx={{
-                            border: "1px solid  #E6E1E5",
-                            width: "60%",
-                            borderBottom: "1px",
-                        }}
-                    ></Box>
-                    <div className="Edit-session">
-                        <EditIcon
-                            style={{
-                                color: "#E72B4A",
-                            }}
-                        />
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1
+                        }}>
+                            <WorkIcon sx={{ color: "#E72B4A" }} />
+                            Professional Registration
+                        </Typography>
+
                         <CustomButton
-                            label={isEditing1 ? "Cancel" : "Edit"}
-                            handleClick={EditMode}
-                            isTransaprent={"True"}
+                            label={isEditing1 ? "Cancel Edit" : "Edit Registration"}
+                            isTransaprent={!isEditing1}
+                            leftIcon={<EditIcon />}
                             buttonCss={{
-                                color: "#E72B4A",
-                                borderBottom: "1px",
-                                borderTop: "1px",
-                                borderRight: "1px",
-                                borderLeft: "1px",
+                                borderRadius: "8px",
+                                padding: "8px 16px",
+                                fontWeight: 500,
+                                border: isEditing1 ? "1px solid #d32f2f" : "1px solid #E72B4A",
+                                color: isEditing1 ? "#d32f2f" : "#E72B4A"
                             }}
-                        ></CustomButton>
-                    </div>
-                </div>
-                <div className="edu-textfields">
-                    <div className="A-B-C1">
-                        <CustomTextField
-                            defaultValue={data?.state_reg_number}
-                            CustomValue={data?.state_reg_number}
-                            label="State Registration No"
-                            helperText={""}
-                            isDisabled={!isEditing1}
-                            textcss={{
-                                width: "350px",
-                            }}
-                            onInput={(event) => {
-                                setProfessional({
-                                    ...professional,
-                                    state_reg_number: event.target.value,
-                                });
-                            }}
-                        ></CustomTextField>
-                        <CustomTextField
-                            defaultValue={data?.country_reg_number}
-                            CustomValue={data?.country_reg_number}
-                            label="Indian Registration No"
-                            isDisabled={!isEditing1}
-                            helperText={""}
-                            textcss={{
-                                width: "350px",
-                            }}
-                            onInput={(event) => {
-                                setProfessional({
-                                    ...professional,
-                                    country_reg_number: event.target.value,
-                                });
-                            }}
-                        ></CustomTextField>
-                    </div>
+                            handleClick={() => setIsEditing1(!isEditing1)}
+                        />
+                    </Box>
 
-                    <div className="deg-spe">
-                        <CustomTextField
-                            defaultValue={data?.state_reg_date}
-                            CustomValue={data?.state_reg_date}
-                            label="Registration Date"
-                            isDisabled={!isEditing1}
-                            helperText={""}
-                            textcss={{
-                                width: "350px",
-                            }}
-                            onInput={(event) => {
-                                setProfessional({
-                                    ...professional,
-                                    state_reg_date: event.target.value,
-                                });
-                            }}
-                        ></CustomTextField>
-                        <CustomTextField
-                            defaultValue={data?.country_reg_date}
-                            CustomValue={data?.country_reg_date}
-                            label="Registration Date"
-                            isDisabled={!isEditing1}
-                            helperText={""}
-                            textcss={{
-                                width: "350px",
-                            }}
-                            onInput={(event) => {
-                                setProfessional({
-                                    ...professional,
-                                    country_reg_date: event.target.value,
-                                });
-                            }}
-                        ></CustomTextField>
-                        {isEditing1 && (
-                            <CustomButton
-                                label={"Save"}
-                                isTransaprent={false}
-                                isElevated={false}
-                                handleClick={() => {
-                                    setIsEditing1(false);
-                                    fetchProfessional();
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                defaultValue={professional?.state_reg_number}
+                                CustomValue={professional?.state_reg_number}
+                                label="State Registration Number"
+                                helperText=""
+                                isDisabled={!isEditing1}
+                                textcss={{ width: "100%" }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
                                 }}
-                                buttonCss={{
-                                    MarginTop: "200px",
-                                    width: "155px",
-                                    height: "41px",
+                                onInput={(event) => {
+                                    const Copy = {
+                                        ...professional,
+                                        state_reg_number: event.target.value,
+                                    };
+                                    setProfessional(Copy);
                                 }}
                             />
-                        )}
-                    </div>
-                </div>
-                <div className="Education-cont1">
-                    <Typography
-                        style={{
-                            color: "#313033",
-                            fontFamily: "Poppins",
-                            fontSize: "20px",
-                            fontWeight: "500",
-                        }}
-                    >
-                        Work Experience{" "}
-                    </Typography>
-                    <Box
-                        sx={{
-                            border: "1px solid #E6E1E5",
-                            width: "60%",
-                        }}
-                    />
-                    <button
-                        onClick={handleAdd}
-                        style={{
-                            border: "none",
-                            background: "transparent",
-                            cursor: "pointer",
-                        }}
-                    >
-                        <AddIcon style={{ color: "#E72B4A" }} />
-                    </button>
-                </div>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                defaultValue={professional?.country_reg_number}
+                                CustomValue={professional?.country_reg_number}
+                                label="Country Registration Number"
+                                helperText=""
+                                isDisabled={!isEditing1}
+                                textcss={{ width: "100%" }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
+                                }}
+                                onInput={(event) => {
+                                    const Copy = {
+                                        ...professional,
+                                        country_reg_number: event.target.value,
+                                    };
+                                    setProfessional(Copy);
+                                }}
+                            />
+                        </Grid>
 
-                {loading ? (
-                    // Skeleton loader for experience cards
-                    Array.from({ length: 3 }).map((_, index) => (
-                        <Box key={index} sx={{ marginBottom: "16px" }}>
-                            <Skeleton variant="rectangular" width="100%" height={120} />
-                            <Skeleton variant="text" width="60%" />
-                            <Skeleton variant="text" width="40%" />
-                        </Box>
-                    ))
-                ) : Array.isArray(experience) && experience.length > 0 ? (
-                    experience.map((exp, index) => (
-                        <WorkExperience
-                            key={index} // Unique key for each component
-                            index={index} // Pass the index here
-                            head={exp.job} // Pass the job title
-                            subhead={exp.organisation} // Pass the organisation name
-                            dates={
-                                exp.to_date === "present"
-                                    ? `${dayjs(exp.from_date).format("DD/MM/YYYY")} - Present`
-                                    : `${dayjs(exp.from_date).format("DD/MM/YYYY")} - ${dayjs(
-                                          exp.to_date,
-                                      ).format("DD/MM/YYYY")}`
-                            }
-                            doctorExperienceId={exp.doctor_experience_id}
-                            handleEdit={() => handleEdit(index)} // Pass the unique ID (if exists)
-                        />
-                    ))
-                ) : (
-                    // No awards found card
-                    <Box
-                        sx={{
-                            padding: "16px",
-                            textAlign: "center",
-                            border: "1px solid #ddd",
-                            borderRadius: "8px",
-                        }}
-                    >
-                        <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                            No Work Experience Found
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                            Add your first Experience to showcase your Work profile.
-                        </Typography>
-                    </Box>
-                )}
-                <div className="Education-cont1">
-                    <Typography
-                        style={{
-                            color: "#313033",
-                            fontFamily: "Poppins",
-                            fontSize: "20px",
-                            fontWeight: "500",
-                        }}
-                    >
-                        Awards
-                    </Typography>
-                    <Box
-                        sx={{
-                            border: "1px solid #E6E1E5",
-                            width: "60%",
-                        }}
-                    />
-                    <button
-                        onClick={handleAddAwa}
-                        style={{
-                            border: "none",
-                            background: "transparent",
-                            cursor: "pointer",
-                        }}
-                    >
-                        <AddIcon style={{ color: "#E72B4A" }} />
-                    </button>
-                </div>
-                {loading ? (
-                    // Skeleton loader for awards cards
-                    Array.from({ length: 3 }).map((_, index) => (
-                        <Box key={index} sx={{ marginBottom: "16px" }}>
-                            <Skeleton variant="rectangular" width="100%" height={120} />
-                            <Skeleton variant="text" width="60%" />
-                            <Skeleton variant="text" width="40%" />
-                        </Box>
-                    ))
-                ) : Array.isArray(award) && award.length > 0 ? (
-                    award.map((awa, index) => (
-                        <Awards
-                            key={index}
-                            index={index} // Pass the index here
-                            head={awa.award_title}
-                            subhead={awa.award_issuedby}
-                            dates={awa.award_date}
-                            description={awa.award_description}
-                            doctorAwardsId={awa.doctor_awards_id}
-                            handleEditAwa={() => handleEditAwa(index)}
-                        />
-                    ))
-                ) : (
-                    // No awards found card
-                    <Box
-                        sx={{
-                            padding: "16px",
-                            textAlign: "center",
-                            border: "1px solid #ddd",
-                            borderRadius: "8px",
-                        }}
-                    >
-                        <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                            No Awards Found
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                            Add your first award to showcase your achievements.
-                        </Typography>
-                    </Box>
-                )}
+                        <Grid item xs={12} sm={6}>
 
-                <div className="Education-cont1">
-                    <Typography
-                        style={{
-                            color: "#313033",
-                            fontFamily: "Poppins",
-                            fontSize: "20px",
-                            fontWeight: "500",
-                        }}
-                    >
-                        License & Certificates
-                    </Typography>
-                    <Box
-                        sx={{
-                            border: "1px solid #E6E1E5",
-                            width: "60%",
-                        }}
-                    />
-                    <button
-                        onClick={handleAddLic}
-                        style={{
-                            border: "none",
-                            background: "transparent",
-                            cursor: "pointer",
-                        }}
-                    >
-                        <AddIcon style={{ color: "#E72B4A" }} />
-                    </button>
-                </div>
-                {loading ? (
-                    // Skeleton loader for licenses cards
-                    Array.from({ length: 3 }).map((_, index) => (
-                        <Box key={index} sx={{ marginBottom: "16px" }}>
-                            <Skeleton variant="rectangular" width="100%" height={120} />
-                            <Skeleton variant="text" width="60%" />
-                            <Skeleton variant="text" width="40%" />
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    value={professional?.state_reg_date ? dayjs(professional.state_reg_date) : null}
+                                    disabled={!isEditing1}
+                                    label="State Registration Date"
+                                    sx={{
+                                        width: "100%",
+                                        "& .MuiOutlinedInput-root": {
+                                            "& fieldset": { border: "none" },
+                                            "&:hover fieldset": { border: "none" },
+                                            "&.Mui-focused fieldset": { border: "none" },
+                                            borderBottom: "1px solid #e0e0e0",
+                                            borderRadius: 0,
+                                            "&:hover": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                            "&.Mui-focused": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            "&.Mui-focused": {
+                                                color: "#E72B4A",
+                                            },
+                                        },
+                                    }}
+                                    onChange={(item) => {
+                                        const formattedDate = item
+                                            ? item.format("YYYY-MM-DD")
+                                            : null;
+                                        setProfessional({
+                                            ...professional,
+                                            state_reg_date: formattedDate,
+                                        });
+                                    }}
+                                />
+                            </LocalizationProvider>
+
+
+
+
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    value={professional?.country_reg_date ? dayjs(professional.country_reg_date) : null}
+                                    disabled={!isEditing1}
+                                    label="Country Registration Date"
+                                    sx={{
+                                        width: "100%",
+                                        "& .MuiOutlinedInput-root": {
+                                            "& fieldset": { border: "none" },
+                                            "&:hover fieldset": { border: "none" },
+                                            "&.Mui-focused fieldset": { border: "none" },
+                                            borderBottom: "1px solid #e0e0e0",
+                                            borderRadius: 0,
+                                            "&:hover": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                            "&.Mui-focused": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            "&.Mui-focused": {
+                                                color: "#E72B4A",
+                                            },
+                                        },
+                                    }}
+                                    onChange={(item) => {
+                                        const formattedDate = item
+                                            ? item.format("YYYY-MM-DD")
+                                            : null;
+                                        setProfessional({
+                                            ...professional,
+                                            state_reg_date: formattedDate,
+                                        });
+                                    }}
+                                />
+                            </LocalizationProvider>
+
+
+
+                        </Grid>
+                    </Grid>
+
+                    {/* Action Buttons */}
+                    {isEditing1 && (
+                        <Box sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            marginTop: "32px",
+                            paddingTop: "24px",
+                            borderTop: "1px solid #e0e0e0"
+                        }}>
+                            <CustomButton
+                                label="Save Registration Details"
+                                isTransaprent={false}
+                                isDisabled={false}
+                                isElevated={false}
+                                buttonCss={{
+                                    width: "220px",
+                                    height: "48px",
+                                    borderRadius: "8px",
+                                    fontWeight: 600
+                                }}
+                                handleClick={() => {
+                                    fetchProfessional();
+                                    setIsEditing1(false);
+                                }}
+                            />
                         </Box>
-                    ))
-                ) : Array.isArray(licenses) && licenses.length > 0 ? (
-                    licenses.map((lic, index) => (
-                        <License
-                            key={index}
-                            index={index}
-                            head={lic.lic_title}
-                            certific_num={lic.lic_certificate_no}
-                            subhead={lic.lic_issuedby}
-                            dates={lic.lic_date}
-                            description={lic.lic_description}
-                            doctorLicensesId={lic.doctor_license_id}
-                            handleEditLic={() => handleEditLic(index)} // Pass the unique ID (if exists)
-                        />
-                    ))
-                ) : (
-                    // No awards found card
-                    <Box
-                        sx={{
-                            padding: "16px",
-                            textAlign: "center",
-                            border: "1px solid #ddd",
-                            borderRadius: "8px",
-                        }}
-                    >
-                        <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                            No License Found
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Work Experience Section */}
+            <Card
+                elevation={0}
+                sx={{
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    marginBottom: "24px",
+                    backgroundColor: "white"
+                }}
+            >
+                <CardContent sx={{ padding: "32px" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                        <Typography variant="h6" sx={{
+                            fontWeight: 600,
+                            color: "#313033",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1
+                        }}>
+                            <WorkIcon sx={{ color: "#E72B4A" }} />
+                            Work Experience
                         </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                            Add your first License to showcase your License.
-                        </Typography>
+
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                            <IconButton sx={{ color: "#E72B4A" }} onClick={handleAdd}>
+                                <AddIcon />
+                            </IconButton>
+                        </Box>
                     </Box>
-                )}
-            </div>
+
+                    {/* Work Experience Entries */}
+                    {loading ? (
+                        // Enhanced skeleton loader for experience cards
+                        Array.from({ length: 3 }).map((_, index) => (
+                            <Box key={index} sx={{ marginBottom: "20px" }}>
+                                <Skeleton 
+                                    variant="rectangular" 
+                                    width="100%" 
+                                    height={140} 
+                                    sx={{ borderRadius: "12px" }}
+                                />
+                            </Box>
+                        ))
+                    ) : Array.isArray(experience) && experience.length > 0 ? (
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                            {experience.map((exp, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 3,
+                                        padding: "24px",
+                                        border: "1px solid #e0e0e0",
+                                        borderRadius: "16px",
+                                        backgroundColor: "#ffffff",
+                                        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                                        transition: "all 0.3s ease",
+                                        "&:hover": {
+                                            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                                            borderColor: "#E72B4A",
+                                            transform: "translateY(-2px)"
+                                        }
+                                    }}
+                                >
+                                    <Avatar sx={{
+                                        backgroundColor: "#E3F2FD",
+                                        color: "#1976D2",
+                                        width: 56,
+                                        height: 56,
+                                        fontSize: "24px"
+                                    }}>
+                                        <LocalHospitalIcon />
+                                    </Avatar>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="h6" sx={{ 
+                                            fontWeight: 600, 
+                                            color: "#313033",
+                                            marginBottom: "4px"
+                                        }}>
+                                            {exp.job}
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ 
+                                            color: "#666",
+                                            marginBottom: "8px",
+                                            fontWeight: 500
+                                        }}>
+                                            {exp.organisation}
+                                        </Typography>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                            <Chip
+                                                label={
+                                                    exp.to_date === "present"
+                                                        ? `${dayjs(exp.from_date).format("DD/MM/YYYY")} - Present`
+                                                        : `${dayjs(exp.from_date).format("DD/MM/YYYY")} - ${dayjs(
+                                                              exp.to_date,
+                                                          ).format("DD/MM/YYYY")}`
+                                                }
+                                                sx={{
+                                                    backgroundColor: "#E72B4A",
+                                                    color: "white",
+                                                    fontWeight: 500,
+                                                    fontSize: "12px"
+                                                }}
+                                            />
+                                        </Box>
+                                    </Box>
+                                    <IconButton
+                                        onClick={() => handleEdit(index)}
+                                        sx={{
+                                            backgroundColor: "#f5f5f5",
+                                            color: "#E72B4A",
+                                            "&:hover": {
+                                                backgroundColor: "#E72B4A",
+                                                color: "white"
+                                            }
+                                        }}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Box>
+                            ))}
+                        </Box>
+                    ) : (
+                        // Enhanced empty state card
+                        <Box
+                            sx={{
+                                padding: "40px 24px",
+                                textAlign: "center",
+                                border: "2px dashed #e0e0e0",
+                                borderRadius: "16px",
+                                backgroundColor: "#fafafa",
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                    borderColor: "#E72B4A",
+                                    backgroundColor: "#fff5f5"
+                                }
+                            }}
+                        >
+                            <LocalHospitalIcon sx={{ 
+                                fontSize: 48, 
+                                color: "#e0e0e0", 
+                                marginBottom: "16px" 
+                            }} />
+                            <Typography variant="h6" sx={{ 
+                                marginBottom: "8px",
+                                color: "#666",
+                                fontWeight: 500
+                            }}>
+                                No Work Experience Found
+                            </Typography>
+                            <Typography variant="body2" sx={{ 
+                                color: "#999",
+                                marginBottom: "16px"
+                            }}>
+                                Add your first experience to showcase your professional journey.
+                            </Typography>
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
+
+
+            {/* Awards Section */}
+            <Card
+                elevation={0}
+                sx={{
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    marginBottom: "24px",
+                    backgroundColor: "white"
+                }}
+            >
+                <CardContent sx={{ padding: "32px" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                        <Typography variant="h6" sx={{
+                            fontWeight: 600,
+                            color: "#313033",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1
+                        }}>
+                            <EmojiEventsIcon sx={{ color: "#E72B4A" }} />
+                            Awards
+                        </Typography>
+
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                            <IconButton sx={{ color: "#E72B4A" }} onClick={handleAddAwa}>
+                                <AddIcon />
+                            </IconButton>
+                        </Box>
+                    </Box>
+
+                    {/* Awards Entries */}
+                    {loading ? (
+                        // Enhanced skeleton loader for awards cards
+                        Array.from({ length: 3 }).map((_, index) => (
+                            <Box key={index} sx={{ marginBottom: "20px" }}>
+                                <Skeleton 
+                                    variant="rectangular" 
+                                    width="100%" 
+                                    height={160} 
+                                    sx={{ borderRadius: "12px" }}
+                                />
+                            </Box>
+                        ))
+                    ) : Array.isArray(award) && award.length > 0 ? (
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                            {award.map((awa, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "flex-start",
+                                        gap: 3,
+                                        padding: "24px",
+                                        border: "1px solid #e0e0e0",
+                                        borderRadius: "16px",
+                                        backgroundColor: "#ffffff",
+                                        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                                        transition: "all 0.3s ease",
+                                        "&:hover": {
+                                            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                                            borderColor: "#E72B4A",
+                                            transform: "translateY(-2px)"
+                                        }
+                                    }}
+                                >
+                                    <Avatar sx={{
+                                        backgroundColor: "#FCE4EC",
+                                        color: "#E72B4A",
+                                        width: 56,
+                                        height: 56,
+                                        fontSize: "20px",
+                                        fontWeight: "bold"
+                                    }}>
+                                        A
+                                    </Avatar>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="h6" sx={{ 
+                                            fontWeight: 600, 
+                                            color: "#313033",
+                                            marginBottom: "4px"
+                                        }}>
+                                            {awa.award_title}
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ 
+                                            color: "#666",
+                                            marginBottom: "8px",
+                                            fontWeight: 500
+                                        }}>
+                                            {awa.award_issuedby}
+                                        </Typography>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, marginBottom: "8px" }}>
+                                            <Chip
+                                                label={dayjs(awa.award_date).format("DD/MM/YYYY")}
+                                                sx={{
+                                                    backgroundColor: "#E72B4A",
+                                                    color: "white",
+                                                    fontWeight: 500,
+                                                    fontSize: "12px"
+                                                }}
+                                            />
+                                        </Box>
+                                        {awa.award_description && (
+                                            <Typography variant="body2" sx={{ 
+                                                color: "#999",
+                                                fontStyle: "italic",
+                                                lineHeight: 1.5
+                                            }}>
+                                                {awa.award_description}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                    <IconButton
+                                        onClick={() => handleEditAwa(index)}
+                                        sx={{
+                                            backgroundColor: "#f5f5f5",
+                                            color: "#E72B4A",
+                                            "&:hover": {
+                                                backgroundColor: "#E72B4A",
+                                                color: "white"
+                                            }
+                                        }}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Box>
+                            ))}
+                        </Box>
+                    ) : (
+                        // Enhanced empty state card
+                        <Box
+                            sx={{
+                                padding: "40px 24px",
+                                textAlign: "center",
+                                border: "2px dashed #e0e0e0",
+                                borderRadius: "16px",
+                                backgroundColor: "#fafafa",
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                    borderColor: "#E72B4A",
+                                    backgroundColor: "#fff5f5"
+                                }
+                            }}
+                        >
+                            <EmojiEventsIcon sx={{ 
+                                fontSize: 48, 
+                                color: "#e0e0e0", 
+                                marginBottom: "16px" 
+                            }} />
+                            <Typography variant="h6" sx={{ 
+                                marginBottom: "8px",
+                                color: "#666",
+                                fontWeight: 500
+                            }}>
+                                No Awards Found
+                            </Typography>
+                            <Typography variant="body2" sx={{ 
+                                color: "#999",
+                                marginBottom: "16px"
+                            }}>
+                                Add your first award to showcase your achievements and recognition.
+                            </Typography>
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Licenses & Certifications Section */}
+            <Card
+                elevation={0}
+                sx={{
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    marginBottom: "24px",
+                    backgroundColor: "white"
+                }}
+            >
+                <CardContent sx={{ padding: "32px" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                        <Typography variant="h6" sx={{
+                            fontWeight: 600,
+                            color: "#313033",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1
+                        }}>
+                            <CardMembershipIcon sx={{ color: "#E72B4A" }} />
+                            Certifications & Licenses
+                        </Typography>
+
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                            <IconButton sx={{ color: "#E72B4A" }} onClick={handleAddLic}>
+                                <AddIcon />
+                            </IconButton>
+                        </Box>
+                    </Box>
+
+                    {/* Licenses Entries */}
+                    {loading ? (
+                        // Enhanced skeleton loader for licenses cards
+                        Array.from({ length: 3 }).map((_, index) => (
+                            <Box key={index} sx={{ marginBottom: "20px" }}>
+                                <Skeleton 
+                                    variant="rectangular" 
+                                    width="100%" 
+                                    height={180} 
+                                    sx={{ borderRadius: "12px" }}
+                                />
+                            </Box>
+                        ))
+                    ) : Array.isArray(licenses) && licenses.length > 0 ? (
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                            {licenses.map((lic, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "flex-start",
+                                        gap: 3,
+                                        padding: "24px",
+                                        border: "1px solid #e0e0e0",
+                                        borderRadius: "16px",
+                                        backgroundColor: "#ffffff",
+                                        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                                        transition: "all 0.3s ease",
+                                        "&:hover": {
+                                            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                                            borderColor: "#E72B4A",
+                                            transform: "translateY(-2px)"
+                                        }
+                                    }}
+                                >
+                                    <Avatar sx={{
+                                        backgroundColor: "#FFF3E0",
+                                        color: "#F57C00",
+                                        width: 56,
+                                        height: 56,
+                                        fontSize: "20px",
+                                        fontWeight: "bold"
+                                    }}>
+                                        <CardMembershipIcon />
+                                    </Avatar>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="h6" sx={{ 
+                                            fontWeight: 600, 
+                                            color: "#313033",
+                                            marginBottom: "4px"
+                                        }}>
+                                            {lic.lic_title}
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ 
+                                            color: "#666",
+                                            marginBottom: "8px",
+                                            fontWeight: 500
+                                        }}>
+                                            {lic.lic_issuedby}
+                                        </Typography>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, marginBottom: "8px" }}>
+                                            <Chip
+                                                label={`Cert No: ${lic.lic_certificate_no}`}
+                                                sx={{
+                                                    backgroundColor: "#F57C00",
+                                                    color: "white",
+                                                    fontWeight: 500,
+                                                    fontSize: "12px"
+                                                }}
+                                            />
+                                            <Chip
+                                                label={dayjs(lic.lic_date).format("DD/MM/YYYY")}
+                                                sx={{
+                                                    backgroundColor: "#E72B4A",
+                                                    color: "white",
+                                                    fontWeight: 500,
+                                                    fontSize: "12px"
+                                                }}
+                                            />
+                                        </Box>
+                                        {lic.lic_description && (
+                                            <Typography variant="body2" sx={{ 
+                                                color: "#999",
+                                                fontStyle: "italic",
+                                                lineHeight: 1.5
+                                            }}>
+                                                {lic.lic_description}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                    <IconButton
+                                        onClick={() => handleEditLic(index)}
+                                        sx={{
+                                            backgroundColor: "#f5f5f5",
+                                            color: "#E72B4A",
+                                            "&:hover": {
+                                                backgroundColor: "#E72B4A",
+                                                color: "white"
+                                            }
+                                        }}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Box>
+                            ))}
+                        </Box>
+                    ) : (
+                        // Enhanced empty state card
+                        <Box
+                            sx={{
+                                padding: "40px 24px",
+                                textAlign: "center",
+                                border: "2px dashed #e0e0e0",
+                                borderRadius: "16px",
+                                backgroundColor: "#fafafa",
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                    borderColor: "#E72B4A",
+                                    backgroundColor: "#fff5f5"
+                                }
+                            }}
+                        >
+                            <CardMembershipIcon sx={{ 
+                                fontSize: 48, 
+                                color: "#e0e0e0", 
+                                marginBottom: "16px" 
+                            }} />
+                            <Typography variant="h6" sx={{ 
+                                marginBottom: "8px",
+                                color: "#666",
+                                fontWeight: 500
+                            }}>
+                                No Certifications Found
+                            </Typography>
+                            <Typography variant="body2" sx={{ 
+                                color: "#999",
+                                marginBottom: "16px"
+                            }}>
+                                Add your first certification or license to showcase your credentials.
+                            </Typography>
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Work Experience Modal */}
             {openDialog && (
                 <CustomModal
                     isOpen={openDialog}
@@ -951,11 +1601,11 @@ const ProfessionalDetails = () => {
                         </Typography>
                     }
                     modalCss={{
-                        width: "400px", // Set a constant width
-                        height: "500px", // Increase the height to make it taller
+                        width: "400px",
+                        height: "500px",
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: "space-between", // Distribute space evenly
+                        justifyContent: "space-between",
                         alignItems: "center",
                     }}
                 >
@@ -963,11 +1613,11 @@ const ProfessionalDetails = () => {
                         className="textfield-cont"
                         style={{
                             display: "flex",
-                            flexWrap: "wrap", // Allows fields to wrap into rows
-                            gap: "16px", // Spacing between fields
+                            flexWrap: "wrap",
+                            gap: "16px",
                             justifyContent: "space-around",
-                            width: "100%", // Ensure it spans the modal's width
-                            marginBottom: "20px", // Add spacing below the fields
+                            width: "100%",
+                            marginBottom: "20px",
                         }}
                     >
                         <CustomTextField
@@ -1013,8 +1663,8 @@ const ProfessionalDetails = () => {
                         className="save-btn"
                         style={{
                             display: "flex",
-                            justifyContent: "center", // Center the button horizontally
-                            width: "100%", // Ensure it spans the width of the modal
+                            justifyContent: "center",
+                            width: "100%",
                         }}
                     >
                         <CustomButton
@@ -1027,6 +1677,8 @@ const ProfessionalDetails = () => {
                     </div>
                 </CustomModal>
             )}
+
+            {/* License Modal */}
             {openDialog1 && (
                 <CustomModal
                     isOpen={openDialog1}
@@ -1037,11 +1689,11 @@ const ProfessionalDetails = () => {
                         </Typography>
                     }
                     modalCss={{
-                        width: "400px", // Set a constant width
-                        height: "500px", // Increase the height to make it taller
+                        width: "400px",
+                        height: "500px",
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: "space-between", // Distribute space evenly
+                        justifyContent: "space-between",
                         alignItems: "center",
                     }}
                 >
@@ -1049,16 +1701,16 @@ const ProfessionalDetails = () => {
                         className="textfield-cont"
                         style={{
                             display: "flex",
-                            flexWrap: "wrap", // Allows fields to wrap into rows
-                            gap: "16px", // Spacing between fields
+                            flexWrap: "wrap",
+                            gap: "16px",
                             justifyContent: "space-around",
-                            width: "100%", // Ensure it spans the modal's width
-                            marginBottom: "20px", // Add spacing below the fields
+                            width: "100%",
+                            marginBottom: "20px",
                         }}
                     >
                         <CustomTextField
                             helperText={""}
-                            label="License Title"
+                            label="Certification Title"
                             defaultValue={licenseData?.lic_title}
                             onInput={(event) => {
                                 setLicenseData({
@@ -1070,7 +1722,7 @@ const ProfessionalDetails = () => {
                         />
                         <CustomTextField
                             helperText={""}
-                            label="License Number"
+                            label="Certificate Number"
                             defaultValue={licenseData?.lic_certificate_no}
                             value={licenseData?.lic_certificate_no}
                             onInput={(event) => {
@@ -1101,7 +1753,7 @@ const ProfessionalDetails = () => {
                         />
                         <CustomTextField
                             rows={3}
-                            multiline // Enable multiline input
+                            multiline
                             helperText={""}
                             label="Description"
                             defaultValue={licenseData?.lic_description}
@@ -1118,8 +1770,8 @@ const ProfessionalDetails = () => {
                         className="save-btn"
                         style={{
                             display: "flex",
-                            justifyContent: "center", // Center the button horizontally
-                            width: "100%", // Ensure it spans the width of the modal
+                            justifyContent: "center",
+                            width: "100%",
                         }}
                     >
                         <CustomButton
@@ -1132,6 +1784,8 @@ const ProfessionalDetails = () => {
                     </div>
                 </CustomModal>
             )}
+
+            {/* Awards Modal */}
             {openDialog2 && (
                 <CustomModal
                     isOpen={openDialog2}
@@ -1142,11 +1796,11 @@ const ProfessionalDetails = () => {
                         </Typography>
                     }
                     modalCss={{
-                        width: "400px", // Set a constant width
-                        height: "500px", // Increase the height to make it taller
+                        width: "400px",
+                        height: "500px",
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: "space-between", // Distribute space evenly
+                        justifyContent: "space-between",
                         alignItems: "center",
                     }}
                 >
@@ -1154,11 +1808,11 @@ const ProfessionalDetails = () => {
                         className="textfield-cont"
                         style={{
                             display: "flex",
-                            flexWrap: "wrap", // Allows fields to wrap into rows
-                            gap: "16px", // Spacing between fields
+                            flexWrap: "wrap",
+                            gap: "16px",
                             justifyContent: "space-around",
-                            width: "100%", // Ensure it spans the modal's width
-                            marginBottom: "20px", // Add spacing below the fields
+                            width: "100%",
+                            marginBottom: "20px",
                         }}
                     >
                         <CustomTextField
@@ -1175,7 +1829,7 @@ const ProfessionalDetails = () => {
                         />
                         <CustomTextField
                             helperText={""}
-                            label="Award IssuedBy"
+                            label="Issued By"
                             defaultValue={awardData?.award_issuedby}
                             onInput={(event) => {
                                 setAwardData({
@@ -1210,8 +1864,8 @@ const ProfessionalDetails = () => {
                         className="save-btn"
                         style={{
                             display: "flex",
-                            justifyContent: "center", // Center the button horizontally
-                            width: "100%", // Ensure it spans the width of the modal
+                            justifyContent: "center",
+                            width: "100%",
                         }}
                     >
                         <CustomButton
@@ -1224,7 +1878,7 @@ const ProfessionalDetails = () => {
                     </div>
                 </CustomModal>
             )}
-        </>
+        </Box>
     );
 };
 

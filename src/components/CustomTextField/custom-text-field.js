@@ -48,26 +48,68 @@ const CustomTextField = ({
             disabled={isDisabled}
             error={error || isInvalid}
             sx={{
-                marginBottom: noSpacing ? 0 : "1.5rem", // Consistent spacing between fields
-                // Red error styling when error prop is true
+                marginBottom: noSpacing ? 0 : "1.5rem",
+                fontFamily: "Poppins, sans-serif",
                 "& .MuiFormHelperText-root": {
-                    color: (error || isInvalid) ? "#d32f2f !important" : "inherit"
+                    color: (error || isInvalid) ? "#d32f2f !important" : "#666",
+                    fontSize: "12px",
+                    marginTop: "4px",
+                    fontWeight: 400,
                 },
                 "& .MuiInput-root": {
+                    borderRadius: "8px",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                     "&:before": {
-                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "1px solid rgba(0, 0, 0, 0.42)"
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "1px solid #e0e0e0",
+                        transition: "border-color 0.3s ease",
                     },
                     "&:hover:not(.Mui-disabled):before": {
-                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid rgba(0, 0, 0, 0.87)"
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #1976d2",
                     },
                     "&.Mui-focused:after": {
-                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #1976d2"
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #1976d2",
+                        transform: "scaleX(1)",
+                    },
+                    "&:after": {
+                        transform: "scaleX(0)",
+                        transition: "transform 0.3s ease",
                     }
                 },
                 "& .MuiInputLabel-root": {
-                    color: (error || isInvalid) ? "#d32f2f !important" : "inherit"
+                    color: (error || isInvalid) ? "#d32f2f !important" : "#666",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    transition: "all 0.3s ease",
+                    "&.Mui-focused": {
+                        color: (error || isInvalid) ? "#d32f2f !important" : "#1976d2",
+                    }
                 },
-                ...textcss, // Allow override of spacing if needed
+                "& .MuiInputBase-input": {
+                    fontSize: "14px",
+                    padding: "12px 0",
+                    color: "#333",
+                    "&::placeholder": {
+                        color: "#999",
+                        opacity: 1,
+                    }
+                },
+                "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: (error || isInvalid) ? "#d32f2f" : "#1976d2",
+                        borderWidth: "2px",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: (error || isInvalid) ? "#d32f2f" : "#1976d2",
+                        borderWidth: "2px",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: (error || isInvalid) ? "#d32f2f" : "#e0e0e0",
+                        transition: "border-color 0.3s ease",
+                    }
+                },
+                ...textcss,
             }}
             onInput={onInput}
             onChange={onChange}

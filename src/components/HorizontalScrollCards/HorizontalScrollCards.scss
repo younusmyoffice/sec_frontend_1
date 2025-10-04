@@ -1,0 +1,115 @@
+.horizontal-scroll-cards {
+    margin: 32px 0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+    margin: 0 !important;
+}
+
+.view-all-link {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #E82B4A !important;
+    cursor: pointer !important;
+    transition: color 0.3s ease !important;
+    margin: 0 !important;
+    
+    &:hover {
+        color: #c41e3a !important;
+    }
+}
+
+.scroll-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.scroll-button {
+    position: absolute;
+    z-index: 2;
+    background: white !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #e0e0e0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    transition: all 0.3s ease !important;
+    
+    &:hover {
+        background: #f5f5f5 !important;
+        transform: scale(1.05);
+    }
+    
+    &.left {
+        left: -20px;
+    }
+    
+    &.right {
+        right: -20px;
+    }
+    
+    .MuiSvgIcon-root {
+        color: #E82B4A !important;
+        font-size: 20px !important;
+    }
+}
+
+.cards-wrapper {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.cards-container {
+    display: flex;
+    gap: 16px;
+    padding: 0 20px;
+    min-width: max-content;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .horizontal-scroll-cards {
+        margin: 24px 0;
+    }
+    
+    .section-title {
+        font-size: 20px !important;
+    }
+    
+    .scroll-button {
+        width: 36px !important;
+        height: 36px !important;
+        
+        &.left {
+            left: -18px;
+        }
+        
+        &.right {
+            right: -18px;
+        }
+    }
+    
+    .cards-container {
+        gap: 12px;
+        padding: 0 16px;
+    }
+}

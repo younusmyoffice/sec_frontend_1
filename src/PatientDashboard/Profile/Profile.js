@@ -1,8 +1,22 @@
-import { Box, CircularProgress, Grid, Typography } from "@mui/material";
+import { 
+    Box, 
+    CircularProgress, 
+    Grid, 
+    Typography, 
+    Card, 
+    CardContent,
+    Chip,
+    Stack,
+    Paper,
+    IconButton,
+    Tooltip,
+    Avatar,
+    Button,
+    Divider
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import CustomTextField from "../../components/CustomTextField/custom-text-field";
 import CustomDropdown from "../../components/CustomDropdown/custom-dropdown";
-import { Avatar, Button } from "@mui/material";
 import CustomButton from "../../components/CustomButton/custom-button";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -12,7 +26,9 @@ import { NavLink, useNavigate } from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
 import EditIcon from "@mui/icons-material/Edit";
 import dayjs from "dayjs";
-import CloseIcon from "@mui/icons-material/Close"; // Import Close Icon from Material-UI
+import CloseIcon from "@mui/icons-material/Close";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import PersonIcon from "@mui/icons-material/Person";
 import CustomSnackBar from "../../components/CustomSnackBar";
 
 const Profile = () => {
@@ -53,6 +69,10 @@ const Profile = () => {
 
             if (updatedProfilePic) {
                 localStorage.setItem("profile", updatedProfilePic);
+                // Dispatch custom event to notify other components
+                window.dispatchEvent(new CustomEvent('profileUpdated', {
+                    detail: { profile: updatedProfilePic }
+                }));
             }
             console.log("Success  : ", response);
         } catch (error) {
@@ -77,16 +97,25 @@ const Profile = () => {
                 }),
             );
             console.log("Patient Profile Details : ", response?.data?.response[0]);
+            const profileData = response?.data?.response[0];
             setProfileUpdate({
-                email: response?.data?.response[0]?.email,
-                first_name: response?.data?.response[0]?.first_name,
-                last_name: response?.data?.response[0]?.last_name,
-                middle_name: response?.data?.response[0]?.middle_name,
+                email: profileData?.email,
+                first_name: profileData?.first_name,
+                last_name: profileData?.last_name,
+                middle_name: profileData?.middle_name,
                 added_by: "self",
-                gender: response?.data?.response[0]?.gender,
-                DOB: response?.data?.response[0]?.DOB,
-                profile_picture: response?.data?.response[0]?.profile_picture,
+                gender: profileData?.gender,
+                DOB: profileData?.DOB,
+                profile_picture: profileData?.profile_picture,
             });
+
+            // Update profile image in localStorage and notify other components
+            if (profileData?.profile_picture) {
+                localStorage.setItem("profile", profileData.profile_picture);
+                window.dispatchEvent(new CustomEvent('profileUpdated', {
+                    detail: { profile: profileData.profile_picture }
+                }));
+            }
         } catch (error) {
             console.log(error);
         }
@@ -137,233 +166,456 @@ const Profile = () => {
     };
 
     return (
-        <Box sx={{ width: "100%" }}>
+        <Box sx={{ width: "100%", padding: "24px", backgroundColor: "#ffffff", minHeight: "100vh" }}>
             <CustomSnackBar isOpen={isopen} message={snackMessage} type={snackStatus} />
-            <Box
-                className="NavBar-Box-profile"
-                sx={{ display: "flex", marginLeft: 0, marginBottom: 0 }}
+            
+            {/* Header Section */}
+            <Paper 
+                elevation={0} 
+                sx={{ 
+                    padding: "24px", 
+                    marginBottom: "24px",
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    backgroundColor: "white"
+                }}
             >
-                <NavLink to={profileLink}>Profile Information</NavLink>
-                <NavLink to={contactLink}>Contact Details</NavLink>
-                {/* <NavLink to={"/patientdashboard/dashboard/payment"}>Payment Details</NavLink> */}
-            </Box>
-            {/* <div className="prof-id">
-                <Typography>ProfileID:</Typography>
-                <Box
-                    component={"a"}
-                    href="#"
-                    sx={{
-                        color: "#E72B4A",
-                        fontFamily: "poppins",
-                        fontSize: "16px",
-                        fontStyle: "normal",
-                        fontWeight: "500",
-                        fontHeight: "30px",
-                    }}
-                >
-                    SRCD0001
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                    <Typography variant="h4" sx={{ 
+                        fontWeight: 600, 
+                        color: "#313033",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1
+                    }}>
+                        <PersonIcon sx={{ color: "#E72B4A" }} />
+                        Profile Information
+                    </Typography>
+                    
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <Chip 
+                            label={`Profile ID: SRC0001`}
+                            sx={{ 
+                                backgroundColor: "#E72B4A",
+                                color: "white",
+                                fontWeight: 500
+                            }}
+                        />
+                        <Tooltip title="Close">
+                            <IconButton 
+                                onClick={() => navigate("/patientdashboard/dashboard/explore")}
+                                sx={{ 
+                                    backgroundColor: "#f5f5f5",
+                                    "&:hover": { backgroundColor: "#e0e0e0" }
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
                 </Box>
-            </div> */}
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <CustomButton
-                    label=""
-                    isTransaprent={true}
-                    leftIcon={<CloseIcon />} // Use X mark icon (CloseIcon)
-                    buttonCss={{ border: "none" }}
-                    handleClick={() => navigate("/patientdashboard/dashboard/explore")}
-                />
-            </Box>
-            <div className="edit-prof">
-                <EditIcon
-                    style={{
-                        color: "#E72B4A",
-                    }}
-                />
+
+                {/* Navigation Tabs */}
+                <Box className="NavBar-Box-profile" sx={{ display: "flex", gap: 1 }}>
+                    <NavLink 
+                        to={profileLink}
+                        style={({ isActive }) => ({
+                            textDecoration: "none",
+                            padding: "12px 24px",
+                            borderRadius: "8px",
+                            color: isActive ? "white" : "#313033",
+                            backgroundColor: isActive ? "#E72B4A" : "transparent",
+                            fontWeight: 500,
+                            transition: "all 0.2s ease",
+                            border: isActive ? "none" : "1px solid #e0e0e0"
+                        })}
+                    >
+                        Profile Information
+                    </NavLink>
+                    <NavLink 
+                        to={contactLink}
+                        style={({ isActive }) => ({
+                            textDecoration: "none",
+                            padding: "12px 24px",
+                            borderRadius: "8px",
+                            color: isActive ? "white" : "#313033",
+                            backgroundColor: isActive ? "#E72B4A" : "transparent",
+                            fontWeight: 500,
+                            transition: "all 0.2s ease",
+                            border: isActive ? "none" : "1px solid #e0e0e0"
+                        })}
+                    >
+                        Contact Details
+                    </NavLink>
+                </Box>
+            </Paper>
+
+            {/* Edit Button */}
+            <Box sx={{ display: "flex", justifyContent: "flex-end", marginBottom: "24px" }}>
                 <CustomButton
                     label={isEditing ? "Cancel Edit" : "Edit Profile"}
-                    isTransaprent={"True"}
+                    isTransaprent={!isEditing}
+                    leftIcon={<EditIcon />}
                     buttonCss={{
-                        borderBottom: "1px",
-                        borderRight: "1px",
-                        borderLeft: "1px",
-                        borderTop: "1px",
+                        borderRadius: "8px",
+                        padding: "12px 24px",
+                        fontWeight: 500,
+                        border: isEditing ? "1px solid #d32f2f" : "1px solid #E72B4A",
+                        color: isEditing ? "#d32f2f" : "#E72B4A"
                     }}
                     handleClick={toggleEditMode}
                 />
-            </div>
-            <Box
-                sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    width: "100%",
-                    height: "100%",
-                    marginTop: "4%",
+            </Box>
+
+            {/* Main Content Card */}
+            <Card 
+                elevation={0} 
+                sx={{ 
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    overflow: "hidden",
+                    backgroundColor: "white"
                 }}
             >
-                {/* imageBox */}
-                <Box sx={{ width: "18%", height: "100%" }}>
-                    <Box sx={{ width: "170px", height: "170px" }}>
-                        <Avatar
-                            alt="Profile Picture"
-                            src={
-                                profileUpdate?.profile_picture
-                                    ? profileUpdate?.profile_picture
-                                    : "images/avatar.png"
-                            }
-                            sx={{ width: "100%", height: "100%" }}
-                        />
-                    </Box>
-                    <Button
-                        component="label"
-                        variant="contained"
-                        disabled={!isEditing}
-                        sx={{ mt: 2, mr: 13 }}
-                    >
-                        Edit Profile
-                        <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={handleProfilePictureChange}
-                        />
-                    </Button>
-                </Box>
-
-                {/* content Box */}
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        flexDirection: "column",
-                        height: "100%",
-                        width: "82%",
-                    }}
-                >
-                    {/* First line of inputs */}
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            width: "70%",
-                            height: "100%",
-                        }}
-                    >
-                        <Box sx={{ marginRight: "2%" }}>
-                            <CustomTextField
-                                id={"standard-helperText1"}
-                                label={"First Name"}
-                                isDisabled={!isEditing}
-                                defaultValue={profileUpdate?.first_name}
-                                CustomValue={profileUpdate?.first_name}
-                                helperText={""}
-                                isValid
-                                // eslint-disable-next-line no-undef
-                                onChange={(event) => {
-                                    setProfileUpdate({
-                                        ...profileUpdate,
-                                        first_name: event?.target?.value,
-                                    });
-                                }}
-                                textcss={{
-                                    width: "350px",
-                                    height: "56px",
-                                }}
-                            />
-                        </Box>
-                        <Box>
-                            <CustomTextField
-                                id={"standard-helperText1"}
-                                label={"Middle Name"}
-                                isDisabled={!isEditing}
-                                defaultValue={profileUpdate?.middle_name}
-                                CustomValue={profileUpdate?.middle_name}
-                                helperText={""}
-                                isValid
-                                // eslint-disable-next-line no-undef
-                                onChange={(event) => {
-                                    setProfileUpdate({
-                                        ...profileUpdate,
-                                        middle_name: event?.target?.value,
-                                    });
-                                }}
-                                // onChange={(event) => setMobile(event.target.value) }
-                                textcss={{
-                                    width: "350px",
-                                    height: "56px",
-                                }}
-                            />
-                        </Box>
-                    </Box>
-                    {/* //second line  */}
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            width: "70%",
-                            height: "100%",
-                        }}
-                    >
-                        <Box sx={{ marginRight: "2%" }}>
-                            <CustomTextField
-                                id={"standard-helperText1"}
-                                isDisabled={!isEditing}
-                                label={"Last Name"}
-                                defaultValue={profileUpdate?.last_name}
-                                CustomValue={profileUpdate?.last_name}
-                                helperText={""}
-                                isValid
-                                // eslint-disable-next-line no-undef
-                                onChange={(event) => {
-                                    setProfileUpdate({
-                                        ...profileUpdate,
-                                        last_name: event?.target?.value,
-                                    });
-                                }}
-                                textcss={{
-                                    width: "350px",
-                                    height: "56px",
-                                }}
-                            />
-                        </Box>
-                        <Box>
-                            <Grid container justifyContent="space-around">
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        value={profileUpdate?.DOB ? dayjs(profileUpdate.DOB) : null} // Convert to dayjs object
-                                        disabled={!isEditing}
-                                        label="Date Of Birth"
-                                        onChange={(item) => {
-                                            const formattedDate = item
-                                                ? item.format("YYYY-MM-DD")
-                                                : null; // Format selected date
-                                            setProfileUpdate({
-                                                ...profileUpdate,
-                                                DOB: formattedDate,
-                                            });
+                <CardContent sx={{ padding: "32px" }}>
+                    <Grid container spacing={4}>
+                        {/* Profile Picture Section */}
+                        <Grid item xs={12} md={3}>
+                            <Box sx={{ 
+                                display: "flex", 
+                                flexDirection: "column", 
+                                alignItems: "center",
+                                textAlign: "center"
+                            }}>
+                                <Box sx={{ position: "relative", marginBottom: "16px" }}>
+                                    <Avatar
+                                        alt="Profile Picture"
+                                        src={
+                                            profileUpdate?.profile_picture
+                                                ? `data:image/jpeg;base64,${profileUpdate.profile_picture}`
+                                                : "/images/avatar.png"
+                                        }
+                                        sx={{ 
+                                            width: 180, 
+                                            height: 180,
+                                            border: "4px solid #E72B4A",
+                                            boxShadow: "0 8px 24px rgba(231, 43, 74, 0.2)",
+                                            objectFit: "cover"
+                                        }}
+                                        onError={(e) => {
+                                            console.log("Avatar image failed to load, using fallback");
+                                            e.target.src = "/images/avatar.png";
                                         }}
                                     />
-                                </LocalizationProvider>
-                            </Grid>
-                        </Box>
-                    </Box>
-                    {/* dropdown */}
-                    <Box sx={{ display: "flex" }}>
-                        <CustomDropdown
-                            label="Gender"
-                            isDisabled={!isEditing} // Disable dropdown when not in edit mode
-                            items={["Male", "Female", "Rather Not Say"]} // Dropdown options
-                            activeItem={profileUpdate?.gender || "Select Gender"} // Default to "Select Gender" if no value is present
-                            handleChange={(selectedValue) => {
-                                setProfileUpdate({ ...profileUpdate, gender: selectedValue }); // Update gender in state
-                            }}
-                            dropdowncss={{
-                                width: "360px",
-                                color: isEditing ? "#000" : "#787579", // Adjust color based on edit mode
-                            }}
-                        />
-                    </Box>
-                    <Box sx={{ display: "flex", marginTop: "6%" }}>
-                        {isEditing && (
+                                    {isEditing && (
+                                        <Tooltip title="Change Profile Picture">
+                                            <IconButton
+                                                component="label"
+                                                sx={{
+                                                    position: "absolute",
+                                                    bottom: 8,
+                                                    right: 8,
+                                                    backgroundColor: "#E72B4A",
+                                                    color: "white",
+                                                    "&:hover": {
+                                                        backgroundColor: "#c62828"
+                                                    },
+                                                    width: 40,
+                                                    height: 40
+                                                }}
+                                            >
+                                                <CameraAltIcon fontSize="small" />
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    hidden
+                                                    onChange={handleProfilePictureChange}
+                                                />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
+                                </Box>
+                                
+                                <Typography variant="h6" sx={{ 
+                                    fontWeight: 600, 
+                                    color: "#313033",
+                                    marginBottom: "8px"
+                                }}>
+                                    {profileUpdate?.first_name} {profileUpdate?.last_name}
+                                </Typography>
+                                
+                                <Typography variant="body2" sx={{ 
+                                    color: "#666",
+                                    marginBottom: "16px"
+                                }}>
+                                    {profileUpdate?.email}
+                                </Typography>
+
+                                {isEditing && (
+                                    <Button
+                                        component="label"
+                                        variant="outlined"
+                                        startIcon={<CameraAltIcon />}
+                                        sx={{
+                                            borderColor: "#E72B4A",
+                                            color: "#E72B4A",
+                                            "&:hover": {
+                                                borderColor: "#c62828",
+                                                backgroundColor: "rgba(231, 43, 74, 0.04)"
+                                            }
+                                        }}
+                                    >
+                                        Change Photo
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            onChange={handleProfilePictureChange}
+                                        />
+                                    </Button>
+                                )}
+                            </Box>
+                        </Grid>
+
+                        {/* Form Section */}
+                        <Grid item xs={12} md={9}>
+                            <Typography variant="h6" sx={{ 
+                                fontWeight: 600, 
+                                color: "#313033",
+                                marginBottom: "24px"
+                            }}>
+                                Personal Information
+                            </Typography>
+
+                            <Stack spacing={3}>
+                                {/* First Row - Name Fields */}
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} sm={6}>
+                                        <CustomTextField
+                                            id="first-name"
+                                            label="First Name"
+                                            isDisabled={!isEditing}
+                                            defaultValue={profileUpdate?.first_name}
+                                            CustomValue={profileUpdate?.first_name}
+                                            helperText=""
+                                            isValid
+                                            onChange={(event) => {
+                                                setProfileUpdate({
+                                                    ...profileUpdate,
+                                                    first_name: event?.target?.value,
+                                                });
+                                            }}
+                                            textcss={{
+                                                width: "100%",
+                                                height: "56px",
+                                            }}
+                                            sx={{
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": { border: "none" },
+                                                    "&:hover fieldset": { border: "none" },
+                                                    "&.Mui-focused fieldset": { border: "none" },
+                                                    borderBottom: "1px solid #e0e0e0",
+                                                    borderRadius: 0,
+                                                    "&:hover": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                    "&.Mui-focused": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    "&.Mui-focused": {
+                                                        color: "#E72B4A",
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <CustomTextField
+                                            id="middle-name"
+                                            label="Middle Name"
+                                            isDisabled={!isEditing}
+                                            defaultValue={profileUpdate?.middle_name}
+                                            CustomValue={profileUpdate?.middle_name}
+                                            helperText=""
+                                            isValid
+                                            onChange={(event) => {
+                                                setProfileUpdate({
+                                                    ...profileUpdate,
+                                                    middle_name: event?.target?.value,
+                                                });
+                                            }}
+                                            textcss={{
+                                                width: "100%",
+                                                height: "56px",
+                                            }}
+                                            sx={{
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": { border: "none" },
+                                                    "&:hover fieldset": { border: "none" },
+                                                    "&.Mui-focused fieldset": { border: "none" },
+                                                    borderBottom: "1px solid #e0e0e0",
+                                                    borderRadius: 0,
+                                                    "&:hover": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                    "&.Mui-focused": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    "&.Mui-focused": {
+                                                        color: "#E72B4A",
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                {/* Second Row - Last Name and DOB */}
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} sm={6}>
+                                        <CustomTextField
+                                            id="last-name"
+                                            label="Last Name"
+                                            isDisabled={!isEditing}
+                                            defaultValue={profileUpdate?.last_name}
+                                            CustomValue={profileUpdate?.last_name}
+                                            helperText=""
+                                            isValid
+                                            onChange={(event) => {
+                                                setProfileUpdate({
+                                                    ...profileUpdate,
+                                                    last_name: event?.target?.value,
+                                                });
+                                            }}
+                                            textcss={{
+                                                width: "100%",
+                                                height: "56px",
+                                            }}
+                                            sx={{
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": { border: "none" },
+                                                    "&:hover fieldset": { border: "none" },
+                                                    "&.Mui-focused fieldset": { border: "none" },
+                                                    borderBottom: "1px solid #e0e0e0",
+                                                    borderRadius: 0,
+                                                    "&:hover": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                    "&.Mui-focused": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    "&.Mui-focused": {
+                                                        color: "#E72B4A",
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DatePicker
+                                                value={profileUpdate?.DOB ? dayjs(profileUpdate.DOB) : null}
+                                                disabled={!isEditing}
+                                                label="Date of Birth"
+                                                sx={{ 
+                                                    width: "100%",
+                                                    "& .MuiOutlinedInput-root": {
+                                                        "& fieldset": { border: "none" },
+                                                        "&:hover fieldset": { border: "none" },
+                                                        "&.Mui-focused fieldset": { border: "none" },
+                                                        borderBottom: "1px solid #e0e0e0",
+                                                        borderRadius: 0,
+                                                        "&:hover": {
+                                                            borderBottom: "2px solid #E72B4A",
+                                                        },
+                                                        "&.Mui-focused": {
+                                                            borderBottom: "2px solid #E72B4A",
+                                                        },
+                                                    },
+                                                    "& .MuiInputLabel-root": {
+                                                        "&.Mui-focused": {
+                                                            color: "#E72B4A",
+                                                        },
+                                                    },
+                                                }}
+                                                onChange={(item) => {
+                                                    const formattedDate = item
+                                                        ? item.format("YYYY-MM-DD")
+                                                        : null;
+                                                    setProfileUpdate({
+                                                        ...profileUpdate,
+                                                        DOB: formattedDate,
+                                                    });
+                                                }}
+                                            />
+                                        </LocalizationProvider>
+                                    </Grid>
+                                </Grid>
+
+                                {/* Third Row - Gender */}
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} sm={6}>
+                                        <CustomDropdown
+                                            label="Gender"
+                                            isDisabled={!isEditing}
+                                            items={["Male", "Female", "Rather Not Say"]}
+                                            activeItem={profileUpdate?.gender || "Select Gender"}
+                                            handleChange={(selectedValue) => {
+                                                setProfileUpdate({ ...profileUpdate, gender: selectedValue });
+                                            }}
+                                            dropdowncss={{
+                                                width: "100%",
+                                                color: isEditing ? "#000" : "#787579",
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": { border: "none" },
+                                                    "&:hover fieldset": { border: "none" },
+                                                    "&.Mui-focused fieldset": { border: "none" },
+                                                    borderBottom: "1px solid #e0e0e0",
+                                                    borderRadius: 0,
+                                                    height: "56px",
+                                                    "&:hover": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                    "&.Mui-focused": {
+                                                        borderBottom: "2px solid #E72B4A",
+                                                    },
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    "&.Mui-focused": {
+                                                        color: "#E72B4A",
+                                                    },
+                                                },
+                                                "& .MuiSelect-select": {
+                                                    padding: "16px 14px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                },
+                                                "& .MuiSelect-icon": {
+                                                    color: "#666",
+                                                },
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                    </Grid>
+
+                    {/* Action Buttons */}
+                    {isEditing && (
+                        <Box sx={{ 
+                            display: "flex", 
+                            justifyContent: "center", 
+                            marginTop: "32px",
+                            paddingTop: "24px",
+                            borderTop: "1px solid #e0e0e0"
+                        }}>
                             <CustomButton
                                 label={
                                     loading ? (
@@ -373,20 +625,20 @@ const Profile = () => {
                                     )
                                 }
                                 isTransaprent={false}
-                                isDisabled={false}
+                                isDisabled={loading}
                                 isElevated={false}
-                                handleClick={() => {
-                                    handleSubmit();
-                                }}
+                                handleClick={handleSubmit}
                                 buttonCss={{
-                                    width: "155px",
-                                    height: "41px",
+                                    width: "180px",
+                                    height: "48px",
+                                    borderRadius: "8px",
+                                    fontWeight: 600
                                 }}
                             />
-                        )}
-                    </Box>
-                </Box>
-            </Box>
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
         </Box>
     );
 };

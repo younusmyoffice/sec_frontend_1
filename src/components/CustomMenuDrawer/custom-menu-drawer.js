@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import PropTypes from "prop-types";
 import { styled, useTheme, alpha } from "@mui/material/styles";
 import {
@@ -14,10 +14,13 @@ import {
     ListItemIcon,
     ListItemText,
     Grid,
+    useMediaQuery,
+    SwipeableDrawer,
+    Tooltip,
 } from "@mui/material";
 import MuiAppBar from "@mui/material/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { ChevronLeft, ChevronRight, Menu as MenuIcon } from "@mui/icons-material";
 
 // import CardContent from "@mui/material/CardContent";
 // import Card from "@mui/material/Card";
@@ -62,6 +65,7 @@ import icon from "../../static/images/logos/bergerIcon.png"
 /// /till here
 
 const drawerWidth = 270;
+const mobileDrawerWidth = 280;
 
 const openedMixin = (theme) => ({
     width: drawerWidth,
@@ -80,7 +84,7 @@ const closedMixin = (theme) => ({
     overflowX: "hidden",
     width: `calc(${theme.spacing(11)} + 1px)`,
     [theme.breakpoints.up("sm")]: {
-        width: `calc(${theme.spacing(12)} + 1px)`,
+        width: `calc(${theme.spacing(9)} + 1px)`, // Reduced from 12 to 9
     },
 });
 
@@ -89,7 +93,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
     alignItems: "center",
     justifyContent: "flex-end",
     padding: theme.spacing(0, 1),
-    minHeight: "64px", // Reduced from default toolbar height
+    minHeight: "64px", // Minimized to reduce spacing below navbar
     // necessary for content to be below app bar
 }));
 
@@ -132,9 +136,26 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
 
 const CustomMenuDrawer = ({ list1, list2, children, handleOnMenuSelect, profilepath }) => {
     const theme = useTheme();
-    const [open, setOpen] = useState(true);
-    const [selectedItem, setSeletedItem] = useState(list1[0].name);
     const navigate = useNavigate();
+    
+    // Responsive breakpoints
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+    const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
+    
+    // State management
+    const [open, setOpen] = useState(!isMobile); // Closed on mobile by default
+    const [selectedItem, setSeletedItem] = useState(list1[0].name);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    
+    // Update drawer state based on screen size
+    useEffect(() => {
+        if (isMobile) {
+            setOpen(false);
+        } else {
+            setOpen(true);
+        }
+    }, [isMobile]);
 console.log("this is the profile path : ",profilepath)
     /// from here
     // const useStyles = makeStyles({
@@ -293,11 +314,23 @@ const profile = localStorage.getItem("profile")
     /// /till  here
 
     const handleDrawerOpen = () => {
-        setOpen(true);
+        if (isMobile) {
+            setMobileOpen(true);
+        } else {
+            setOpen(true);
+        }
     };
 
     const handleDrawerClose = () => {
-        setOpen(false);
+        if (isMobile) {
+            setMobileOpen(false);
+        } else {
+            setOpen(false);
+        }
+    };
+
+    const handleMobileDrawerToggle = () => {
+        setMobileOpen(!mobileOpen);
     };
 
     const handleSelectItem = (item) => {
@@ -327,10 +360,30 @@ const profile = localStorage.getItem("profile")
         <Box sx={{ display: "flex", width: "100%" }}>
             <CssBaseline />
             <AppBar position="fixed" open={open}>
-                <Toolbar sx={{ backgroundColor: "#ffff" }}>
+                <Toolbar sx={{ 
+                    backgroundColor: "#ffff",
+                    minHeight: { xs: "48px", sm: "56px" },
+                    padding: { xs: "0 8px", sm: "0 16px" }
+                }}>
+                    {/* Mobile Menu Button */}
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={handleMobileDrawerToggle}
+                        edge="start"
+                        sx={{
+                            marginRight: 2,
+                            display: { xs: "flex", md: "none" },
+                            color: "#333"
+                        }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+
+                    {/* Desktop Logo Button */}
                     <Box
                         sx={{
-                            display: "flex",
+                            display: { xs: "none", md: "flex" },
                             alignItems: "center",
                             marginRight: 5,
                             ...(open && { display: "none" }),
@@ -342,25 +395,50 @@ const profile = localStorage.getItem("profile")
                         <Box>
                             <img src={icon} alt="Logo" width="40" padding=" 2px 1px" />
                         </Box>
-                        {/* <img src="images/icon.png" alt="Logo" width="40" /> */}
+                    </Box>
+
+                    {/* Mobile Logo */}
+                    <Box
+                        sx={{
+                            display: { xs: "flex", md: "none" },
+                            alignItems: "center",
+                            marginRight: 2,
+                        }}
+                    >
+                        <img src={icon} alt="Logo" width="32" />
                     </Box>
                     {/* //fromhere */}
 
-                    {/* {localStorage.getItem("signUp") === "patient" && ( */}
-    <div
-        id="location-search-container"
-        style={{ display: "flex", alignItems: "center" }}
-    >
-        <div style={{ marginRight: "16px" }}>
-            <LocationModal />
-        </div>
-        <SearchBarModal />
-    </div>
+                    {/* Search and Location Container */}
+                    <Box
+                        id="location-search-container"
+                        sx={{
+                            display: { xs: "none", sm: "flex" },
+                            alignItems: "center",
+                            flexGrow: { xs: 0, sm: 1 },
+                            justifyContent: { xs: "flex-end", sm: "flex-start" },
+                            marginLeft: { xs: 0, sm: 2 }
+                        }}
+                    >
+                        <Box sx={{ marginRight: { xs: 1, sm: 2 } }}>
+                            <LocationModal />
+                        </Box>
+                        <SearchBarModal />
+                    </Box>
 
                     <Box sx={{ flexGrow: 1 }} />
+                    
+                    {/* Desktop Header Actions */}
                     <Box sx={{ display: { xs: "none", md: "flex" } }}>
                         <Notificationmenu />
                         <Profilemenu profilepath={profilepath} />
+                    </Box>
+
+                    {/* Mobile Header Actions */}
+                    <Box sx={{ display: { xs: "flex", md: "none" } }}>
+                        <Notificationmenu />
+                        <Profilemenu profilepath={profilepath} />
+                    </Box>
                         {/* <IconButton
                             size="large"
                             aria-label="show 17 new notifications"
@@ -384,19 +462,52 @@ const profile = localStorage.getItem("profile")
                         >
                             <AccountCircle  sx={{backgroundColor:"#AEAAAE"}}/>
                         </IconButton> */}
-                    </Box>
 
                     {/* till here */}
                 </Toolbar>
             </AppBar>
-            <Drawer variant="permanent" open={open}>
+            
+            {/* Desktop Drawer */}
+            <Drawer 
+                variant={isMobile ? "temporary" : "permanent"} 
+                open={isMobile ? mobileOpen : open}
+                onClose={isMobile ? handleDrawerClose : undefined}
+                ModalProps={isMobile ? { keepMounted: true } : undefined}
+                sx={{
+                    display: { xs: "none", md: "block" },
+                    "& .MuiDrawer-paper": {
+                        boxSizing: "border-box",
+                        width: drawerWidth,
+                        position: "fixed !important",
+                        top: "0 !important",
+                        left: "0 !important",
+                        height: "100vh !important",
+                        zIndex: "1200 !important",
+                    },
+                }}
+            >
                 <DrawerHeader>
                     {open && (
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Box sx={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            flexGrow: 1,
+                            transition: "opacity 0.3s ease"
+                        }}>
                             <img src={logoSrc} alt="Logo" width="180" sx={{ marginRight: 2 }} />
                         </Box>
                     )}
-                    <IconButton onClick={handleDrawerClose}>
+                    <IconButton 
+                        onClick={handleDrawerClose}
+                        sx={{
+                            transition: "transform 0.3s ease",
+                            "&:hover": {
+                                transform: "scale(1.1)",
+                                backgroundColor: "rgba(0, 0, 0, 0.04)"
+                            }
+                        }}
+                        title={open ? "Collapse sidebar" : "Expand sidebar"}
+                    >
                         {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
                     </IconButton>
                 </DrawerHeader>
@@ -404,33 +515,61 @@ const profile = localStorage.getItem("profile")
 
                 <List>
                     {list1.map((item, index) => (
-                        <ListItem
+                        <Tooltip 
+                            title={!open ? item.name : ""} 
+                            placement="right"
+                            arrow
                             key={index}
-                            disablePadding
-                            sx={{ display: "block" }}
-                            onClick={() => handleSelectItem(item.name)}
-                            className={selectedItem === item.name ? "active" : ""}
                         >
+                            <ListItem
+                                disablePadding
+                                sx={{ display: "block" }}
+                                onClick={() => handleSelectItem(item.name)}
+                                className={selectedItem === item.name ? "active" : ""}
+                            >
                             <ListItemButton
                                 sx={{
                                     minHeight: 48,
                                     justifyContent: open ? "initial" : "center",
-                                    px: 2.5,
+                                    px: open ? 2.5 : 1.5,
+                                    mx: 1,
+                                    borderRadius: 2,
+                                    transition: "all 0.3s ease",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                        transform: "translateX(4px)"
+                                    },
+                                    "&.Mui-selected": {
+                                        backgroundColor: "rgba(25, 118, 210, 0.08)",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(25, 118, 210, 0.12)"
+                                        }
+                                    }
                                 }}
                             >
                                 <ListItemIcon
                                     sx={{
                                         minWidth: 0,
-                                        mr: open ? 3 : "auto",
+                                        mr: open ? 3 : 0,
                                         justifyContent: "center",
+                                        transition: "margin 0.3s ease"
                                     }}
                                     className={selectedItem === item.name ? "active" : ""}
                                 >
                                     {item.icon}
                                 </ListItemIcon>
-                                <ListItemText primary={item.name} sx={{ opacity: open ? 1 : 0 }} />
+                                <ListItemText 
+                                    primary={item.name} 
+                                    sx={{ 
+                                        opacity: open ? 1 : 0,
+                                        transition: "opacity 0.3s ease",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden"
+                                    }} 
+                                />
                             </ListItemButton>
-                        </ListItem>
+                            </ListItem>
+                        </Tooltip>
                     ))}
                 </List>
                 <Divider />
@@ -526,13 +665,82 @@ const profile = localStorage.getItem("profile")
                     </div> */}
                 {/* </List> */}
             </Drawer>
+
+            {/* Mobile Drawer */}
+            <SwipeableDrawer
+                variant="temporary"
+                anchor="left"
+                open={mobileOpen}
+                onClose={handleDrawerClose}
+                onOpen={handleDrawerOpen}
+                ModalProps={{ keepMounted: true }}
+                sx={{
+                    display: { xs: "block", md: "none" },
+                    "& .MuiDrawer-paper": {
+                        boxSizing: "border-box",
+                        width: mobileDrawerWidth,
+                        backgroundColor: "#fafafa",
+                    },
+                }}
+            >
+                <DrawerHeader>
+                    <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+                        <img src={logoSrc} alt="Logo" width="180" sx={{ marginRight: 2 }} />
+                    </Box>
+                    <IconButton onClick={handleDrawerClose}>
+                        <ChevronLeft />
+                    </IconButton>
+                </DrawerHeader>
+                <Divider />
+
+                <List>
+                    {list1.map((item, index) => (
+                        <ListItem
+                            key={index}
+                            disablePadding
+                            sx={{ display: "block" }}
+                            onClick={() => {
+                                handleSelectItem(item.name);
+                                if (isMobile) {
+                                    handleDrawerClose();
+                                }
+                            }}
+                            className={selectedItem === item.name ? "active" : ""}
+                        >
+                            <ListItemButton
+                                sx={{
+                                    minHeight: 48,
+                                    justifyContent: "initial",
+                                    px: 2.5,
+                                }}
+                            >
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 0,
+                                        mr: 3,
+                                        justifyContent: "center",
+                                    }}
+                                    className={selectedItem === item.name ? "active" : ""}
+                                >
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={item.name} sx={{ opacity: 1 }} />
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                </List>
+            </SwipeableDrawer>
             <Box 
                 component="main" 
-                className={open ? "drawer-open" : "drawer-closed"}
                 sx={{ 
                     flexGrow: 1, 
-                    width: { xs: "100%", sm: "100%" },
-                    marginLeft: { xs: 0, sm: open ? `${drawerWidth}px` : "57px" },
+                    width: "100%",
+                    marginLeft: { 
+                        xs: 0, 
+                        sm: 0, 
+                        md: open ? `${drawerWidth}px` : "57px",
+                        lg: open ? `${drawerWidth}px` : "57px"
+                    },
                     transition: theme.transitions.create(["margin"], {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.leavingScreen,
@@ -541,7 +749,13 @@ const profile = localStorage.getItem("profile")
                     backgroundColor: "#fffff",
                     position: "relative",
                     zIndex: 1,
-                    padding: { xs: "0.5rem", sm: "1rem" }
+                    padding: { 
+                        xs: "0.25rem", 
+                        sm: "0.5rem", 
+                        md: "0.75rem",
+                        lg: "1rem"
+                    },
+                    marginTop: { xs: "48px", sm: "56px" }
                 }}
             >
                 <DrawerHeader />

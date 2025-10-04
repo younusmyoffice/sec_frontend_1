@@ -1,0 +1,126 @@
+.healthcare-facility-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 280px;
+    max-width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+}
+
+.facility-logo {
+    margin-bottom: 16px;
+}
+
+.logo-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid #f0f0f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.facility-info {
+    width: 100%;
+}
+
+.facility-name {
+    font-family: "Poppins, sans-serif" !important;
+    font-weight: 600 !important;
+    font-size: 18px !important;
+    color: #333 !important;
+    margin: 0 0 8px 0 !important;
+    line-height: 1.3 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.facility-type {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 14px !important;
+    color: #666 !important;
+    margin: 0 0 12px 0 !important;
+    line-height: 1.4 !important;
+    font-weight: 500 !important;
+}
+
+.rating-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.star-icon {
+    color: #E82B4A !important;
+    font-size: 16px !important;
+}
+
+.rating-text {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 12px !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.location-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.location-icon {
+    color: #999 !important;
+    font-size: 16px !important;
+}
+
+.location-text {
+    font-family: "Poppins, sans-serif" !important;
+    font-size: 12px !important;
+    color: #999 !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .healthcare-facility-card {
+        min-width: 250px;
+        max-width: 280px;
+        padding: 16px;
+    }
+    
+    .logo-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .facility-name {
+        font-size: 16px !important;
+    }
+    
+    .facility-type {
+        font-size: 12px !important;
+    }
+}

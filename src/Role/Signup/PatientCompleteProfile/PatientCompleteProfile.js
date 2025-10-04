@@ -7,7 +7,10 @@ import Button from "@mui/material/Button";
 import "./patientcompleteprofile.scss";
 import Typography from "@mui/material/Typography";
 import { TextField } from "@mui/material";
-import CustomDatePicker from "../../../components/CustomDatePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CustomTextField from "../../../components/CustomTextField/custom-text-field";
@@ -352,19 +355,45 @@ const PatientCompleteProfile = () => {
                                 alignItems: "center",
                             }}
                         >
-                            <Typography sx={{ mt: 2, mb: 1 }}>
-                                {/* Put component here */}
-                                <center>
+                            <Box sx={{ textAlign: "center", mb: 4 }}>
+                                <Typography 
+                                    sx={{ 
+                                        mt: 2, 
+                                        mb: 3,
+                                        fontSize: "18px",
+                                        color: "#666",
+                                        lineHeight: "1.6",
+                                        maxWidth: "600px",
+                                        margin: "0 auto"
+                                    }}
+                                >
                                     We express our gratitude for your diligence in completing the
                                     patient profile. Your attention to detail contributes
                                     significantly to our records
-                                </center>
-                            </Typography>
-                            <CustomButton
-                                label="Click here to login"
-                                handleClick={() => navigate("/patientlogin")}
-                                buttonCss={{ width: "fit-content" }}
-                            />
+                                </Typography>
+                                <Box sx={{ mb: 3 }}>
+                                    <img 
+                                        src={ClassicFrame} 
+                                        alt="Success Illustration" 
+                                        style={{
+                                            maxWidth: "300px",
+                                            height: "auto",
+                                            margin: "0 auto",
+                                            display: "block"
+                                        }}
+                                    />
+                                </Box>
+                                <CustomButton
+                                    label="Click here to login"
+                                    handleClick={() => navigate("/patientlogin")}
+                                    buttonCss={{ 
+                                        width: "fit-content",
+                                        padding: "12px 32px",
+                                        fontSize: "16px",
+                                        fontWeight: "500"
+                                    }}
+                                />
+                            </Box>
                         </Box>
                         {/* <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                             <Box sx={{ flex: "1 1 auto" }} />
@@ -377,88 +406,174 @@ const PatientCompleteProfile = () => {
                             {/* Step {activeStep + 1} */}
                             {activeStep === 0 ? (
                                 <>
-                                    <Box>
-                                        <div className="mainBox1">
-                                            <Box sx={{ width: "40%" }}>
-                                                <div className="heading1">
-                                                    <Typography
-                                                        style={{
-                                                            fontFamily: "poppins",
-                                                            fontSize: "25px",
-                                                            fontStyle: "normal",
-                                                            fontWeight: "500",
-                                                            lineHeight: "30px",
-                                                        }}
-                                                    >
-                                                        Personal Information
-                                                    </Typography>
-                                                </div>
-                                                <div className="Text-fields1">
-                                                    <TextField
-                                                        label="First Name"
-                                                        variant="standard"
-                                                        required={"required"}
-                                                        style={{
-                                                            width: "50%",
+                                    <Box sx={{ 
+                                        display: "flex", 
+                                        justifyContent: "center", 
+                                        alignItems: "center",
+                                        minHeight: "60vh"
+                                    }}>
+                                        <Box sx={{ 
+                                            width: { xs: "90%", sm: "80%", md: "60%", lg: "50%" },
+                                            maxWidth: "600px"
+                                        }}>
+                                            <Box sx={{ mb: 4, textAlign: "center" }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        fontSize: { xs: "22px", sm: "25px" },
+                                                        fontWeight: "500",
+                                                        lineHeight: "1.2",
+                                                        color: "#333",
+                                                        mb: 1
+                                                    }}
+                                                >
+                                                    Personal Information
+                                                </Typography>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: "14px",
+                                                        color: "#666",
+                                                        fontFamily: "Poppins, sans-serif"
+                                                    }}
+                                                >
+                                                    Please provide your personal details
+                                                </Typography>
+                                            </Box>
+                                            <Box sx={{ 
+                                                display: "flex", 
+                                                flexDirection: { xs: "column", sm: "row" },
+                                                gap: { xs: 2, sm: 3 },
+                                                mb: 3
+                                            }}>
+                                                <TextField
+                                                    label="First Name"
+                                                    variant="standard"
+                                                    required
+                                                    sx={{
+                                                        flex: 1,
+                                                        "& .MuiInputLabel-root": {
                                                             color: "#787579",
-                                                        }}
-                                                        onInput={(event) =>
-                                                            setData({
-                                                                ...data,
-                                                                first_name: event?.target?.value,
-                                                            })
+                                                            fontFamily: "Poppins, sans-serif"
+                                                        },
+                                                        "& .MuiInput-underline:before": {
+                                                            borderBottomColor: "#e0e0e0"
+                                                        },
+                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                                                            borderBottomColor: "#1976d2"
+                                                        },
+                                                        "& .MuiInput-underline:after": {
+                                                            borderBottomColor: "#1976d2"
                                                         }
-                                                    ></TextField>
-                                                    <TextField
-                                                        label="Middle Name"
-                                                        variant="standard"
-                                                        required={"required"}
-                                                        style={{
-                                                            width: "50%",
+                                                    }}
+                                                    onInput={(event) =>
+                                                        setData({
+                                                            ...data,
+                                                            first_name: event?.target?.value,
+                                                        })
+                                                    }
+                                                />
+                                                <TextField
+                                                    label="Middle Name"
+                                                    variant="standard"
+                                                    sx={{
+                                                        flex: 1,
+                                                        "& .MuiInputLabel-root": {
                                                             color: "#787579",
-                                                        }}
-                                                        onInput={(event) =>
-                                                            setData({
-                                                                ...data,
-                                                                middle_name: event?.target?.value,
-                                                            })
+                                                            fontFamily: "Poppins, sans-serif"
+                                                        },
+                                                        "& .MuiInput-underline:before": {
+                                                            borderBottomColor: "#e0e0e0"
+                                                        },
+                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                                                            borderBottomColor: "#1976d2"
+                                                        },
+                                                        "& .MuiInput-underline:after": {
+                                                            borderBottomColor: "#1976d2"
                                                         }
-                                                    ></TextField>
-                                                </div>
-                                                <div className="other-fields1">
-                                                    <TextField
-                                                        label="Last Name"
-                                                        variant="standard"
-                                                        required={"required"}
-                                                        style={{
-                                                            width: "100%",
+                                                    }}
+                                                    onInput={(event) =>
+                                                        setData({
+                                                            ...data,
+                                                            middle_name: event?.target?.value,
+                                                        })
+                                                    }
+                                                />
+                                            </Box>
+                                            <Box sx={{ mb: 3 }}>
+                                                <TextField
+                                                    label="Last Name"
+                                                    variant="standard"
+                                                    required
+                                                    fullWidth
+                                                    sx={{
+                                                        "& .MuiInputLabel-root": {
                                                             color: "#787579",
-                                                        }}
-                                                        onInput={(event) =>
-                                                            setData({
-                                                                ...data,
-                                                                last_name: event?.target?.value,
-                                                            })
+                                                            fontFamily: "Poppins, sans-serif"
+                                                        },
+                                                        "& .MuiInput-underline:before": {
+                                                            borderBottomColor: "#e0e0e0"
+                                                        },
+                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                                                            borderBottomColor: "#1976d2"
+                                                        },
+                                                        "& .MuiInput-underline:after": {
+                                                            borderBottomColor: "#1976d2"
                                                         }
-                                                    ></TextField>
-                                                </div>
-                                                <div className="Date-of-birth1">
-                                                    <CustomDatePicker
-                                                        label="Date of Birth"
-                                                        value={data.DOB}
-                                                        onChange={(value) => {
-                                                            console.log(value);
-                                                            setData({
-                                                                ...data,
-                                                                DOB: value,
-                                                            });
-                                                        }}
-                                                        required={true}
-                                                    />
-                                                </div>
-                                                <div className="gender1">
+                                                    }}
+                                                    onInput={(event) =>
+                                                        setData({
+                                                            ...data,
+                                                            last_name: event?.target?.value,
+                                                        })
+                                                    }
+                                                />
+                                            </Box>
+                                            <Box sx={{ 
+                                                display: "flex", 
+                                                flexDirection: { xs: "column", sm: "row" },
+                                                gap: { xs: 2, sm: 3 },
+                                                mb: 4
+                                            }}>
+                                                <Box sx={{ flex: 1 }}>
+                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                        <DatePicker
+                                                            label="Date of Birth"
+                                                            value={data.DOB ? dayjs(data.DOB) : null}
+                                                            onChange={(value) => {
+                                                                console.log(value);
+                                                                setData({
+                                                                    ...data,
+                                                                    DOB: value ? value.toDate() : null,
+                                                                });
+                                                            }}
+                                                            slotProps={{
+                                                                textField: {
+                                                                    required: true,
+                                                                    variant: "standard",
+                                                                    fullWidth: true,
+                                                                    sx: {
+                                                                        "& .MuiInputLabel-root": {
+                                                                            color: "#787579",
+                                                                            fontFamily: "Poppins, sans-serif"
+                                                                        },
+                                                                        "& .MuiInput-underline:before": {
+                                                                            borderBottomColor: "#e0e0e0"
+                                                                        },
+                                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                                                                            borderBottomColor: "#1976d2"
+                                                                        },
+                                                                        "& .MuiInput-underline:after": {
+                                                                            borderBottomColor: "#1976d2"
+                                                                        }
+                                                                    }
+                                                                },
+                                                            }}
+                                                        />
+                                                    </LocalizationProvider>
+                                                </Box>
+                                                <Box sx={{ flex: 1 }}>
                                                     <CustomDropdown
-                                                        label={"Gender"}
+                                                        label="Gender"
                                                         items={dropdownItems}
                                                         activeItem={activeDropdown}
                                                         handleChange={(item) => {
@@ -466,19 +581,40 @@ const PatientCompleteProfile = () => {
                                                             console.log(item);
                                                             setData({ ...data, gender: item });
                                                         }}
+                                                        variant="standard"
                                                         dropdowncss={{
                                                             width: "100%",
-                                                            color: "#787579",
+                                                            "& .MuiInputLabel-root": {
+                                                                color: "#787579",
+                                                                fontFamily: "Poppins, sans-serif"
+                                                            },
+                                                            "& .MuiInput-underline:before": {
+                                                                borderBottomColor: "#e0e0e0"
+                                                            },
+                                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+                                                                borderBottomColor: "#1976d2"
+                                                            },
+                                                            "& .MuiInput-underline:after": {
+                                                                borderBottomColor: "#1976d2"
+                                                            }
                                                         }}
                                                     />
-                                                </div>
+                                                </Box>
                                             </Box>
-                                            <div className="sve-btn">
+                                            <Box sx={{ 
+                                                display: "flex", 
+                                                justifyContent: "center", 
+                                                mt: 4 
+                                            }}>
                                                 <CustomButton
                                                     handleClick={handleNext}
                                                     label="Next"
                                                     buttonCss={{
-                                                        width: "33%",
+                                                        width: { xs: "100%", sm: "200px" },
+                                                        padding: "12px 32px",
+                                                        fontSize: "16px",
+                                                        fontWeight: "500",
+                                                        borderRadius: "8px"
                                                     }}
                                                     isDisabled={
                                                         data?.first_name != null &&
@@ -488,13 +624,9 @@ const PatientCompleteProfile = () => {
                                                             ? false
                                                             : true
                                                     }
-                                                >
-                                                    {activeStep === steps.length - 1
-                                                        ? "Finish"
-                                                        : "Next"}
-                                                </CustomButton>
-                                            </div>
-                                        </div>
+                                                />
+                                            </Box>
+                                        </Box>
                                     </Box>
                                 </>
                             ) : activeStep === 1 ? (
@@ -566,6 +698,7 @@ const PatientCompleteProfile = () => {
                                                             items={countryNames}
                                                             minwidthDropDown="300px"
                                                             activeItem={activeDropdown}
+                                                            variant="standard"
                                                             handleChange={(listItems) => {
                                                                 setActiveDropdown(listItems);
                                                                 let response = countryValues.filter(
@@ -599,6 +732,7 @@ const PatientCompleteProfile = () => {
                                                             items={stateNames}
                                                             minwidthDropDown="300px"
                                                             activeItem={stateName}
+                                                            variant="standard"
                                                             handleChange={(listItems) => {
                                                                 let response = stateValue.filter(
                                                                     (state) =>
@@ -626,6 +760,7 @@ const PatientCompleteProfile = () => {
                                                             dropdowncss={{ width: "100%" }}
                                                             items={cityNames}
                                                             minwidthDropDown="300px"
+                                                            variant="standard"
                                                             activeItem={citySelected}
                                                             handleChange={(listItems) => {
                                                                 setCitySelected(listItems);

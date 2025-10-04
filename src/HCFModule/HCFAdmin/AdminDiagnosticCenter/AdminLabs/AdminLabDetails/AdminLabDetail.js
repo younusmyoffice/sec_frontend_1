@@ -35,7 +35,7 @@ const AdminLabDetail = () => {
     const [test, setTest] = useState([]);
     const [loading, setLoading] = useState(true);
     const hcf_id = localStorage.getItem("hcfadmin_suid");
-    const exam_id = params.labid;
+    const exam_id = params.labId;
     const [page, setPage] = useState(0); // Current page
     const [rowsPerPage, setRowsPerPage] = useState(5); // Rows per page
     const [openDialog, setOpenDialog] = useState(false);
@@ -196,10 +196,26 @@ const AdminLabDetail = () => {
         }
     };
 
-    const handleDelete = (data) => {
-        // Logic for delete option
-        console.log("Delete clicked for exam:", data.sub_exam_id);
-        alert(`Do you want to delete ${data.sub_exam_name}?`);
+    const handleDelete = async (data) => {
+        if (window.confirm(`Are you sure you want to delete "${data.sub_exam_name}"?`)) {
+            setSnackOpen(false);
+            try {
+                console.log("Deleting test with sub_exam_id:", data.sub_exam_id);
+                await axiosInstance.delete(`/sec/hcf/deleteTest/${hcf_id}/${exam_id}/${data.sub_exam_id}`);
+                
+                await setSnackType("success");
+                await setSnackMessage("Test deleted successfully!");
+                setSnackOpen(true);
+                
+                // Refresh the test list after successful deletion
+                getTests();
+            } catch (error) {
+                console.error("Error deleting test:", error);
+                await setSnackType("error");
+                await setSnackMessage("Error deleting test!");
+                setSnackOpen(true);
+            }
+        }
     };
     return (
         <Box className={"adminlabs_main_container"}>
@@ -552,12 +568,28 @@ const AdminLabDetail = () => {
                                                 ₹{data.test_subexam_price}
                                             </TableCell>
                                             <TableCell align="right">
-                                                <CustomButton
-                                                    buttonCss={{ borderRadius: "6.25rem" }}
-                                                    label={<img src={pen} alt="Edit" />}
-                                                    isTransaprent
-                                                    handleClick={() => handleEdit(data)} // Pass the clicked test's data to handleEdit
-                                                />
+                                                <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
+                                                    <CustomButton
+                                                        buttonCss={{ borderRadius: "6.25rem" }}
+                                                        label={<img src={pen} alt="Edit" />}
+                                                        isTransaprent
+                                                        handleClick={() => handleEdit(data)} // Pass the clicked test's data to handleEdit
+                                                    />
+                                                    <CustomButton
+                                                        buttonCss={{ 
+                                                            borderRadius: "6.25rem",
+                                                            backgroundColor: "#ff4444",
+                                                            color: "white",
+                                                            minWidth: "40px",
+                                                            height: "40px",
+                                                            "&:hover": {
+                                                                backgroundColor: "#cc3333"
+                                                            }
+                                                        }}
+                                                        label="×"
+                                                        handleClick={() => handleDelete(data)}
+                                                    />
+                                                </Box>
                                             </TableCell>
                                         </TableRow>
                                     ))

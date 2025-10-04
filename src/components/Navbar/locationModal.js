@@ -16,7 +16,8 @@ import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import CloseIcon from "@mui/icons-material/Close";
 import axiosInstance from "../../config/axiosInstance";
 import NoAppointmentCard from "../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
-import Drcard from "../../constants/drcard/drcard";
+// import Drcard from "../../constants/drcard/drcard";
+import DoctorCard from "../DoctorCard/DoctorCard";
 import frontimg from "../../static/images/DrImages/locationIcon.png";
 import { Link } from "react-router-dom";
 
@@ -32,24 +33,47 @@ const LocationModal = () => {
     const [centerCoordinates, setCenterCoordinates] = useState(null); // State for storing center coordinates
     const [doctors, setDoctors] = useState([]); // State for storing doctor list
     const [locname, setLocname] = useState("");
+    const [geolocationError, setGeolocationError] = useState(null); // State for geolocation error
     const geofenceRadius = 2000; // Radius in meters (2 km)
 
-    const handleOpen = () => setOpen(true);
+    // Popular cities as fallback options
+    const popularCities = [
+        { name: "New York, NY", lat: 40.7128, lon: -74.0060 },
+        { name: "Los Angeles, CA", lat: 34.0522, lon: -118.2437 },
+        { name: "Chicago, IL", lat: 41.8781, lon: -87.6298 },
+        { name: "Houston, TX", lat: 29.7604, lon: -95.3698 },
+        { name: "Phoenix, AZ", lat: 33.4484, lon: -112.0740 },
+        { name: "Philadelphia, PA", lat: 39.9526, lon: -75.1652 },
+        { name: "San Antonio, TX", lat: 29.4241, lon: -98.4936 },
+        { name: "San Diego, CA", lat: 32.7157, lon: -117.1611 },
+        { name: "Dallas, TX", lat: 32.7767, lon: -96.7970 },
+        { name: "San Jose, CA", lat: 37.3382, lon: -121.8863 }
+    ];
+
+    const handleOpen = () => {
+        setOpen(true);
+        setGeolocationError(null); // Clear any previous errors
+    };
     const handleClose = () => setOpen(false);
 
     const fetchPostalCodesWithinGeofence = async (center, gridSize) => {
+        console.log("🗺️ Fetching postal codes for center:", center, "gridSize:", gridSize);
         const postalCodesSet = new Set();
         const latLngPoints = generateGridPoints(center, geofenceRadius, gridSize);
+        console.log("📍 Generated grid points:", latLngPoints.length);
 
         for (let i = 0; i < latLngPoints.length; i++) {
             const point = latLngPoints[i];
             const postcode = await fetchPostalCode(point[0], point[1]);
             if (postcode) {
                 postalCodesSet.add(postcode);
+                console.log("📮 Found postal code:", postcode);
             }
         }
 
-        return Array.from(postalCodesSet);
+        const postalCodes = Array.from(postalCodesSet);
+        console.log("📮 All postal codes found:", postalCodes);
+        return postalCodes;
     };
 
     const fetchPostalCode = async (latitude, longitude) => {
@@ -109,20 +133,38 @@ const LocationModal = () => {
                         setLocname(locationName);
 
                         // Fetch postal codes within geofence
+                        console.log("🌍 User coordinates:", userCoordinates);
                         const postalCodes = await fetchPostalCodesWithinGeofence(
                             [userCoordinates.latitude, userCoordinates.longitude],
                             1000, // Radius in meters
                         );
+                        console.log("📮 Postal codes from geofence:", postalCodes);
                         setPostalCodes(postalCodes);
 
                         // Fetch doctors based on postal codes
+                        console.log("👨‍⚕️ About to fetch doctors with postal codes:", postalCodes);
                         await fetchDoctors(postalCodes);
 
                         setLoadingCurrentLocation(false);
                     },
                     (error) => {
-                        console.error("Error getting geolocation:", error);
+                        console.error("❌ Geolocation error:", error);
+                        console.error("❌ Error code:", error.code);
+                        console.error("❌ Error message:", error.message);
+                        
                         setLoadingCurrentLocation(false);
+                        
+                        // Handle different geolocation errors
+                        if (error.code === 1) {
+                            console.warn("⚠️ User denied geolocation permission");
+                            setGeolocationError("Location access denied. Please search for a city or try again.");
+                        } else if (error.code === 2) {
+                            console.warn("⚠️ Location unavailable");
+                            setGeolocationError("Location unavailable. Please search for a city.");
+                        } else if (error.code === 3) {
+                            console.warn("⚠️ Geolocation request timed out");
+                            setGeolocationError("Location request timed out. Please search for a city.");
+                        }
                     },
                 );
             } else {
@@ -137,22 +179,113 @@ const LocationModal = () => {
 
     const fetchDoctors = async (zipcode) => {
         try {
+            console.log("🔍 Fetching doctors for zipcodes:", zipcode);
+            
+            if (!zipcode || zipcode.length === 0) {
+                console.warn("⚠️ No zipcodes provided to fetchDoctors");
+                setDoctors([]);
+                return;
+            }
+
+            const requestData = {
+                zipcodes: zipcode,
+                type: "Good", // Or you can dynamically set this
+                page: 1,
+                limit: 5,
+            };
+
+            console.log("📤 Request data:", requestData);
+
             const response = await axiosInstance.post(
                 "/sec/patient/doctornearme",
-                JSON.stringify({
-                    zipcodes: zipcode,
-                    type: "Good", // Or you can dynamically set this
-                    page: 1,
-                    limit: 5,
-                }),
+                JSON.stringify(requestData),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
             );
-            setDoctors(response?.data?.response || []);
+            
+            console.log("📥 API Response:", response);
+            console.log("📥 Response data:", response?.data);
+            console.log("📥 Response response:", response?.data?.response);
+            
+            const doctorsData = response?.data?.response || [];
+            console.log("👨‍⚕️ Doctors found:", doctorsData.length, doctorsData);
+            
+            setDoctors(doctorsData);
         } catch (error) {
-            console.error("Error fetching doctors:", error);
+            console.error("❌ Error fetching doctors:", error);
+            console.error("❌ Error response:", error.response);
+            console.error("❌ Error status:", error.response?.status);
+            console.error("❌ Error data:", error.response?.data);
             setDoctors([]);
         }
     };
     console.log("this location doctors", doctors);
+
+    // Test function to verify API endpoint
+    const testDoctorAPI = async () => {
+        try {
+            console.log("🧪 Testing doctor API endpoint...");
+            const testData = {
+                zipcodes: ["10001"], // Test with a known postal code
+                type: "Good",
+                page: 1,
+                limit: 5,
+            };
+            
+            const response = await axiosInstance.post(
+                "/sec/patient/doctornearme",
+                JSON.stringify(testData),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+            
+            console.log("🧪 Test API Response:", response);
+            console.log("🧪 Test API Data:", response?.data);
+        } catch (error) {
+            console.error("🧪 Test API Error:", error);
+        }
+    };
+
+    // Uncomment the line below to test the API when component mounts
+    // testDoctorAPI(); // Enable this to test API with known postal code
+
+    // Handle popular city selection
+    const handlePopularCitySelect = async (city) => {
+        try {
+            setLoadingCurrentLocation(true);
+            setGeolocationError(null);
+            
+            console.log("🏙️ Selected popular city:", city.name);
+            
+            // Update state with coordinates and location name
+            setCenterCoordinates([city.lat, city.lon]);
+            setLocname(city.name);
+
+            // Fetch postal codes within geofence
+            console.log("🌍 City coordinates:", city.lat, city.lon);
+            const postalCodes = await fetchPostalCodesWithinGeofence(
+                [city.lat, city.lon],
+                1000, // Radius in meters
+            );
+            console.log("📮 Postal codes from city:", postalCodes);
+            setPostalCodes(postalCodes);
+
+            // Fetch doctors based on postal codes
+            console.log("👨‍⚕️ About to fetch doctors for city with postal codes:", postalCodes);
+            await fetchDoctors(postalCodes);
+
+            setLoadingCurrentLocation(false);
+        } catch (error) {
+            console.error("❌ Error handling popular city selection:", error);
+            setLoadingCurrentLocation(false);
+        }
+    };
     const handleSearch = async () => {
         try {
             setLoadingCurrentLocation(true);
@@ -170,9 +303,11 @@ const LocationModal = () => {
                     [parseFloat(lat), parseFloat(lon)],
                     1000,
                 );
+                console.log("📮 Postal codes from search:", postalCodes);
                 setPostalCodes(postalCodes);
 
                 // Fetch doctors based on the location
+                console.log("👨‍⚕️ About to fetch doctors from search with postal codes:", postalCodes);
                 await fetchDoctors(postalCodes); // Assuming you use the first postal code for the API
             } else {
                 console.error("Location not found");
@@ -309,6 +444,59 @@ const LocationModal = () => {
                             </Typography>
                         </Stack>
                     </Box>
+
+                    {/* Show geolocation error if any */}
+                    {geolocationError && (
+                        <Box sx={{ marginTop: "3%", padding: "10px", backgroundColor: "#ffebee", borderRadius: "4px" }}>
+                            <Typography variant="body2" sx={{ color: "#d32f2f", fontSize: "12px" }}>
+                                {geolocationError}
+                            </Typography>
+                        </Box>
+                    )}
+
+                    {/* Popular Cities Section */}
+                    <Box sx={{ marginTop: "5%" }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontSize: "16px",
+                                fontWeight: "600",
+                                color: "#313033",
+                                marginBottom: "10px",
+                            }}
+                        >
+                            Popular Cities
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                            {popularCities.slice(0, 6).map((city, index) => (
+                                <Box
+                                    key={index}
+                                    onClick={() => handlePopularCitySelect(city)}
+                                    sx={{
+                                        padding: "8px 12px",
+                                        backgroundColor: "#f5f5f5",
+                                        borderRadius: "20px",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s ease",
+                                        "&:hover": {
+                                            backgroundColor: "#E72B4A",
+                                            color: "white",
+                                        },
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            fontSize: "12px",
+                                            fontWeight: "500",
+                                        }}
+                                    >
+                                        {city.name}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
                     
 
                     {loadingCurrentLocation ? (
@@ -328,7 +516,7 @@ const LocationModal = () => {
                                 }}
                                 key={index}
                             >
-                                <Drcard DrData={doctor} />
+                                <DoctorCard DrData={doctor} />
                             </Link>
                         ))
                     ) : (
