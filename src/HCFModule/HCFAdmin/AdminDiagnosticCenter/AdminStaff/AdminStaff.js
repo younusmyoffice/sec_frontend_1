@@ -21,7 +21,7 @@ import Edittaff from "./Edittaff";
 import axiosInstance from "../../../../config/axiosInstance";
 import CustomDropdown from "../../../../components/CustomDropdown";
 import pen from "../../../../static/images/DrImages/Pen.svg";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import DoneIcon from "@mui/icons-material/Done";
 import CustomOTPInput from "../../../../components/OTPInput";
 import CustomSnackBar from "../../../../components/CustomSnackBar";

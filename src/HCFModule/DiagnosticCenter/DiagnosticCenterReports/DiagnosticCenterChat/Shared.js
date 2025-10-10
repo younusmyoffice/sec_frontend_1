@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import DiagnostCenterTableCard from "./DiagnostCenterTableCard";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../../config/axiosInstance";
 
 const Shared = () => {

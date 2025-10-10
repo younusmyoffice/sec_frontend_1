@@ -9,7 +9,7 @@ import CustomNotificationCard from "../../../../DoctorModule/CustomDoctorCompone
 import CustomButton from "../../../../components/CustomButton/custom-button";
 import "./diagnosticNotification.scss";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const DiagnosticNotification = () => {
     const [testCount, setTestCount] = useState(0);

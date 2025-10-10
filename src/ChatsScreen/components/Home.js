@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { AppointmentNavbar } from "../../PatientDashboard/PatientAppointment/PatientCards";
+import { AppointmentNavbar } from "../../PatientModule/PatientAppointment/PatientCards";
 import DoctorAppointmentNavbar from "../../DoctorModule/CustomDoctorComponent/DoctorAppointmentNavbar/DoctorAppointmentNavbar";
 import CustomButton from "../../components/CustomButton";
 
@@ -22,13 +22,13 @@ const Home = ({ socket }) => {
             localStorage.setItem("userName", userName);
             localStorage.setItem("roomID", roomID);
             socket.emit("joinRoom", { userID: userName, roomID , doctorId : '', appointment_id });
-            // navigate(`/patientdashboard/appointment/chats/${roomID}`);
+            // navigate(`/PatientModule/appointment/chats/${roomID}`);
         }
 
         userName && roomID
             ? user === "patient"
            // chats/:user/:roomID/:appointment_id
-                ? navigate(`/patientdashboard/appointment/chats/${roomID}/${appointment_id}`)
+                ? navigate(`/PatientModule/appointment/chats/${roomID}/${appointment_id}`)
                 : user === "doctor"
                 ? navigate(`/doctordashboard/doctorAppointment/chats/${roomID}/${appointment_id}`)
                 : alert("Both Username and Room ID are required.")
@@ -90,7 +90,7 @@ export default Home;
 //         localStorage.setItem("userName", userName);
 //         localStorage.setItem("roomID", roomID);
 //         socket.emit("joinRoom", { userID: userName, roomID });
-//         navigate(`/patientdashboard/appointment/chats/${roomID}`);
+//         navigate(`/PatientModule/appointment/chats/${roomID}`);
 //     };
 
 //     const handleSubmit = (e) => {
@@ -149,7 +149,7 @@ export default Home;
 //             localStorage.setItem("userName", userName);
 //             localStorage.setItem("roomID", roomID);
 //             socket.emit("joinRoom", { userID: userName, roomID });
-//             navigate(`/patientdashboard/appointment/chats/${roomID}`);
+//             navigate(`/PatientModule/appointment/chats/${roomID}`);
 //         }
 //     };
 
@@ -280,7 +280,7 @@ export default Home;
 //         localStorage.setItem("roomID", roomID);
 //         console.log("in handle submit : ",roomID,userName)
 //         socket.emit("joinRoom", { userID: userName, roomID });
-//         navigate(`/patientdashboard/appointment/chats/${roomID}`);
+//         navigate(`/PatientModule/appointment/chats/${roomID}`);
 //     };
 
 //     return (

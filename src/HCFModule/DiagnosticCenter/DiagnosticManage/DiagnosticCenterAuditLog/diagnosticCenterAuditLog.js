@@ -84,10 +84,10 @@ const diagnosticCenterAuditLog = () => {
         <>
             <Box sx={{ display: "flex", width: "98%", height: "90%", flexDirection: "row" }}>
                 <nav className="NavBar-Container-Appoinement">
-                    <NavLink to="/diagnostCenterDashboard/dignosticCentermanage/diagnostsalesactivities">
+                    <NavLink to="/diagnostCenterDashboard/diagnosticCenterManage/diagnostSalesActivities">
                         Sales Activities
                     </NavLink>
-                    <NavLink to="/diagnostCenterDashboard/dignosticCentermanage/diagnostcenterauditlog">
+                    <NavLink to="/diagnostCenterDashboard/diagnosticCenterManage/diagnostCenterAuditLog">
                         Audit Logs
                     </NavLink>
                 </nav>

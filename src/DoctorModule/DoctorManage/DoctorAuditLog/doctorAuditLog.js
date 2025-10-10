@@ -16,8 +16,8 @@ import DoctorManageNavbar from "../../CustomDoctorComponent/DoctorManageNavbar/D
 import { AuditCards } from "../../../HCFModule/DiagnosticCenter/DiagnosticManage/DiagnosticCenterAuditLog/AuditCards";
 import axiosInstance from "../../../config/axiosInstance";
 import dayjs from "dayjs";
-import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
-import { formatDate } from "../../../PatientDashboard/DrDetailsCard/bookappointmentapihelperfunction";
+import NoAppointmentCard from "../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import { formatDate } from "../../../PatientModule/DrDetailsCard/bookappointmentapihelperfunction";
 
 const formatTimestamp = (isoString) => {
     return dayjs(isoString).format("MM/DD/YYYY, hh:mm:ss A");

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import UpcomingCard from "../../../../components/Card/CustomUpcomingcard/UpcomingCard";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const ClinicUpcoming = () => {
     useEffect(() => {

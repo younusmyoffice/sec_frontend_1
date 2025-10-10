@@ -18,7 +18,7 @@ import CustomButton from "../../../../components/CustomButton";
 import axiosInstance from "../../../../config/axiosInstance";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import DiagnostCenterTableCard from "../DiagnosticCenterChat/DiagnostCenterTableCard";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const RecievedTables = () => {
     const [cardData, setCardData] = useState([]);

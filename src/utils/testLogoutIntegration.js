@@ -141,7 +141,7 @@ export const testLogoutButton = () => {
         }
     } else {
         console.log('❌ LogoutButton not found in DOM');
-        console.log('💡 Make sure you are on the explore page: http://localhost:8000/patientdashboard/dashboard/explore');
+        console.log('💡 Make sure you are on the explore page: http://localhost:8000/patientDashboard/dashboard/explore');
     }
     
     return !!logoutButton;

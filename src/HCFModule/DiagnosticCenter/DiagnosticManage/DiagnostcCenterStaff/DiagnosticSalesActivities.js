@@ -16,7 +16,7 @@ import { NavLink } from "react-router-dom";
 import CustomCheckBox from "../../../../components/CustomCheckBox";
 import axiosInstance from "../../../../config/axiosInstance";
 import { SaleActivityCard } from "../../../HCFAdmin/AdminManage/AdminManageSale/SaleActivityCard";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import pic from "../../../../static/images/DrImages/patient_alter.png";
 import { currencysign, formatDate } from "../../../../constants/const";
 
@@ -91,10 +91,10 @@ const DiagnosticSalesActivities = () => {
         <>
             <div className="sales-container">
                 <nav className="NavBar-Container-Appoinement">
-                    <NavLink to="/diagnostCenterDashboard/dignosticCentermanage/diagnostsalesactivities">
+                    <NavLink to="/diagnostCenterDashboard/diagnosticCenterManage/diagnostSalesActivities">
                         Sales Activities
                     </NavLink>
-                    <NavLink to="/diagnostCenterDashboard/dignosticCentermanage/diagnostcenterauditlog">
+                    <NavLink to="/diagnostCenterDashboard/diagnosticCenterManage/diagnostCenterAuditLog">
                         Audit Logs
                     </NavLink>
                 </nav>

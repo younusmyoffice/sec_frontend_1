@@ -15,7 +15,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import CloseIcon from "@mui/icons-material/Close";
 import axiosInstance from "../../config/axiosInstance";
-import NoAppointmentCard from "../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 // import Drcard from "../../constants/drcard/drcard";
 import DoctorCard from "../DoctorCard/DoctorCard";
 import frontimg from "../../static/images/DrImages/locationIcon.png";

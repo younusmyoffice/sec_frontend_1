@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import CustomTextField from "../components/CustomTextField";
 import CustomButton from "../components/CustomButton";
 import "./chatroom.scss";
-import { AppointmentNavbar } from "../PatientDashboard/PatientAppointment/PatientCards";
+import { AppointmentNavbar } from "../PatientModule/PatientAppointment/PatientCards";
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 

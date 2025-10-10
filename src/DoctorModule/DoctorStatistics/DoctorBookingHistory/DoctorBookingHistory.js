@@ -13,11 +13,11 @@ import {
     Skeleton,
 } from "@mui/material";
 import DoctorStatisticsNavbar from "../../CustomDoctorComponent/DoctorStatisticsNavbar/DoctorStatisticsNavbar";
-import { PaginationCard } from "../../../PatientDashboard/PatientAppointment/PatientCards";
+import { PaginationCard } from "../../../PatientModule/PatientAppointment/PatientCards";
 import { DoctorBookingCard } from "./DoctorBookingCard";
 import CustomButton from "../../../components/CustomButton";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { currencysign, formatOnlyDate } from "../../../constants/const";
 
 const DoctorBookingHistory = () => {

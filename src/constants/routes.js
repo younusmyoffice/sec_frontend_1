@@ -9,7 +9,7 @@ export const ROUTES = {
   // Authentication & Role Selection
   SELECT_ROLE_LOGIN: "/SelectRoleLogin",
   SELECT_ROLE_SIGNUP: "/selectRoleSignup",
-  SELECT_HCF_PROFILE_TYPE: "/HCFRoleType",
+  SELECT_HCF_PROFILE_TYPE: "/SelectHCFTypeLoginRole",
   SELECT_HCF_SIGNUP: "/selectHcfSignup",
 
   // Login Routes
@@ -58,44 +58,44 @@ export const ROUTES = {
   DIAGNOST_CENTER_DASHBOARD: "/diagnostCenterDashboard",
 
   // Patient Dashboard Sub-routes
-  PATIENT_DASHBOARD_MAIN: "/patientDashboard/dashboard",
+  PATIENT_DASHBOARD_MAIN: "/PatientModule/dashboard",
   PATIENT_DASHBOARD_EXPLORE: "/patientDashboard/dashboard/explore",
-  PATIENT_DASHBOARD_MY_ACTIVITY: "/patientDashboard/dashboard/myactivity",
-  PATIENT_DASHBOARD_PROFILE: "/patientDashboard/dashboard/profile",
-  PATIENT_DASHBOARD_PAYMENT: "/patientDashboard/dashboard/payment",
-  PATIENT_DASHBOARD_CONTACT: "/patientDashboard/dashboard/contact",
-  PATIENT_DASHBOARD_PATIENT_HCF: "/patientDashboard/dashboard/patienthcf",
+  PATIENT_DASHBOARD_MY_ACTIVITY: "/PatientModule/dashboard/myactivity",
+  PATIENT_DASHBOARD_PROFILE: "/PatientModule/dashboard/profile",
+  PATIENT_DASHBOARD_PAYMENT: "/PatientModule/dashboard/payment",
+  PATIENT_DASHBOARD_CONTACT: "/PatientModule/dashboard/contact",
+  PATIENT_DASHBOARD_PATIENT_HCF: "/PatientModule/dashboard/patienthcf",
 
   // Patient Appointment Routes
-  PATIENT_APPOINTMENT: "/patientDashboard/appointment",
-  PATIENT_APPOINTMENT_UPCOMING: "/patientDashboard/appointment/upcoming",
-  PATIENT_APPOINTMENT_COMPLETED: "/patientDashboard/appointment/completed",
-  PATIENT_APPOINTMENT_CANCELLED: "/patientDashboard/appointment/cancelled",
-  PATIENT_APPOINTMENT_CHAT: "/patientDashboard/appointment/chats",
-  PATIENT_APPOINTMENT_CHAT_PAGE: "/patientDashboard/appointment/chats/:roomID/:appointment_id",
+  PATIENT_APPOINTMENT: "/PatientModule/appointment",
+  PATIENT_APPOINTMENT_UPCOMING: "/PatientModule/appointment/upcoming",
+  PATIENT_APPOINTMENT_COMPLETED: "/PatientModule/appointment/completed",
+  PATIENT_APPOINTMENT_CANCELLED: "/PatientModule/appointment/cancelled",
+  PATIENT_APPOINTMENT_CHAT: "/PatientModule/appointment/chats",
+  PATIENT_APPOINTMENT_CHAT_PAGE: "/PatientModule/appointment/chats/:roomID/:appointment_id",
 
   // Patient Manage Routes
-  PATIENT_MANAGE: "/patientDashboard/manage",
-  PATIENT_MANAGE_BOOKING_HISTORY: "/patientDashboard/manage/bookinghistory",
-  PATIENT_MANAGE_TRANSACTIONS: "/patientDashboard/manage/transactions",
-  PATIENT_MANAGE_REPORTS: "/patientDashboard/manage/reports",
-  PATIENT_MANAGE_REPORTS_REQUEST: "/patientDashboard/manage/reports/request",
-  PATIENT_MANAGE_REPORTS_EXAMINED: "/patientDashboard/manage/reports/examined",
-  PATIENT_MANAGE_REPORTS_RECEIVED: "/patientDashboard/manage/reports/received",
-  PATIENT_MANAGE_REPORTS_SHARED: "/patientDashboard/manage/reports/shared",
-  PATIENT_MANAGE_SUBSCRIPTIONS: "/patientDashboard/manage/subscriptions",
+  PATIENT_MANAGE: "/PatientModule/manage",
+  PATIENT_MANAGE_BOOKING_HISTORY: "/PatientModule/manage/bookinghistory",
+  PATIENT_MANAGE_TRANSACTIONS: "/PatientModule/manage/transactions",
+  PATIENT_MANAGE_REPORTS: "/PatientModule/manage/reports",
+  PATIENT_MANAGE_REPORTS_REQUEST: "/PatientModule/manage/reports/request",
+  PATIENT_MANAGE_REPORTS_EXAMINED: "/PatientModule/manage/reports/examined",
+  PATIENT_MANAGE_REPORTS_RECEIVED: "/PatientModule/manage/reports/received",
+  PATIENT_MANAGE_REPORTS_SHARED: "/PatientModule/manage/reports/shared",
+  PATIENT_MANAGE_SUBSCRIPTIONS: "/PatientModule/manage/subscriptions",
 
   // Patient Activity Routes
-  PATIENT_ACTIVITY_RECEIVED: "/patientDashboard/dashboard/myactivity/received",
-  PATIENT_ACTIVITY_SHARED: "/patientDashboard/dashboard/myactivity/shared",
+  PATIENT_ACTIVITY_RECEIVED: "/PatientModule/dashboard/myactivity/received",
+  PATIENT_ACTIVITY_SHARED: "/PatientModule/dashboard/myactivity/shared",
 
   // Doctor Details Routes
-  PATIENT_DOCTOR_DETAILS: "/patientDashboard/drDetailsCard/:resID",
-  PATIENT_HCF_DOCTOR_DETAILS: "/patientDashboard/hcfDetailCard/hcfDoctor/:hcddocid/:reshcfID",
-  PATIENT_HCF_DETAILS: "/patientDashboard/hcfDetailCard/:hcfID",
-  PATIENT_HCF_DETAILS_ABOUT: "/patientDashboard/hcfDetailCard/:hcfID/about",
-  PATIENT_HCF_DETAILS_DEPARTMENT: "/patientDashboard/hcfDetailCard/:hcfID/department",
-  PATIENT_HCF_DETAILS_LABS: "/patientDashboard/hcfDetailCard/:hcfID/labs",
+  PATIENT_DOCTOR_DETAILS: "/PatientModule/drDetailsCard/:resID",
+  PATIENT_HCF_DOCTOR_DETAILS: "/PatientModule/hcfDetailCard/hcfDoctor/:hcddocid/:reshcfID",
+  PATIENT_HCF_DETAILS: "/PatientModule/hcfDetailCard/:hcfID",
+  PATIENT_HCF_DETAILS_ABOUT: "/PatientModule/hcfDetailCard/:hcfID/about",
+  PATIENT_HCF_DETAILS_DEPARTMENT: "/PatientModule/hcfDetailCard/:hcfID/department",
+  PATIENT_HCF_DETAILS_LABS: "/PatientModule/hcfDetailCard/:hcfID/labs",
 
   // Doctor Dashboard Sub-routes
   DOCTOR_DASHBOARD_MAIN: "/doctorDashboard/doctorMainDashboard",

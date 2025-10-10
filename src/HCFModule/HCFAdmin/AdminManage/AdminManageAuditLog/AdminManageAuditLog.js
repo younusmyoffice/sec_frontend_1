@@ -17,7 +17,7 @@ import { NavLink } from "react-router-dom";
 import SearchBox from "../../../../components/searchbox/SearchBox";
 import { baseURL } from "../../../../constants/const";
 import { AuditCards } from "../../../DiagnosticCenter/DiagnosticManage/DiagnosticCenterAuditLog/AuditCards";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { formatDate } from "../../../../constants/const";
 import axiosInstance from "../../../../config/axiosInstance";
 import { doc } from "prettier";

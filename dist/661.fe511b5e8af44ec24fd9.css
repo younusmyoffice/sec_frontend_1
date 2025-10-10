@@ -1,3 +1,0 @@
-.horizontal-scroll-container{width:100%;height:fit-content;display:flex}.horizontal-scroll-container>div{width:100%;display:flex;flex-wrap:nowrap;overflow-x:scroll;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}.horizontal-scroll-container>div::-webkit-scrollbar{display:none}.horizontal-scroll-container>div>div{text-overflow:ellipsis;white-space:nowrap}@media screen and (min-width: 620px){.horizontal-scroll-container>div{width:100%;display:flex;flex-wrap:nowrap;overflow:scroll;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}}
-
-/*# sourceMappingURL=661.fe511b5e8af44ec24fd9.css.map*/

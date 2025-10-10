@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { baseURL } from "../../../../constants/const";
 import { SaleActivityCard } from "./SaleActivityCard";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { formatDate, currencysign } from "../../../../constants/const";
 
 const DoctorTable = () => {

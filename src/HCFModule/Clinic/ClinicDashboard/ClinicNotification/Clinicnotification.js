@@ -6,7 +6,7 @@ import CardNotification from "../../../../components/Card/CustomNotificationCard
 import CustomNotificationCard from "../../../../DoctorModule/CustomDoctorComponent/Cards/CardNotification/CardNotification";
 import CustomButton from "../../../../components/CustomButton/custom-button";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import Skeleton from "react-loading-skeleton";
 
 const ClinicNotification = () => {

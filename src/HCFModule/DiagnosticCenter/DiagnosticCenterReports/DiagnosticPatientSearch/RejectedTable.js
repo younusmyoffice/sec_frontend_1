@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import React, { useState, useEffect, useMemo } from "react";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import DiagnostCenterTableCard from "../DiagnosticCenterChat/DiagnostCenterTableCard";
 
 const RejectedTable = () => {

@@ -20,7 +20,7 @@ import CustomOTPInput from "../../../../components/OTPInput";
 import axiosInstance from "../../../../config/axiosInstance";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import AddPlanCard from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/AddPlanCard";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import ListingModal from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/ListingModal";
 import HCFAddQuestioner from "./HCFAddQuestioner";
 import HCFAddTerms from "./HCFAddTerms";

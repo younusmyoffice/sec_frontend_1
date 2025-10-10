@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "./doctorUpcoming.scss";
 import DoctorAppointmentNavbar from "../../CustomDoctorComponent/DoctorAppointmentNavbar/DoctorAppointmentNavbar";
 import CustomUpcomingCard from "../../CustomDoctorComponent/Cards/CustomUpcomingCard/CustomUpcomingCard";
-import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../config/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { isAppointmentTimeReached } from "../../../utils/timeUtils";

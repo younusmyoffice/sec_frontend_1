@@ -7,7 +7,7 @@ import "./addplan.scss";
 import axiosInstance from "../../../../config/axiosInstance";
 import ListingModal from "./ListingModal";
 import AddPlanCard from "./AddPlanCard";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import { useListingMode } from "../../shared/useListingMode";
 import SectionCard from "../../shared/SectionCard";

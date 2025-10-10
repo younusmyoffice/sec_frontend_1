@@ -7,7 +7,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomDrActiveListingCard from "../../CustomDoctorComponent/Cards/CustomDrActiveListingCard/CustomDrActiveListingCard";
 import DoctorListingNavbar from "../../CustomDoctorComponent/DoctorListingNavbar/DoctorListingBavbar";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import CustomSnackBar from "../../../components/CustomSnackBar";
 
 const DoctorActiveListing = () => {

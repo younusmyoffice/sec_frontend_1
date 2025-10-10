@@ -18,7 +18,7 @@ import pen from "../../../../static/images/DrImages/Pen.svg";
 import axiosInstance from "../../../../config/axiosInstance";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const HCFDoctorActive = () => {
     const [hcf_id] = useState(localStorage.getItem("hcfadmin_suid"));

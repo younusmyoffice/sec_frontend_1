@@ -65,7 +65,7 @@ const DiagnosticPatientSearch = () => {
             >
                 <nav className="NavBar-Container-Appoinement">
                     <nav className="NavBar-Container-Appoinement">
-                        <NavLink to={"/diagnostCenter/diagnosticCenterReports/request"}>
+                        <NavLink to={"/diagnostCenterDashboard/diagnosticCenterReports/request"}>
                             Request
                         </NavLink>
                         <NavLink to={"/diagnostCenterDashboard/diagnosticCenterReports/examination"}>

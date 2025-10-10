@@ -17,10 +17,10 @@ import axios from "axios";
 import {
     ReceiveCard,
     SendCard,
-} from "../../../../PatientDashboard/PatientManage/Transactions/TransactionCard";
+} from "../../../../PatientModule/PatientManage/Transactions/TransactionCard";
 import { baseURL } from "../../../../constants/const";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { formatDate, currencysign } from "../../../../constants/const";
 import { doc } from "prettier";
 

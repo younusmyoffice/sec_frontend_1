@@ -3,7 +3,7 @@ import { Box, IconButton, Typography, List, ListItem, ListItemText, Badge, Butto
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CustomModal from "../CustomModal";
 import axiosInstance from "../../config/axiosInstance";
-import NoAppointmentCard from "../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { formatDateDay } from "../../constants/const";
 
 const NotificationMenu = () => {

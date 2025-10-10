@@ -8,7 +8,7 @@ import CustomRequestCard from "../../CustomDoctorComponent/Cards/CustomRequestCa
 import axios from "axios";
 import { baseURL } from "../../../constants/const";
 import axiosInstance from "../../../config/axiosInstance";
-import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const Request = () => {
     const [requestCount, setRequestCount] = useState(0);

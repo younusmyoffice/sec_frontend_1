@@ -82,6 +82,14 @@ const profilemenu = ({ profilepath }) => {
                 }
                 response = await axiosInstance.get(`/sec/hcf/getHcfprofile/${hcf_id}`);
                 console.log("HCF admin profile image fetch response:", response?.data);
+            } else if (profilepath === "clinic") {
+                const clinic_id = localStorage.getItem("clinic_suid");
+                if (!clinic_id) {
+                    console.log("No clinic SUID found, skipping profile fetch");
+                    return;
+                }
+                response = await axiosInstance.get(`/sec/hcf/getClinicProfile/${clinic_id}`);
+                console.log("Clinic profile image fetch response:", response?.data);
             } else {
                 // Default to patient/user API
                 response = await axiosInstance.get("/sec/auth/getUserDetails/");
@@ -94,6 +102,9 @@ const profilemenu = ({ profilepath }) => {
                 profilePicture = response.data.profile_picture;
             } else if (profilepath === "hcfadmin" && response?.data?.response && response.data.response.length > 0) {
                 // HCF admin response structure: { response: [{ profile_picture: "..." }] }
+                profilePicture = response.data.response[0].profile_picture;
+            } else if (profilepath === "clinic" && response?.data?.response && response.data.response.length > 0) {
+                // Clinic response structure: { response: [{ profile_picture: "..." }] }
                 profilePicture = response.data.response[0].profile_picture;
             } else if (response?.data?.profile_picture) {
                 profilePicture = response.data.profile_picture;
@@ -139,8 +150,8 @@ const profilemenu = ({ profilepath }) => {
         
         // Also listen for custom events (for same-tab updates)
         const handleProfileUpdate = (e) => {
-            if (e.detail?.profile) {
-                setProfileImage(e.detail.profile);
+            if (e.detail?.profileImage) {
+                setProfileImage(e.detail.profileImage);
             }
         };
 

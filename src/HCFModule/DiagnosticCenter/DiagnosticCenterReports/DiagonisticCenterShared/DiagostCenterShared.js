@@ -16,7 +16,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import DiagnostCenterTableCard from "../DiagnosticCenterChat/DiagnostCenterTableCard";
 
 const DiagnosticPatientShared = () => {
@@ -74,7 +74,7 @@ const DiagnosticPatientShared = () => {
         <>
             <Box sx={{ display: "flex", width: "98%", height: "100%" }}>
                 <nav className="NavBar-Container-Appoinement">
-                    <NavLink to="/DiagnosticCenter/diagnosticCenterReports/request">
+                    <NavLink to="/diagnostCenterDashboard/diagnosticCenterReports/request">
                         Request
                     </NavLink>
                     <NavLink to="/diagnostCenterDashboard/diagnosticCenterReports/examination">

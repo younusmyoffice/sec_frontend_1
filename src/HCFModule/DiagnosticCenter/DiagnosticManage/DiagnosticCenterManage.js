@@ -8,10 +8,10 @@ const DiagnosticCenterManage = () => {
     const navigate = useNavigate();
     const [navigateToRoute, setNavigateToRoute] = useState(
         localStorage.getItem("path") == "diagnostsalesactivities"
-            ? "/diagnostCenterDashboard/dignosticCentermanage/diagnostsalesactivities"
+            ? "/diagnostCenterDashboard/diagnosticCenterManage/diagnostSalesActivities"
             : localStorage.getItem("path") == "diagnostcenterauditlog"
-            ? "/diagnostCenterDashboard/dignosticCentermanage/diagnostcenterauditlog"
-            : "/diagnostCenterDashboard/dignosticCentermanage/diagnostsalesactivities",
+            ? "/diagnostCenterDashboard/diagnosticCenterManage/diagnostCenterAuditLog"
+            : "/diagnostCenterDashboard/diagnosticCenterManage/diagnostSalesActivities",
     );
     useEffect(() => {
         navigate(String(navigateToRoute));

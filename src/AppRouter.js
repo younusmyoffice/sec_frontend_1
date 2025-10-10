@@ -3,19 +3,19 @@ import { Routes, Route } from "react-router-dom";
 import PageLoader from "./components/PageLoader";
 import Skeleton from "@mui/material/Skeleton";
 import Usage from "./pages/Usage";
-// import SelectRoleLogin from "./auth/RoleSelection/SelectRoleLogin";
-import PatientLogin from "./Role/Login/PatientModule/PatientLogin/PatientLogin";
-import ForgotPassword from "./Role/ForgotPassword/ForgotPassword";
-import ForgotPasswordOTP from "./Role/ForgotPasswordOTP/ForgotPasswordOTP";
-import ForgotPasswordChange from "./Role/ForgotPasswordChange/ForgotPasswordChange";
-import LoginWithOtp from "./Role/LoginwithOTP/LoginWithOTP";
-import LoginWithOtpVerify from "./Role/LoginWithOTPVerify/LoginWithOTPVerify";
-import SignupPage from "./Role/Signup/SignupPage/SignupPage";
-import PatientCompleteProfile from "./Role/Signup/PatientCompleteProfile/PatientCompleteProfile";
-import EmailVerification from "./Role/EmailVerification/EmailVerification";
-import PatientPersonalInformation from "./Role/Login/PatientModule/PatientPersonalInformation/patientpersonalinformation";
-import PatientContactInformation from "./Role/Login/PatientModule/PatientContactInformation/patientcontactinformation";
-import PatientPaymentInformation from "./Role/Login/PatientModule/PatientPaymentInformation/patientpaymentinformation";
+// import SelectRoleLogin from "./auth/AuthSelection/SelectRoleLogin";
+import PatientLogin from "./Auth/Login/LoginPatient/LoginPatient";
+import ForgotPassword from "./Auth/ForgotPassword/ForgotPassword";
+import ForgotPasswordOTP from "./Auth/ForgotPasswordOTP/ForgotPasswordOTP";
+import ForgotPasswordChange from "./Auth/ForgotPasswordChange/ForgotPasswordChange";
+import LoginWithOtp from "./Auth/LoginwithOTP/LoginWithOTP";
+import LoginWithOtpVerify from "./Auth/LoginWithOTPVerify/LoginWithOTPVerify";
+import SignupPage from "./Auth/Signup/SignupPage/SignupPage";
+import PatientCompleteProfile from "./Auth/Login/ProfilePatientComplete/ProfilePatientComplete.js";
+import EmailVerification from "./Auth/EmailVerification/EmailVerification";
+import PatientPersonalInformation from "./PatientModule/PatientPersonalInformation/patientpersonalinformation";
+import PatientContactInformation from "./PatientModule/PatientContactInformation/patientcontactinformation";
+import PatientPaymentInformation from "./PatientModule/PatientPaymentInformation/patientpaymentinformation";
 import HcfLogin from "./pages/HCFModule/HCFLogin/hcflogin";
 import HcfDashboard from "./pages/HCFModule/HCFDashboard/hcfdashboard";
 import Homes from "./pages/landingPage/Home/Homes";
@@ -29,20 +29,20 @@ import {
     ClinicAuthentication,
     DiagnostAuthentication,
 } from "./loginComponent/RequireAuthentication";
-import BodyDashboard from "./PatientDashboard/BodyDashboard/BodyDashboard";
-import Explore from "./PatientDashboard/Explore/Explore";
-import Profile from "./PatientDashboard/Profile/Profile";
-import DrDetailsCard from "./PatientDashboard/DrDetailsCard/DrDetailsCard";
-import Received from "./PatientDashboard/MyActivity/Received/Received";
-import Shared from "./PatientDashboard/MyActivity/Shared/Shared";
-import Upcoming from "./PatientDashboard/PatientAppointment/UpComing/Upcoming";
-import Completed from "./PatientDashboard/PatientAppointment/Completed/Completed";
-import Cancelled from "./PatientDashboard/PatientAppointment/Cancelled/Cancelled";
+import BodyDashboard from "./PatientModule/BodyDashboard/BodyDashboard";
+import Explore from "./PatientModule/Explore/Explore";
+import Profile from "./PatientModule/Profile/Profile";
+import DrDetailsCard from "./PatientModule/DrDetailsCard/DrDetailsCard";
+import Received from "./PatientModule/MyActivity/Received/Received";
+import Shared from "./PatientModule/MyActivity/Shared/Shared";
+import Upcoming from "./PatientModule/PatientAppointment/UpComing/Upcoming";
+import Completed from "./PatientModule/PatientAppointment/Completed/Completed";
+import Cancelled from "./PatientModule/PatientAppointment/Cancelled/Cancelled";
 // import Chats from "./Dashboard/PatientAppointment/Chats/Chats";
-import AppointmentDashboard from "./PatientDashboard/PatientAppointment/AppointmentDashboard";
-import MainDashboard from "./PatientDashboard/MainDashboard/MainDashboard";
-import Payment from "./PatientDashboard/Profile/Payment";
-import Contact from "./PatientDashboard/Profile/ContactDetails";
+import AppointmentDashboard from "./PatientModule/PatientAppointment/AppointmentDashboard";
+import MainDashboard from "./PatientModule/MainDashboard/MainDashboard";
+import Payment from "./PatientModule/Profile/Payment";
+import Contact from "./PatientModule/Profile/ContactDetails";
 // import { AllFiles } from "./Dashboard/PatientManage/Reports/AllFiles/AllFiles";
 import DoctorDashboard from "./DoctorModule/DoctorDashboard/doctordashboard";
 import DoctorLogin from "./DoctorModule/DoctorLogin/doctorlogin";
@@ -56,9 +56,9 @@ import DoctorSavedDraft from "./DoctorModule/DoctorListing/DoctorSavedDraft/Doct
 import DoctorStatistics from "./DoctorModule/DoctorStatistics/DoctorStatistics";
 import DoctorPayout from "./DoctorModule/DoctorStatistics/DoctorPayout/DoctorPayout";
 // import HCFRoleType from "./pages/HCFRoleType/HCFRoleType";
-import HCFRoleType from "./Role/RoleSelection/SelectHCFRoleLogin/SelectHCFRoleLogin";
-import DiagnosticLogin from "./HCFModule/HCFLogin/DisgnostLogin/DiagnostLogin";
-import ClinicLogin from "./HCFModule/HCFLogin/ClinicLogin/ClinicLogin";
+import SelectHCFTypeLoginRole from "./Auth/RoleSelection/SelectHCFTypeLoginRole/SelectHCFTypeLoginRole";
+import DiagnosticLogin from "./Auth/Login/LoginHCFTypes/LoginDiagnostic/LoginDiagnostic.js";
+import ClinicLogin from "./Auth/Login/LoginHCFTypes/ClinicLogin/LoginClinic.js";
 import DiagnosticCenterDashboard from "./HCFModule/HCFDashboard/DiagnosticCenterDashboard/DiagnosticCenterDashboard";
 import ClinicMainDashboard from "./HCFModule/HCFDashboard/ClinicDashboard/ClinicMainDashboard";
 import DiagnosticCenterProfile from "./HCFModule/DiagnosticCenter/DiagnosticProfile/DiagnstCenterProfileDashboard";
@@ -69,9 +69,9 @@ import ClinicMyAppointments from "./HCFModule/Clinic/ClinicMyAppointments/Clinic
 import ClinicProfile from "./HCFModule/Clinic/ClinicProfile/ClinicProfile";
 import ClinicManage from "./HCFModule/Clinic/ClinicManage/ClinicManage";
 import ClinicSalesActivities from "./HCFModule/Clinic/ClinicManage/ClinicStaff/ClinicSalesActivities";
-import SelectRoleSignup from "./Role/RoleSelection/SelectRoleSignup/SelectRoleSignup";
-import DoctorCompleteProfile from "./Role/Signup/DoctorCompleteProfile/DoctorCompleteProfile";
-import SelectHCFSignup from "./Role/Signup/HCFCompleteProfile/SelectHCFSignup";
+import SelectRoleSignup from "./Auth/RoleSelection/SelectRoleSignup/SelectRoleSignup";
+import DoctorCompleteProfile from "./Auth/Login/ProfileDoctorComplete/ProfileDoctorComplete.js";
+import SelectHCFSignup from "./Auth/Login/ProfileHCFComplete/SelectHCFSignup.js";
 import AdminMainDashboard from "./HCFModule/HCFDashboard/AdminDashboard/AdminDashboard";
 import AdminDoctor from "./HCFModule/HCFAdmin/AdminDoctor/AdminDoctor";
 import AdminProfile from "./HCFModule/HCFAdmin/AdminProfile/AdminProfile"
@@ -82,61 +82,61 @@ import AdminDiagnosticCenter from "./HCFModule/HCFAdmin/AdminDiagnosticCenter/Ad
 import AdminManage from "./HCFModule/HCFAdmin/AdminManage/AdminManage";
 // import AdminManageStaff from "./HCFModule/HCFAdmin/AdminManage/AdminManageStaff/AdminManageStaff";
 import AdminManageAuditLog from "./HCFModule/HCFAdmin/AdminManage/AdminManageAuditLog/AdminManageAuditLog";
-import DiagnostSignUp from "./Role/Signup/HCFCompleteProfile/DiagnosticCompleteProfile/DiagnosticCompleteProfile";
-import ClinicSignUp from "./Role/Signup/HCFCompleteProfile/ClinicCompleteProfile/ClinicCompleteProfile";
-import HcfAdminSignUp from "./Role/Signup/HCFCompleteProfile/HCFAdminCompleteProfile/HCFAdminCompleteProfile";
+import DiagnostSignUp from "./Auth/Login/ProfileHCFComplete/ProfileDiagnosticComplete/ProfileDiagnosticComplete";
+import ClinicSignUp from "./Auth/Login/ProfileHCFComplete/ProfileClinicComplete/ProfileClinicComplete";
+import HcfAdminSignUp from "./Auth/Login/ProfileHCFComplete/ProfileHCFAdminComplete/ProfileHCFAdminComplete";
 import TermsAndCondition from "./DoctorModule/DoctorListing/CreateNewListing/TermsAndCondition/TermsAndCondition";
 import DoctorPersonalInfo from "./DoctorModule/DoctorProfile/DoctorProfileInfo/DoctorPersonalInfo";
 import DoctorProssionalInfo from "./DoctorModule/DoctorProfile/DoctorProfessionalInfo/DoctorProfessionalInfo";
 import DiagnosticCenterReports from "./HCFModule/DiagnosticCenter/DiagnosticCenterReports/DiagnosticCenterReports";
 import DiagnosticPatientChats from "./HCFModule/DiagnosticCenter/DiagnosticCenterReports/DiagnosticCenterChat/DiagnostCenterChats";
 import DiagnosticCenterCharts from "./HCFModule/DiagnosticCenter/DiagnosticCenterReports/DiagnosticCenterCharts/DiagnosticCenterCharts";
-import BookingHistory from "./PatientDashboard/PatientManage/BookingHistory/BookingHistory";
-import Transactions from "./PatientDashboard/PatientManage/Transactions/Transactions";
-import Reports from "./PatientDashboard/PatientManage/Reports/Reports";
-import AllFiles from "./PatientDashboard/PatientManage/Reports/AllFiles/AllFiles";
-import Examined from "./PatientDashboard/PatientManage/Reports/examined/Examined";
-import Subscriptions from "./PatientDashboard/PatientManage/Subscription/Subscription";
+import BookingHistory from "./PatientModule/PatientManage/BookingHistory/BookingHistory";
+import Transactions from "./PatientModule/PatientManage/Transactions/Transactions";
+import Reports from "./PatientModule/PatientManage/Reports/Reports";
+import AllFiles from "./PatientModule/PatientManage/Reports/AllFiles/AllFiles";
+import Examined from "./PatientModule/PatientManage/Reports/examined/Examined";
+import Subscriptions from "./PatientModule/PatientManage/Subscription/Subscription";
 import VideoCall from "./DoctorModule/DoctorAppointmentDashboard/DoctorChat/VideoCall";
 import VoiceCall from "./DoctorModule/DoctorAppointmentDashboard/DoctorChat/VoiceCall";
-import HCFDetailedCard from "./Role/Login/PatientModule/PatientHCF/DrDetailsCard/HCFDetailedCard";
-import SuperAdminBody from "./SuperAdmin/SuperAdminBody/SuperAdminBody";
+import HCFDetailedCard from "./PatientModule/PatientHCF/DrDetailsCard/HCFDetailedCard";
+import SuperAdminBody from "./SuperAdminModule/SuperAdminBody/SuperAdminBody";
 import DiagnostLabs from "./HCFModule/HCFAdmin/AdminDiagnosticCenter/Labs/DiagnostLabs";
-import SuperAdminDashboard from "./SuperAdmin/SuperAdminDashboard/SuperAdminDashboard";
-import SuperAdminHistory from "./SuperAdmin/SuperAdminHistory/SuperAdminhistory";
-import SuperAdminDoctor from "./SuperAdmin/SuperAdminAcessibility/SuperAdminDoctor/SuperAdminDoctor";
+import SuperAdminDashboard from "./SuperAdminModule/SuperAdminDashboard/SuperAdminDashboard";
+import SuperAdminHistory from "./SuperAdminModule/SuperAdminHistory/SuperAdminhistory";
+import SuperAdminDoctor from "./SuperAdminModule/SuperAdminAcessibility/SuperAdminDoctor/SuperAdminDoctor";
 
-import SuperAdminPatient from "./SuperAdmin/SuperAdminAcessibility/SuperAdminpatient/SuperAdminPatient";
-import SuperAdminLogsBody from "./SuperAdmin/SuperAdminLogs/SuperAdminLogsBody";
-import SuperAdminLogs from "./SuperAdmin/SuperAdminLogs/SuperAdminAuditLogs/SuperAdminAuditLogs";
-import SuperAdminMainDashboard from "./SuperAdmin/SuperAdminDashboard/SuperAdminMainDashboard/superadminmaindashboard";
-import SuperAdminHCF from "./SuperAdmin/SuperAdminAcessibility/SuperAdminHCF/SuperAdminHCF";
-import SuperAdminHistoryDoctor from "./SuperAdmin/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor";
-import SuperAdminHistoryPatient from "./SuperAdmin/SuperAdminHistory/SuperAdminHistoryPatient/SuperAdminHistoryPatient";
-import SuperAdminHistoryHCF from "./SuperAdmin/SuperAdminHistory/SuperAdminHistoryHCF/SuperAdminHistoryHCF";
-import SuperAdminPackage from "./SuperAdmin/SuperAdminPackage/SuperAdminPackage";
-import PackagePatient from "./SuperAdmin/SuperAdminPackage/PackagePatient/PackagePatient";
-import PackageDoctor from "./SuperAdmin/SuperAdminPackage/PackageDoctor/PackageDoctor";
-import SuperAdminAccessibilty from "./SuperAdmin/SuperAdminAcessibility/SuperAdminAccessibility";
+import SuperAdminPatient from "./SuperAdminModule/SuperAdminAcessibility/SuperAdminpatient/SuperAdminPatient";
+import SuperAdminLogsBody from "./SuperAdminModule/SuperAdminLogs/SuperAdminLogsBody";
+import SuperAdminLogs from "./SuperAdminModule/SuperAdminLogs/SuperAdminAuditLogs/SuperAdminAuditLogs";
+import SuperAdminMainDashboard from "./SuperAdminModule/SuperAdminDashboard/SuperAdminMainDashboard/superadminmaindashboard";
+import SuperAdminHCF from "./SuperAdminModule/SuperAdminAcessibility/SuperAdminHCF/SuperAdminHCF";
+import SuperAdminHistoryDoctor from "./SuperAdminModule/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor";
+import SuperAdminHistoryPatient from "./SuperAdminModule/SuperAdminHistory/SuperAdminHistoryPatient/SuperAdminHistoryPatient";
+import SuperAdminHistoryHCF from "./SuperAdminModule/SuperAdminHistory/SuperAdminHistoryHCF/SuperAdminHistoryHCF";
+import SuperAdminPackage from "./SuperAdminModule/SuperAdminPackage/SuperAdminPackage";
+import PackagePatient from "./SuperAdminModule/SuperAdminPackage/PackagePatient/PackagePatient";
+import PackageDoctor from "./SuperAdminModule/SuperAdminPackage/PackageDoctor/PackageDoctor";
+import SuperAdminAccessibilty from "./SuperAdminModule/SuperAdminAcessibility/SuperAdminAccessibility";
 
-import SuperAdminTransaction from "./SuperAdmin/SuperAdminTransaction/SperAdminTransaction";
-import SuperAdminTranDoctors from "./SuperAdmin/SuperAdminTransaction/TransactionDoctors/SuperAdminTranDoctors";
-import SuperAdminTranHCF from "./SuperAdmin/SuperAdminTransaction/TransactionHCF/SuperAdminTranHCF";
-import About from "./Role/Login/PatientModule/PatientHCF/DrDetailsCard/About/About";
-import Department from "./Role/Login/PatientModule/PatientHCF/DrDetailsCard/Department/Department";
-import Labs from "./Role/Login/PatientModule/PatientHCF/DrDetailsCard/Labs/Labs";
+import SuperAdminTransaction from "./SuperAdminModule/SuperAdminTransaction/SperAdminTransaction";
+import SuperAdminTranDoctors from "./SuperAdminModule/SuperAdminTransaction/TransactionDoctors/SuperAdminTranDoctors";
+import SuperAdminTranHCF from "./SuperAdminModule/SuperAdminTransaction/TransactionHCF/SuperAdminTranHCF";
+import About from "./PatientModule/PatientHCF/DrDetailsCard/About/About";
+import Department from "./PatientModule/PatientHCF/DrDetailsCard/Department/Department";
+import Labs from "./PatientModule/PatientHCF/DrDetailsCard/Labs/Labs";
 // import SignUpHcf from "./pages/SignUpHCF/SignUpHCF";
-import SelectRoleLogin from "./Role/RoleSelection/SelectRoleLogin";
-import HcfAdminLogin from "./Role/Login/PatientModule/HCFAdminLogin/HCFAdminLogin";
-import SuperAdminLogin from "./Role/Login/PatientModule/SuperAdminLogin/SuperAdminLogin";
+import SelectRoleLogin from "./Auth/RoleSelection/SelectRoleLogin";
+import HcfAdminLogin from "./Auth/Login/LoginHCFAdmin/LoginHCFAdmin";
+import SuperAdminLogin from "./Auth/Login/LoginSuperAdmin/LoginSuperAdmin";
 import VideoCallingSDK from "./VideoCalling/VideoCallingSDK";
 import ChatRoom from "./ChatsScreen/ChatRoom";
 import AdminLabDetail from "./HCFModule/HCFAdmin/AdminDiagnosticCenter/AdminLabs/AdminLabDetails/AdminLabDetail";
-import HcfDrDetailsCard from "./PatientDashboard/DrDetailsCard/HcfDrDetailsCard";
+import HcfDrDetailsCard from "./PatientModule/DrDetailsCard/HcfDrDetailsCard";
 
-const ManageDashboard = lazy(() => import("./PatientDashboard/PatientManage/ManageDashboard"));
-// import MyActivity from "./PatientDashboard/MyActivity/MyActivity";
-const LazyPatientMyActivity = lazy(() => import("./PatientDashboard/MyActivity/MyActivity"));
+const ManageDashboard = lazy(() => import("./PatientModule/PatientManage/ManageDashboard"));
+// import MyActivity from "./PatientModule/MyActivity/MyActivity";
+const LazyPatientMyActivity = lazy(() => import("./PatientModule/MyActivity/MyActivity"));
 
 const LazyDoctorrequest = lazy(() => import("./DoctorModule/DoctorMainDashboard/Request.js/Request"),
 );
@@ -189,6 +189,7 @@ const LazyDoctorStaff = lazy(() => import("./DoctorModule/DoctorManage/DoctorSta
 const LazyDoctorAuditLog = lazy(() =>
     import("./DoctorModule/DoctorManage/DoctorAuditLog/doctorAuditLog"),
 );
+
 
 const LazyDiagnosticNotification = lazy(() =>
     import(
@@ -321,45 +322,45 @@ const LazyDoctorChat = lazy(() =>
 );
 
 const LazySuperAdminDoctor = lazy(() =>
-    import("./SuperAdmin/SuperAdminAcessibility/SuperAdminDoctor/SuperAdminDoctor"),
+    import("./SuperAdminModule/SuperAdminAcessibility/SuperAdminDoctor/SuperAdminDoctor"),
 );
 
 const LazySuperAdminPatient = lazy(() =>
-    import("./SuperAdmin/SuperAdminAcessibility/SuperAdminpatient/SuperAdminPatient"),
+    import("./SuperAdminModule/SuperAdminAcessibility/SuperAdminpatient/SuperAdminPatient"),
 );
 
 const LazySuperAdminHCF = lazy(() =>
-    import("./SuperAdmin/SuperAdminAcessibility/SuperAdminHCF/SuperAdminHCF"),
+    import("./SuperAdminModule/SuperAdminAcessibility/SuperAdminHCF/SuperAdminHCF"),
 );
 
 const LazySuperAdminHistoryDoctor = lazy(() =>
-    import("./SuperAdmin/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor"),
+    import("./SuperAdminModule/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor"),
 );
 
 const LazySuperAdminHistoryPatient = lazy(() =>
-    import("./SuperAdmin/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor"),
+    import("./SuperAdminModule/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor"),
 );
 
 const LazySuperAdminHistoryHCF = lazy(() =>
-    import("./SuperAdmin/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor"),
+    import("./SuperAdminModule/SuperAdminHistory/SuperAdminHistoryDoctor/SuperAdminHistoryDoctor"),
 );
 
 const LazySuperAdminPackagePatient = lazy(() =>
-    import("./SuperAdmin/SuperAdminPackage/PackagePatient/PackagePatient"),
+    import("./SuperAdminModule/SuperAdminPackage/PackagePatient/PackagePatient"),
 );
 
 const LazySuperAdminPackageDoctor = lazy(() =>
-    import("./SuperAdmin/SuperAdminPackage/PackageDoctor/PackageDoctor"),
+    import("./SuperAdminModule/SuperAdminPackage/PackageDoctor/PackageDoctor"),
 );
 
 const LazySuperAdminTranDoctor = lazy(() =>
-    import("./SuperAdmin/SuperAdminTransaction/TransactionDoctors/SuperAdminTranDoctors"),
+    import("./SuperAdminModule/SuperAdminTransaction/TransactionDoctors/SuperAdminTranDoctors"),
 );
 
 const LazySuperAdminTranHCF = lazy(() =>
-    import("./SuperAdmin/SuperAdminTransaction/TransactionHCF/SuperAdminTranHCF"),
+    import("./SuperAdminModule/SuperAdminTransaction/TransactionHCF/SuperAdminTranHCF"),
 );
-const LazyPatientExplore = lazy(() => import("./PatientDashboard/Explore/Explore"));
+const LazyPatientExplore = lazy(() => import("./PatientModule/Explore/Explore"));
 
 const NotFound = lazy(() => import("./components/NotFound"));
 
@@ -368,7 +369,8 @@ const DevEnv = process.env.NODE_ENV;
 import socketIO from "socket.io-client";
 import Home from "./ChatsScreen/components/Home";
 import ChatPage from "./ChatsScreen/components/ChatPage";
-import HcfClinicSignup from "./Role/Signup/HcfClinicSignup/HcfClinicSingup";
+import HcfClinicSignup from "./Auth/Login/ProfileHcfClinicComplete/ProfileHcfClinicComplete";
+import HcfClinicCompleteProfile from "./Auth/Login/ProfileHcfClinicComplete/ProfileHcfClinicComplete";
 
 console.log('this is dev env : ',DevEnv);
 
@@ -387,7 +389,7 @@ export const AppRouter = () => (
                     <>
                         <Route path="/usage" element={<Usage />} />
                         <Route path="/SelectRoleLogin" element={<SelectRoleLogin />} />
-                        <Route path="/HCFRoleType" element={<HCFRoleType />} />
+                        <Route path="/SelectHCFTypeLoginRole" element={<SelectHCFTypeLoginRole />} />
                         {/* <Route path="/hcfSignup" element={<SignUpHcf />}></Route> */}
                         <Route path="/patientLogin" element={<PatientLogin />} />
                         <Route path="/hcfAdminLogin" element={<HcfAdminLogin />} />
@@ -538,17 +540,17 @@ export const AppRouter = () => (
                             {/* ------------------ Dashboard Route Ends ------------------------- */}
 
                             <Route
-                                path="/patientDashboard/drDetailsCard/:resID"
+                                path="drDetailsCard/:resID"
                                 element={<PatientAuthentication><DrDetailsCard /></PatientAuthentication>}
                             ></Route>
                             {/* patient hcf doctor details by id route */}
                             <Route
-                                path="/patientDashboard/hcfDetailCard/hcfDoctor/:hcddocid/:reshcfID"
+                                path="hcfDetailCard/hcfDoctor/:hcddocid/:reshcfID"
                                 element={<PatientAuthentication><HcfDrDetailsCard /></PatientAuthentication>}
                             ></Route>
 
                             <Route
-                                path="/patientDashboard/hcfDetailCard/:hcfID"
+                                path="hcfDetailCard/:hcfID"
                                 element={<PatientAuthentication><HCFDetailedCard /></PatientAuthentication>}
                             >
                                 <Route path="about" element={<PatientAuthentication><About /></PatientAuthentication>} />
@@ -820,7 +822,7 @@ export const AppRouter = () => (
                         <Route path="/diagnostClinicLogin" element={<ClinicLogin />} />
                         <Route
                             path="/clinicDoctorCompleteProfile"
-                            element={<ClinicAuthentication><HcfClinicSignup /></ClinicAuthentication>}
+                            element={<ClinicAuthentication><HcfClinicCompleteProfile /></ClinicAuthentication>}
                         ></Route>
                         <Route path="/clinicDashboard" element={<ClinicAuthentication><ClinicMainDashboard /></ClinicAuthentication>}>
                             <Route path="clinicBodyDashboard" element={<ClinicAuthentication><ClinicDashboard /></ClinicAuthentication>}>
@@ -885,7 +887,7 @@ export const AppRouter = () => (
                             </Route>
                             <Route path="clinicProfile" element={<ClinicAuthentication><ClinicProfile /></ClinicAuthentication>}>
                                 <Route
-                                    path="profileInformation"
+                                    path="profileinformation"
                                     element={<ClinicAuthentication><React.Suspense fallback={<Skeleton variant="rectangular" width="100%" height={900} />}>
                                     <LazyClinicProfileInformation />
                                 </React.Suspense></ClinicAuthentication>

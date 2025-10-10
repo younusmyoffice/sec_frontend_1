@@ -18,7 +18,7 @@ import CustomButton from "../../../components/CustomButton/custom-button";
 import CustomModal from "../../../components/CustomModal";
 import DoctorStatisticsNavbar from "../../CustomDoctorComponent/DoctorStatisticsNavbar/DoctorStatisticsNavbar";
 import "./doctorPayout.scss";
-import NoAppointmentCard from "../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import axiosInstance from "../../../config/axiosInstance";
 import CustomSnackBar from "../../../components/CustomSnackBar";
 

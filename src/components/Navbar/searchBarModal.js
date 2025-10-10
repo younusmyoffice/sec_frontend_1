@@ -205,7 +205,7 @@ const SearchBarModal = () => {
               cardData.map((data, index) => (
                 <Link
                   key={data?.suid || index}
-                  to={`${front_end_url}/patientdashboard/drdetailscard/${data?.suid}`}
+                  to={`${front_end_url}/PatientModule/drdetailscard/${data?.suid}`}
                   onClick={handleClose}
                   style={{
                     textDecoration: "none",

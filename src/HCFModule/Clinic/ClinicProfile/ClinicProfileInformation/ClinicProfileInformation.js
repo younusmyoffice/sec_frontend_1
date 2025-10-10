@@ -75,6 +75,7 @@ const ClinicProfileInformation = () => {
             try {
                 const response = await axiosInstance.get(`sec/hcf/getClinicProfile/${doctor_id}`);
                 const profiledata = response.data.response[0];
+                console.log("profiledata clinic : ", profiledata);
 
                 // Update the state with fetched data
                 setProfileData((prevState) => ({
@@ -104,6 +105,15 @@ const ClinicProfileInformation = () => {
                     company_name: profiledata?.company_name || null, // String or null
                     description: profiledata?.description || null, // String or null
                 }));
+
+                // Update profile image preview if profile picture exists
+                if (profiledata?.profile_picture) {
+                    const imageSrc = profiledata.profile_picture.startsWith('data:') 
+                        ? profiledata.profile_picture 
+                        : `data:image/jpeg;base64,${profiledata.profile_picture}`;
+                    setProfileImage(imageSrc);
+                    console.log("🖼️ Profile image updated from fetched data:", imageSrc);
+                }
             } catch (error) {
                 console.error("Error fetching profile data:", error);
             }
@@ -125,7 +135,23 @@ const ClinicProfileInformation = () => {
             setSnackMessage("Profile Updated Successfully");
             setSnackType("success");
             setSnackOpen(true);
-            // localStorage.setItem("profile", profiledata.profile_picture);
+            
+            // Update navbar profile image if profile picture was changed
+            if (profiledata.profile_picture) {
+                const imageSrc = profiledata.profile_picture.startsWith('data:') 
+                    ? profiledata.profile_picture 
+                    : `data:image/jpeg;base64,${profiledata.profile_picture}`;
+                localStorage.setItem("profile", imageSrc);
+                
+                // Update the profile image preview state
+                setProfileImage(imageSrc);
+                console.log("🖼️ Profile image updated after save:", imageSrc);
+                
+                // Trigger a custom event to notify navbar of profile update
+                window.dispatchEvent(new CustomEvent('profileUpdated', { 
+                    detail: { profileImage: imageSrc } 
+                }));
+            }
         } catch (error) {
             setSnackMessage("error during updating profile");
             setSnackType("error");
@@ -374,10 +400,13 @@ const ClinicProfileInformation = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64Data = reader.result.split(",")[1]; // Extract base64 without metadata
-                setProfileImage(URL.createObjectURL(file)); // For preview
+                const fullBase64Data = reader.result; // Full data URL for preview
+                
+                console.log("🖼️ Image selected, updating preview and data");
+                setProfileImage(fullBase64Data); // For preview - use full data URL
                 setProfileData((prevData) => ({
                     ...prevData,
-                    profile_picture: base64Data, // Store file name in profile_picture
+                    profile_picture: base64Data, // Store base64 without metadata for API
                 }));
             };
             reader.readAsDataURL(file); // Trigger the file reading process
@@ -495,7 +524,13 @@ const ClinicProfileInformation = () => {
                             >
                                 <Box
                                     component="img"
-                                    src={profiledata?.profile_picture || profileImage}
+                                    src={
+                                        profiledata?.profile_picture 
+                                            ? (profiledata.profile_picture.startsWith('data:') 
+                                                ? profiledata.profile_picture 
+                                                : `data:image/jpeg;base64,${profiledata.profile_picture}`)
+                                            : profileImage
+                                    }
                                     alt="Profile"
                                     sx={{
                                         width: "167px",

@@ -11,9 +11,9 @@ import CustomButton from "../components/CustomButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Skeleton from "react-loading-skeleton";
-import NoAppointmentCard from "../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 // import HCFDrCard from "../pages/PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
-import HCFDrCard from "../Role/Login/PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
+import HCFDrCard from "../PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
 
 // Re-export constants from apiConstants to maintain backward compatibility
 export { baseURL, front_end_url, emailRegex, passwordRegex, numberRegex } from "./apiConstants";

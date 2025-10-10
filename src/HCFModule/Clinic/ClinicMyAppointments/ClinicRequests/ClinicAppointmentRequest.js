@@ -4,7 +4,7 @@ import { makeStyles } from "@mui/styles";
 import { NavLink } from "react-router-dom";
 import ClinicCardRequest from "../../ClinicDashboard/ClinicRequests/ClinicCardRequest";
 import axiosInstance from "../../../../config/axiosInstance";
-import NoAppointmentCard from "../../../../PatientDashboard/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 
 const useStyles = makeStyles((theme) => ({
     requestcontainer: {

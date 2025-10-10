@@ -7,7 +7,7 @@ const ClinicProfile = () => {
     const navigate = useNavigate();
 
     const [navigateToRoute, setNavigateToRoute] = useState(
-        localStorage.getItem("path") == "profileinformation"
+        localStorage.getItem("path") === "profileinformation"
             ? "/clinicDashboard/clinicprofile/profileinformation"
             : "/clinicDashboard/clinicprofile/profileinformation",
     );
