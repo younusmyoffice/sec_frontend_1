@@ -36,7 +36,7 @@ export function MeetingContainer({ onMeetingLeave, setIsMeetingLeft }) {
     const [remainingTime, setRemainingTime] = useState("--:--");
     const [remainingTimeInSeconds, setRemainingTimeInSeconds] = useState(null); // New state for remaining time in seconds
     const params = useParams();
-    console.log("params : ", params?.appID);
+    console.log("params : ", params?.appId);
     const mMeetingRef = useRef();
     const containerRef = createRef();
     const containerHeightRef = useRef();
@@ -222,9 +222,11 @@ export function MeetingContainer({ onMeetingLeave, setIsMeetingLeft }) {
     });
 
     const fetch_remainingtime = async () => {
+        if (!params?.appId) return;
+
         try {
             const response = await axiosInstance(
-                `/sec/patient/getAppointmentDateTime/${params?.appID}`,
+                `/sec/patient/getAppointmentDateTime/${params?.appId}`,
             );
             const remainingTimeStr = response?.data?.remainingTime;
             console.log("this is the remaining time  : ", remainingTime);
@@ -246,7 +248,7 @@ export function MeetingContainer({ onMeetingLeave, setIsMeetingLeft }) {
 
     useEffect(() => {
         fetch_remainingtime();
-    }, [params?.appID]);
+    }, [params?.appId]);
 
     // Countdown logic
     useEffect(() => {

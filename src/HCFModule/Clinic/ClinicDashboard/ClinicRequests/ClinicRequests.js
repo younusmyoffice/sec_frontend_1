@@ -46,6 +46,7 @@ const ClinicRequests = () => {
         setLoading(true);
         try {
             const response = await axiosInstance.get(`sec/hcf/${doctor_id}/${status_in_progress}/clinicAppointmentRequests`);
+            console.log("response  clinic requests: ", response);
             setClinicAppointmentRequests(response?.data?.response || []);
         } catch (error) {
             console.error("Error fetching request data:", error.response);

@@ -12,14 +12,14 @@
 //                 </Box>
 //                 {/* Popular Field starts */}
 //                 <CallCardData
-//                     linkPath={`/patientdashboard/drdetailscard/`}
+//                     linkPath={`/patientdashboard/drDetailsCard/`}
 //                     sendCardData={cardData}
 //                     CardData={data}
 //                     textField={"Popular"}
 //                 />
 //                 {/* Featured Fields starts */}
 //                 <CallCardData
-//                     linkPath={`/patientdashboard/drdetailscard/`}
+//                     linkPath={`/patientdashboard/drDetailsCard/`}
 //                     sendCardData={cardData}
 //                     CardData={data}
 //                     textField={"Featured"}
@@ -37,7 +37,7 @@
 //                         <NavLink to={"/more"}></NavLink>
 //                     </Box>
 //                     <CallCardData
-//                         linkPath={`/patientdashboard/drdetailscard/`}
+//                         linkPath={`/patientdashboard/drDetailsCard/`}
 //                         sendCardData={cardData}
 //                         CardData={data}
 //                         textField={""}
@@ -45,7 +45,7 @@
 //                 </Box>
 //                 {/* Near you component starts */}
 //                 <CallCardData
-//                     linkPath={`/patientdashboard/drdetailscard/`}
+//                     linkPath={`/patientdashboard/drDetailsCard/`}
 //                     sendCardData={cardData}
 //                     CardData={data}
 //                     textField={"Near You"}

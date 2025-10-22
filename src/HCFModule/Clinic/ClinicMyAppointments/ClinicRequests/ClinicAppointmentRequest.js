@@ -44,11 +44,18 @@ const ClinicAppointmentRequest = () => {
 
     useEffect(() => {
         clinicAppointmentRequestsList(doctor_id, status_in_progress);
-    }, []);
+    }, [doctor_id, status_in_progress]); // ✅ Add dependencies
 
     function AcceptOrRejectButtonClicked(value) {
         setaccAndRejClicked(value);
     }
+
+    // ✅ Refresh data when accept/reject is clicked
+    useEffect(() => {
+        if (accAndRejClicked !== undefined) {
+            clinicAppointmentRequestsList(doctor_id, status_in_progress);
+        }
+    }, [accAndRejClicked, doctor_id, status_in_progress]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;

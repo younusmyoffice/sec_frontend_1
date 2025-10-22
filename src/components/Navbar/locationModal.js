@@ -508,7 +508,7 @@ const LocationModal = () => {
                         // Render doctors only if they exist
                         doctors.map((doctor, index) => (
                             <Link
-                                to={`/patientdashboard/drdetailscard/` + doctor.suid}
+                                to={`/patientDashboard/drDetailsCard/` + doctor.suid}
                                 style={{
                                     width: "20em",
                                     textDecoration: "none",

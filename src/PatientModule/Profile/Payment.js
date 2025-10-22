@@ -24,9 +24,9 @@ const Payment = () => {
                 className="NavBar-Box-profile"
                 sx={{ display: "flex", marginLeft: 0, marginBottom: 0 }}
             >
-                <NavLink to={"/PatientModule/dashboard/profile"}>Profile Information</NavLink>
-                <NavLink to={"/PatientModule/dashboard/contact"}>Contact Details</NavLink>
-                <NavLink to={"/PatientModule/dashboard/payment"}>Payment Details</NavLink>
+                <NavLink to={"/patientDashboard/dashboard/profile"}>Profile Information</NavLink>
+                <NavLink to={"/patientDashboard/dashboard/contact"}>Contact Details</NavLink>
+                <NavLink to={"/patientDashboard/dashboard/payment"}>Payment Details</NavLink>
             </Box>
 
             <Box

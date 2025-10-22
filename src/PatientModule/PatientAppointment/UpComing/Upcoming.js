@@ -117,6 +117,16 @@ const Upcoming = () => {
                                 />
                             ) : (
                                 currentData.map((data) => {
+                                    // Debug appointment data
+                                    console.log("🔍 Appointment data for chat URL:", {
+                                        appointment_id: data?.appointment_id,
+                                        first_name: data?.first_name,
+                                        roomid: data?.roomid,
+                                        room_id: data?.room_id,
+                                        plan_name: data?.plan_name,
+                                        join_status: data?.join_status
+                                    });
+                                    
                                     // Use backend join_status as primary source, with frontend fallback
                                     const canJoin = isAppointmentTimeReached(
                                         data?.appointment_date, 
@@ -141,7 +151,7 @@ const Upcoming = () => {
                                                 reject: "/sec/patient/RejectAppointment",
                                                 rescheduled: "sec/patient/resheduleAppointment",
                                                 join: canJoin ? (data?.plan_name === 'video' ? `/videocallingsdk/${data?.appointment_id}` : 
-                                                data?.plan_name === 'message' ?   `/PatientModule/appointment/chats/${data.first_name}/${data.roomid}/${data?.appointment_id}` : null) : null,
+                                                data?.plan_name === 'message' ?   `/patientDashboard/appointment/chats/${data.first_name}/${data.roomid || data.room_id || 'default'}/${data?.appointment_id}` : null) : null,
                                             }}
                                             DrImage={data.profile_picture || DrImage}
                                             label={canJoin ? "" : "Not Available"}

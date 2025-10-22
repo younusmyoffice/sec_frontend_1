@@ -38,7 +38,7 @@ const MyActivity = () => {
 
     useEffect(() => {
         fetchDataNew();
-        navigate("/PatientModule/dashboard/myactivity/received");
+        navigate("/patientDashboard/dashboard/myactivity/received");
     }, []);
 
     // Determine which activities to show based on state
@@ -48,7 +48,7 @@ const MyActivity = () => {
         <Box sx={{ width: "98%", display: "flex", flexDirection: "column" }}>
             <Box className="NavBar-Box" sx={{ marginLeft: 0, marginBottom: 0 }}>
                 <NavLink to={"/patientDashboard/dashboard/explore"}>Explore</NavLink>
-                <NavLink to={"/PatientModule/dashboard/myactivity"}>My Activity</NavLink>
+                <NavLink to={"/patientDashboard/dashboard/myactivity"}>My Activity</NavLink>
             </Box>
 
             {/* 1st container */}
@@ -225,7 +225,7 @@ const MyActivity = () => {
                             label="View all"
                             handleClick={() => {
                                 console.log("Appointment Navigate");
-                                navigate(`/PatientModule/manage/reports/received`);
+                                navigate(`/patientDashboard/manage/reports/received`);
                             }}
                         />
                     </Box>

@@ -24,8 +24,10 @@ export function MeetingDetailsScreen({
 
     // api to pass the meeting id , doctor id
     const fetch_getSocketID = async () => {
+        if (!params?.appId) return;
+
         try {
-            const response = await axiosInstance(`/sec/patient/getUpdateSocketId/${params?.appID}`);
+            const response = await axiosInstance(`/sec/patient/getUpdateSocketId/${params?.appId}`);
             if (response?.data?.response === "Generate SocketID") {
                 console.log("this is generate response ", response?.data?.response);
                 setMeetingId("");
@@ -40,31 +42,12 @@ export function MeetingDetailsScreen({
         }
     };
 
-    // check for the appointment date and time
-    const fetch_CheckForTheAppointmentDateAndTime = async () => {
-        try {
-            const response = await axiosInstance(
-                `/sec/patient/getAppointmentDateTime/${params?.appID}`,
-            );
-            console.log("check for date and appointment : ", response?.data?.joinCallflag);
-
-            if (response?.data?.joinCallflag) {
-                console.log("false response");
-                setIdDisableButton(false);
-                fetch_getSocketID();
-            } else {
-                console.log("response is true");
-                setIdDisableButton(true);
-            }
-        } catch (error) {
-            console.log("Error in video : ", error);
-        }
-    };
-
     const update_socketID = async (meetingId) => {
+        if (!params?.appId || !meetingId) return;
+
         try {
             const reponse = await axiosInstance.put("/sec/patient/putSocketId/", {
-                appointment_id: params?.appID,
+                appointment_id: params?.appId,
                 socket_id: meetingId,
             });
             alert('this is success : ',meetingId)
@@ -74,8 +57,28 @@ export function MeetingDetailsScreen({
     };
 
     useEffect(() => {
-        fetch_CheckForTheAppointmentDateAndTime();
-    }, []);
+        if (!params?.appId) return;
+
+        const checkAppointmentWindow = async () => {
+            try {
+                const response = await axiosInstance(
+                    `/sec/patient/getAppointmentDateTime/${params?.appId}`,
+                );
+                console.log("check for date and appointment : ", response?.data?.joinCallflag);
+
+                if (response?.data?.joinCallflag) {
+                    setIdDisableButton(false);
+                    fetch_getSocketID();
+                } else {
+                    setIdDisableButton(true);
+                }
+            } catch (error) {
+                console.log("Error in video : ", error);
+            }
+        };
+
+        checkAppointmentWindow();
+    }, [params?.appId]);
 
     return (
         <div className={`meeting-detail-main-container`}>

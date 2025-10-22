@@ -49,9 +49,9 @@ const BookingHistory = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", }}>
                 <nav className="NavBar-Container-Appoinement">
-                    <NavLink to={"/PatientModule/manage/bookinghistory"}>Booking History</NavLink>
-                    <NavLink to={"/PatientModule/manage/transactions"}>Transaction</NavLink>
-                    <NavLink to={"/PatientModule/manage/reports"}>Report</NavLink>
+                    <NavLink to={"/patientDashboard/manage/bookinghistory"}>Booking History</NavLink>
+                    <NavLink to={"/patientDashboard/manage/transactions"}>Transaction</NavLink>
+                    <NavLink to={"/patientDashboard/manage/reports"}>Report</NavLink>
                 </nav>
 
                 <Box className="allfile-main-container">

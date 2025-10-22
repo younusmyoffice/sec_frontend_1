@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
-import Container5 from "../Container5";
-import Container3 from "../Container3";
+import Container5 from "../HcfDetailContainer5";
+import Container3 from "../HcfDetailContainer3";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, Skeleton } from "@mui/material";
@@ -67,9 +67,9 @@ const Labs = () => {
     return (
         <>
             <nav className="NavBar-Container-Appoinement">
-                <NavLink to={`/patientdashboard/hcfDetailCard/${hcfID}/about`}>About</NavLink>
-                <NavLink to={`/patientdashboard/hcfDetailCard/${hcfID}/department`}>Department</NavLink>
-                <NavLink to={`/patientdashboard/hcfDetailCard/${hcfID}/labs`}>Labs</NavLink>
+                <NavLink to={`/patientDashboard/hcfDetailCard/${hcfID}/about`}>About</NavLink>
+                <NavLink to={`/patientDashboard/hcfDetailCard/${hcfID}/department`}>Department</NavLink>
+                <NavLink to={`/patientDashboard/hcfDetailCard/${hcfID}/labs`}>Labs</NavLink>
             </nav>
             <div className="about-data" style={{ marginTop: "4rem", width: "100%" }}>
                 {/* Skeleton loader for the buttons */}
@@ -84,7 +84,7 @@ const Labs = () => {
                                     nav_specialization.map((specialization, index) => (
                                         <CustomButton
                                             key={index}
-                                            to={`/patientdashboard/${specialization?.lab_department_name.toLowerCase()}`}
+                                            to={`/patientDashboard/${specialization?.lab_department_name.toLowerCase()}`}
                                             label={`${specialization?.lab_department_name.toLowerCase()}`}
                                             isTransaprent={
                                                 specialization.lab_department_name.toLowerCase() ===

@@ -108,11 +108,15 @@ const ClinicProfileInformation = () => {
 
                 // Update profile image preview if profile picture exists
                 if (profiledata?.profile_picture) {
-                    const imageSrc = profiledata.profile_picture.startsWith('data:') 
-                        ? profiledata.profile_picture 
+                    const imageSrc = profiledata.profile_picture.startsWith('data:')
+                        ? profiledata.profile_picture
                         : `data:image/jpeg;base64,${profiledata.profile_picture}`;
                     setProfileImage(imageSrc);
                     console.log("🖼️ Profile image updated from fetched data:", imageSrc);
+                } else {
+                    // If no profile picture, keep the default image
+                    setProfileImage(DocProf);
+                    console.log("🖼️ No profile picture found, using default image");
                 }
             } catch (error) {
                 console.error("Error fetching profile data:", error);
@@ -135,22 +139,26 @@ const ClinicProfileInformation = () => {
             setSnackMessage("Profile Updated Successfully");
             setSnackType("success");
             setSnackOpen(true);
-            
+
             // Update navbar profile image if profile picture was changed
             if (profiledata.profile_picture) {
-                const imageSrc = profiledata.profile_picture.startsWith('data:') 
-                    ? profiledata.profile_picture 
+                const imageSrc = profiledata.profile_picture.startsWith('data:')
+                    ? profiledata.profile_picture
                     : `data:image/jpeg;base64,${profiledata.profile_picture}`;
                 localStorage.setItem("profile", imageSrc);
-                
+
                 // Update the profile image preview state
                 setProfileImage(imageSrc);
                 console.log("🖼️ Profile image updated after save:", imageSrc);
-                
+
                 // Trigger a custom event to notify navbar of profile update
-                window.dispatchEvent(new CustomEvent('profileUpdated', { 
-                    detail: { profileImage: imageSrc } 
+                window.dispatchEvent(new CustomEvent('profileUpdated', {
+                    detail: { profileImage: imageSrc }
                 }));
+            } else {
+                // If no profile picture, keep the default image
+                setProfileImage(DocProf);
+                console.log("🖼️ No profile picture after save, using default image");
             }
         } catch (error) {
             setSnackMessage("error during updating profile");
@@ -397,19 +405,27 @@ const ClinicProfileInformation = () => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            console.log("🖼️ File selected:", file.name, "Size:", file.size);
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64Data = reader.result.split(",")[1]; // Extract base64 without metadata
                 const fullBase64Data = reader.result; // Full data URL for preview
-                
-                console.log("🖼️ Image selected, updating preview and data");
+
+                console.log("🖼️ Image processed, updating preview and data");
+                console.log("🖼️ Base64 data length:", base64Data.length);
+                console.log("🖼️ Full data URL length:", fullBase64Data.length);
+
                 setProfileImage(fullBase64Data); // For preview - use full data URL
                 setProfileData((prevData) => ({
                     ...prevData,
                     profile_picture: base64Data, // Store base64 without metadata for API
                 }));
+
+                console.log("🖼️ Profile image state updated");
             };
             reader.readAsDataURL(file); // Trigger the file reading process
+        } else {
+            console.log("🖼️ No file selected");
         }
     };
     const toggleEditMode = () => {
@@ -524,13 +540,7 @@ const ClinicProfileInformation = () => {
                             >
                                 <Box
                                     component="img"
-                                    src={
-                                        profiledata?.profile_picture 
-                                            ? (profiledata.profile_picture.startsWith('data:') 
-                                                ? profiledata.profile_picture 
-                                                : `data:image/jpeg;base64,${profiledata.profile_picture}`)
-                                            : profileImage
-                                    }
+                                    src={profileImage}
                                     alt="Profile"
                                     sx={{
                                         width: "167px",
@@ -559,86 +569,156 @@ const ClinicProfileInformation = () => {
                                     />
                                 </Button>
                             </div>
+                            <div>
+                                <div>
+                                    <CustomTextField
+                                        label="E-Mail"
+                                        helperText=""
+                                        isDisabled={true}
+                                        defaultValue={profiledata?.email}
+                                        onInput={(event) => {
+                                            handleInputChange(event);
+                                            const copy = { ...profiledata, email: event.target.value };
+                                            setProfileData(copy);
+                                        }}
+                                        textcss={{
+                                            width: "100%", // Full width for better responsiveness
+                                            maxWidth: "349px",
+                                            color: "#444d4f",
+                                            fontFamily: "Poppins, sans-serif",
+                                            fontSize: "10px",
+                                            fontWeight: "500",
+                                        }}
+                                    />
+                                    <CustomTextField
+                                        label="First Name"
+                                        helperText=""
+                                        isDisabled={!isEditing}
+                                        defaultValue={profiledata?.first_name}
+                                        CustomValue={profiledata?.first_name}
+                                        onInput={(event) => {
+                                            handleInputChange(event);
+                                            const copy = { ...profiledata, first_name: event.target.value };
+                                            setProfileData(copy);
+                                        }}
+                                        textcss={{
+                                            width: "100%", // Full width for better responsiveness
+                                            maxWidth: "349px",
+                                            color: "#444d4f",
+                                            fontFamily: "Poppins, sans-serif",
+                                            fontSize: "10px",
+                                            fontWeight: "500",
+                                        }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                "& fieldset": { border: "none" },
+                                                "&:hover fieldset": { border: "none" },
+                                                "&.Mui-focused fieldset": { border: "none" },
+                                                borderBottom: "1px solid #e0e0e0",
+                                                borderRadius: 0,
+                                                "&:hover": {
+                                                    borderBottom: "2px solid #E72B4A",
+                                                },
+                                                "&.Mui-focused": {
+                                                    borderBottom: "2px solid #E72B4A",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                "&.Mui-focused": {
+                                                    color: "#E72B4A",
+                                                },
+                                            },
+                                        }}
+                                    />
 
-                            <CustomTextField
-                                label="E-Mail"
-                                helperText=""
-                                isDisabled={true}
-                                defaultValue={profiledata?.email}
-                                onInput={(event) => {
-                                    handleInputChange(event);
-                                    const copy = { ...profiledata, email: event.target.value };
-                                    setProfileData(copy);
-                                }}
-                                textcss={{
-                                    width: "100%", // Full width for better responsiveness
-                                    maxWidth: "349px",
-                                    color: "#444d4f",
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontSize: "10px",
-                                    fontWeight: "500",
-                                }}
-                            />
-                            <CustomTextField
-                                label="First Name"
-                                helperText=""
-                                isDisabled={!isEditing}
-                                defaultValue={profiledata?.first_name}
-                                CustomValue={profiledata?.first_name}
-                                onInput={(event) => {
-                                    handleInputChange(event);
-                                    const copy = { ...profiledata, first_name: event.target.value };
-                                    setProfileData(copy);
-                                }}
-                                textcss={{
-                                    width: "100%", // Full width for better responsiveness
-                                    maxWidth: "349px",
-                                    color: "#444d4f",
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontSize: "10px",
-                                    fontWeight: "500",
-                                }}
-                            />
-                            <CustomTextField
-                                label="Middle Name"
-                                helperText=""
-                                isDisabled={!isEditing}
-                                defaultValue={profiledata?.middle_name}
-                                CustomValue={profiledata?.middle_name}
-                                onInput={(event) => {
-                                    handleInputChange(event);
-                                    const copy = { ...profiledata, middle_name: event.target.value };
-                                    setProfileData(copy);
-                                }}
-                                textcss={{
-                                    width: "349px",
-                                    color: "#787579",
-                                    fontFamily: "poppins",
-                                    fontSize: "10px",
-                                    fontStyle: "normal",
-                                    fontWeight: "500",
-                                }}
-                            />
-                            <CustomTextField
-                                label="Last Name"
-                                helperText=""
-                                isDisabled={!isEditing}
-                                defaultValue={profiledata?.last_name}
-                                CustomValue={profiledata?.last_name}
-                                onInput={(event) => {
-                                    handleInputChange(event);
-                                    const copy = { ...profiledata, last_name: event.target.value };
-                                    setProfileData(copy);
-                                }}
-                                textcss={{
-                                    width: "349px",
-                                    color: "#787579",
-                                    fontFamily: "poppins",
-                                    fontSize: "10px",
-                                    fontStyle: "normal",
-                                    fontWeight: "500",
-                                }}
-                            />
+                                </div>
+                                <div>
+
+                                    <CustomTextField
+                                        label="Middle Name"
+                                        helperText=""
+                                        isDisabled={!isEditing}
+                                        defaultValue={profiledata?.middle_name}
+                                        CustomValue={profiledata?.middle_name}
+                                        onInput={(event) => {
+                                            handleInputChange(event);
+                                            const copy = { ...profiledata, middle_name: event.target.value };
+                                            setProfileData(copy);
+                                        }}
+                                        textcss={{
+                                            width: "349px",
+                                            color: "#787579",
+                                            fontFamily: "poppins",
+                                            fontSize: "10px",
+                                            fontStyle: "normal",
+                                            fontWeight: "500",
+                                        }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                "& fieldset": { border: "none" },
+                                                "&:hover fieldset": { border: "none" },
+                                                "&.Mui-focused fieldset": { border: "none" },
+                                                borderBottom: "1px solid #e0e0e0",
+                                                borderRadius: 0,
+                                                "&:hover": {
+                                                    borderBottom: "2px solid #E72B4A",
+                                                },
+                                                "&.Mui-focused": {
+                                                    borderBottom: "2px solid #E72B4A",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                "&.Mui-focused": {
+                                                    color: "#E72B4A",
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <CustomTextField
+                                        label="Last Name"
+                                        helperText=""
+                                        isDisabled={!isEditing}
+                                        defaultValue={profiledata?.last_name}
+                                        CustomValue={profiledata?.last_name}
+                                        onInput={(event) => {
+                                            handleInputChange(event);
+                                            const copy = { ...profiledata, last_name: event.target.value };
+                                            setProfileData(copy);
+                                        }}
+                                        textcss={{
+                                            width: "349px",
+                                            color: "#787579",
+                                            fontFamily: "poppins",
+                                            fontSize: "10px",
+                                            fontStyle: "normal",
+                                            fontWeight: "500",
+                                        }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                "& fieldset": { border: "none" },
+                                                "&:hover fieldset": { border: "none" },
+                                                "&.Mui-focused fieldset": { border: "none" },
+                                                borderBottom: "1px solid #e0e0e0",
+                                                borderRadius: 0,
+                                                "&:hover": {
+                                                    borderBottom: "2px solid #E72B4A",
+                                                },
+                                                "&.Mui-focused": {
+                                                    borderBottom: "2px solid #E72B4A",
+                                                },
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                "&.Mui-focused": {
+                                                    color: "#E72B4A",
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </div>
+
+
+                            </div>
+
                         </div>
                         <div
                             className="mob-email-pass"
@@ -651,6 +731,7 @@ const ClinicProfileInformation = () => {
                         >
                             <CustomDropdown
                                 label="Gender"
+
                                 isDisabled={!isEditing}
                                 items={dropdownItems}
                                 activeItem={profiledata.gender || "Select Gender"} // Sync with profiledata.gender
@@ -661,22 +742,43 @@ const ClinicProfileInformation = () => {
                                 }}
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DemoContainer components={["DatePicker"]} isDisabled={!isEditing}>
-                                    <DatePicker
-                                        value={profiledata?.DOB ? dayjs(profiledata.DOB) : null} // Convert to Day.js object
-                                        label="Date of Birth"
-                                        disabled={!isEditing}
-                                        style={{ width: "300px" }}
-                                        onChange={(newValue) => {
-                                            if (newValue) {
-                                                setProfileData({
-                                                    ...profiledata,
-                                                    DOB: newValue.format("YYYY-MM-DD"), // Use Day.js's format method
-                                                });
-                                            }
-                                        }}
-                                    />
-                                </DemoContainer>
+
+                                <DatePicker
+                                    value={profiledata?.DOB ? dayjs(profiledata.DOB) : null} // Convert to Day.js object
+                                    label="Date of Birth"
+                                    disabled={!isEditing}
+                                    sx={{
+                                        width: "100%",
+                                        "& .MuiOutlinedInput-root": {
+                                            "& fieldset": { border: "none" },
+                                            "&:hover fieldset": { border: "none" },
+                                            "&.Mui-focused fieldset": { border: "none" },
+                                            borderBottom: "1px solid #e0e0e0",
+                                            borderRadius: 0,
+                                            "&:hover": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                            "&.Mui-focused": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            "&.Mui-focused": {
+                                                color: "#E72B4A",
+                                            },
+                                        },
+                                    }}
+                                    style={{ width: "300px" }}
+                                    onChange={(newValue) => {
+                                        if (newValue) {
+                                            setProfileData({
+                                                ...profiledata,
+                                                DOB: newValue.format("YYYY-MM-DD"), // Use Day.js's format method
+                                            });
+                                        }
+                                    }}
+                                />
+
                             </LocalizationProvider>
                         </div>
                         <div
@@ -706,9 +808,28 @@ const ClinicProfileInformation = () => {
                                     fontSize: "10px",
                                     fontStyle: "normal",
                                     fontWeight: "500",
-                                    // fontHeight:'30px'
                                 }}
-                            ></CustomTextField>
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: "none" },
+                                        "&:hover fieldset": { border: "none" },
+                                        "&.Mui-focused fieldset": { border: "none" },
+                                        borderBottom: "1px solid #e0e0e0",
+                                        borderRadius: 0,
+                                        "&:hover": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                        "&.Mui-focused": {
+                                            borderBottom: "2px solid #E72B4A",
+                                        },
+                                    },
+                                    "& .MuiInputLabel-root": {
+                                        "&.Mui-focused": {
+                                            color: "#E72B4A",
+                                        },
+                                    },
+                                }}
+                            />
                         </div>
 
                         <Box
@@ -806,20 +927,39 @@ const ClinicProfileInformation = () => {
                                 }}
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DemoContainer components={["DatePicker"]}>
-                                    <DatePicker
-                                        disabled={!isEditing}
-                                        label="Registration Date"
-                                        maxDate={dayjs().add(4, "week")} // Example max date restriction, adjust as needed
-                                        onChange={handleDateChange}
-                                        value={
-                                            profiledata?.reg_date
-                                                ? dayjs(profiledata.reg_date)
-                                                : null
-                                        }
-                                        style={{ width: "290px" }}
-                                    />
-                                </DemoContainer>
+                                <DatePicker
+                                    disabled={!isEditing}
+                                    label="Registration Date"
+                                    maxDate={dayjs().add(4, "week")} // Example max date restriction, adjust as needed
+                                    onChange={handleDateChange}
+                                    value={
+                                        profiledata?.reg_date
+                                            ? dayjs(profiledata.reg_date)
+                                            : null
+                                    }
+                                    style={{ width: "290px" }}
+                                    sx={{
+                                        width: "100%",
+                                        "& .MuiOutlinedInput-root": {
+                                            "& fieldset": { border: "none" },
+                                            "&:hover fieldset": { border: "none" },
+                                            "&.Mui-focused fieldset": { border: "none" },
+                                            borderBottom: "1px solid #e0e0e0",
+                                            borderRadius: 0,
+                                            "&:hover": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                            "&.Mui-focused": {
+                                                borderBottom: "2px solid #E72B4A",
+                                            },
+                                        },
+                                        "& .MuiInputLabel-root": {
+                                            "&.Mui-focused": {
+                                                color: "#E72B4A",
+                                            },
+                                        },
+                                    }}
+                                />
                             </LocalizationProvider>
                         </div>
                         <Box

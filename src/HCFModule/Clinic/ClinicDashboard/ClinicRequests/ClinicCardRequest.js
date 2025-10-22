@@ -91,20 +91,26 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
 
     const AcceptAppointment = async () => {
         setClicked(!clicked);
+        console.log("🔍 Accepting appointment with data:", appointmentRequestData);
         try {
             const response = await axiosInstance.post(
                 "/sec/hcf/clinicAppointmentAccept",
                 JSON.stringify(appointmentRequestData),
-                { Accept: "Application/json" },
+                { 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                },
             );
             setSnackMessage("Appointment Confirmed");
             setSnackType("success");
             setSnackOpen(true);
-            console.log("RESPONSE : ", response?.data);
+            console.log("✅ Accept RESPONSE : ", response?.data);
             // acceptButtonClicked("child")
             AcceptOrRejectButtonClicked(!accAndRejClicked);
         } catch (error) {
-            console.log(error.response);
+            console.log("❌ Accept ERROR:", error.response);
             setSnackMessage("error during booking appointment");
             setSnackType("error");
             setSnackOpen(true);
@@ -113,21 +119,27 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
 
     const RejectAppointment = async () => {
         // setRejectClicked(true);
-        console.log("Hitting reject request");
+        console.log("🔍 Rejecting appointment with data:", rejectAppointment);
         try {
             const response = await axiosInstance.post(
                 "/sec/hcf/clinicAppointmentReject",
                 JSON.stringify(rejectAppointment),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }
             );
             setSnackMessage("Appointment Booking Rejected");
             setSnackType("success");
             setSnackOpen(true); // alert(response?.data.response.status);
-            console.log("RESPONSE : ", response?.data);
+            console.log("✅ Reject RESPONSE : ", response?.data);
             AcceptOrRejectButtonClicked(!accAndRejClicked);
             setRejectAppointmentFlag(false);
             setOpenDialog(false);
         } catch (error) {
-            console.log(error.response);
+            console.log("❌ Reject ERROR:", error.response);
             setRejectAppointmentFlag(false);
             setSnackMessage("error during rejecting  appointment says ", error.response);
             setSnackType("error");
@@ -242,7 +254,17 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                                 {"Schedule | "}
                                 {formatDate(data?.appointment_date)}
                                 {" | "}
-                                {data?.attachments}
+                                {"Attachments | "}
+                                {data?.attachments || "No attachments"}
+                                {" | "}
+                                {data?.report_name || "No report"}
+                                {" | "}
+                                {data?.appointment_time || "No time"}
+                                {" | "}
+                                {data?.profileImage || "No Image"}
+                                {" | "}
+                                {data?.report_path || "No Path"}
+                               
                             </Typography>
                         </div>
                     </div>

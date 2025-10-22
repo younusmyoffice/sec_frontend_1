@@ -28,7 +28,7 @@ const Home = ({ socket }) => {
         userName && roomID
             ? user === "patient"
            // chats/:user/:roomID/:appointment_id
-                ? navigate(`/PatientModule/appointment/chats/${roomID}/${appointment_id}`)
+                ? navigate(`/patientDashboard/appointment/chats/${roomID}/${appointment_id}`)
                 : user === "doctor"
                 ? navigate(`/doctordashboard/doctorAppointment/chats/${roomID}/${appointment_id}`)
                 : alert("Both Username and Room ID are required.")

@@ -84,6 +84,7 @@ const Explore = () => {
                     limit: 5,
                 })
             );
+            console.log("response setPopularDoc",response?.data?.response);
             setPopularDoc(response?.data?.response || []);
         } catch (error) {
             console.error("Error fetching doctors near me:", error.response);
@@ -159,6 +160,7 @@ const Explore = () => {
     const fetchDataHCFCards = async () => {
         try {
             const response = await axiosInstance.get("/sec/patient/DashboardHcfdetails");
+            console.log("🔍 HCF Data structure:", response?.data?.response);
             setHCFData(response?.data?.response);
         } catch (error) {
             console.log(error.response);
@@ -214,12 +216,12 @@ const Explore = () => {
             DoctorSpecialization(specializationDoc);
         }
     }, [specializationDoc]);
-
+console.log("🔍 HCF Data structure new:", hcfData);
     return (
         <Box sx={{ width: "90%" }}>
             <Box className="NavBar-Box" sx={{ marginLeft: 0, marginBottom: 0 }}>
                 <NavLink to={"/patientDashboard/dashboard/explore"}>Explore</NavLink>
-                <NavLink to={"/patientdashboard/dashboard/myactivity"}>My Activity</NavLink>
+                <NavLink to={"/patientDashboard/dashboard/myactivity"}>My Activity</NavLink>
             </Box>
             <Box sx={{ width: "100%" }}>
                 {/* Horizontal slider starts */}
@@ -238,7 +240,7 @@ const Explore = () => {
                 {/* Popular Field starts */}
 
                 <CallCardData
-                    linkPath={`/patientdashboard/drdetailscard/`}
+                    linkPath={`/patientDashboard/drDetailsCard/`}
                     sendCardData={populardoc}
                     CardData={data}
                     textField={"Popular"}
@@ -247,7 +249,7 @@ const Explore = () => {
                 {/* Featured Fields starts */}
 
                 <CallCardData
-                    linkPath={`/patientdashboard/drdetailscard/`}
+                    linkPath={`/patientDashboard/drDetailsCard/`}
                     sendCardData={cardData}
                     CardData={data}
                     textField={"Featured"}
@@ -284,7 +286,7 @@ const Explore = () => {
                                     nav_specialization.map((specialization, index) => (
                                         <CustomButton
                                             key={index}
-                                            to={`/patientdashboard/${specialization?.department_name.toLowerCase()}`}
+                                            to={`/patientDashboard/${specialization?.department_name.toLowerCase()}`}
                                             label={`${specialization?.department_name}`}
                                             isTransaprent={
                                                 specialization.department_name.toLowerCase() ===
@@ -324,7 +326,7 @@ const Explore = () => {
                         </div>
                     ) : (specializationCardData?.length || 0) > 0 ? (
                         <CallCardData
-                            linkPath={`/patientdashboard/drdetailscard/`}
+                            linkPath={`/patientDashboard/drDetailsCard/`}
                             sendCardData={specializationCardData}
                             loading={loading}
                         />
@@ -335,7 +337,7 @@ const Explore = () => {
                 {/* Near you component starts */}
 
                 <CallCardData
-                    linkPath={`/patientdashboard/drdetailscard/`}
+                    linkPath={`/patientDashboard/drDetailsCard/`}
                     sendCardData={docnearme}
                     CardData={data}
                     textField={"Near You"}
@@ -344,7 +346,7 @@ const Explore = () => {
                 {/* Hcf Cards component starts */}
 
                 <CallCardData
-                    linkPath={`/patientdashboard/hcfDetailCard/`}
+                    linkPath={`/patientDashboard/hcfDetailCard/`}
                     sendCardData={hcfData}
                     CardData={data}
                     textField={"Healthcare Facility"}

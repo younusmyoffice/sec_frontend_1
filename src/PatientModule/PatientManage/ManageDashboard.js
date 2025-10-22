@@ -6,14 +6,14 @@ const ManageDashboard = () => {
     const navigate = useNavigate();
     const [navigateToRoute, setNavigateToRoute] = useState(
         localStorage.getItem("path") == "bookinghistory"
-            ? "/PatientModule/manage/bookinghistory"
+            ? "/patientDashboard/manage/bookinghistory"
             : localStorage.getItem("path") == "transactions"
-            ? "/PatientModule/manage/transactions"
+            ? "/patientDashboard/manage/transactions"
             : localStorage.getItem("path") == "reports"
-            ? "/PatientModule/manage/reports"
+            ? "/patientDashboard/manage/reports"
             : localStorage.getItem("path") == "subscriptions"
-            ? "/PatientModule/manage/subscriptions"
-            : "/PatientModule/manage/bookinghistory",
+            ? "/patientDashboard/manage/subscriptions"
+            : "/patientDashboard/manage/bookinghistory",
     );
     useEffect(() => {
         navigate(String(navigateToRoute));

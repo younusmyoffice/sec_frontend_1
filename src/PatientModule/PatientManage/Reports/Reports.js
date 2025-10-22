@@ -8,7 +8,7 @@ const Reports = () => {
     React.useEffect(() => {
         localStorage.setItem("activeComponent", "manage");
         localStorage.setItem("path", "reports");
-        navigate("/PatientModule/manage/reports/request")
+        navigate("/patientDashboard/manage/reports/request")
     }, []);
 
 
@@ -16,12 +16,12 @@ const Reports = () => {
         <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%" }}>
             <Box>
                 <nav className="NavBar-Container-Appoinement">
-                    <NavLink to={"/PatientModule/manage/bookinghistory"}>
+                    <NavLink to={"/patientDashboard/manage/bookinghistory"}>
                         Booking History
                     </NavLink>
-                    <NavLink to={"/PatientModule/manage/transactions"}>Transaction</NavLink>
-                    <NavLink to={"/PatientModule/manage/reports"}>Report</NavLink>
-                    {/* <NavLink to={"/PatientModule/manage/subscriptions"}>Subscription</NavLink> */}
+                    <NavLink to={"/patientDashboard/manage/transactions"}>Transaction</NavLink>
+                    <NavLink to={"/patientDashboard/manage/reports"}>Report</NavLink>
+                    {/* <NavLink to={"/patientDashboard/manage/subscriptions"}>Subscription</NavLink> */}
                 </nav>
             </Box>
             <Box
@@ -36,10 +36,10 @@ const Reports = () => {
                 }}
             >
                 <nav className="NavBar-Container-patient-reports">
-                    <NavLink to={"/PatientModule/manage/reports/request"}>Request</NavLink>
-                    <NavLink to={"/PatientModule/manage/reports/examined"}>Examined</NavLink>
-                    <NavLink to={"/PatientModule/manage/reports/received"}>Received</NavLink>
-                    <NavLink to={"/PatientModule/manage/reports/shared"}>Shared</NavLink>
+                    <NavLink to={"/patientDashboard/manage/reports/request"}>Request</NavLink>
+                    <NavLink to={"/patientDashboard/manage/reports/examined"}>Examined</NavLink>
+                    <NavLink to={"/patientDashboard/manage/reports/received"}>Received</NavLink>
+                    <NavLink to={"/patientDashboard/manage/reports/shared"}>Shared</NavLink>
                 </nav>
                 <Box sx={{ position: "relative"}}>
                     {/* <Typography

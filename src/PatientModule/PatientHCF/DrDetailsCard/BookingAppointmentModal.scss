@@ -1,0 +1,476 @@
+// Booking Modal Container
+.booking-modal-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    
+    @media (max-width: 768px) {
+        padding: 0.5rem;
+        margin: 0;
+        border-radius: 8px;
+    }
+}
+
+// Stepper Styles
+.stepper-container {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    
+    .step-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        background: #e0e0e0;
+        color: #666;
+        transition: all 0.3s ease;
+        
+        &.active {
+            background: #e72b4a;
+            color: white;
+            box-shadow: 0 2px 8px rgba(231, 43, 74, 0.3);
+        }
+        
+        &.completed {
+            background: #4caf50;
+            color: white;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+    }
+}
+
+// Form Grid Layout
+.form-grid {
+    display: grid;
+    gap: 1.5rem;
+    
+    .form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+// File Upload Styles
+.file-upload-container {
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        border-color: #e72b4a;
+        background: rgba(231, 43, 74, 0.02);
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .file-upload-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        
+        .file-upload-button {
+            text-transform: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+        
+        .file-name {
+            color: #666;
+            font-style: italic;
+        }
+    }
+}
+
+// Date Time Section
+.date-time-section {
+    // display: grid;
+    grid-template-columns: 3fr 3fr;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .calendar-container {
+        .MuiDateCalendar-root {
+            width: 100%;
+        }
+    }
+    
+    .duration-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+}
+
+// Package Selection
+.package-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    
+    .time-slot-section {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .package-section {
+        .package-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            
+            @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .package-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            
+            &:hover {
+                border-color: #e72b4a;
+                box-shadow: 0 4px 12px rgba(231, 43, 74, 0.15);
+                transform: translateY(-2px);
+            }
+            
+            &.selected {
+                border-color: #e72b4a;
+                background: rgba(231, 43, 74, 0.05);
+                box-shadow: 0 4px 12px rgba(231, 43, 74, 0.2);
+            }
+            
+            .package-card-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                
+                .package-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    flex: 1;
+                    
+                    .package-icon {
+                        .plan-icon {
+                            width: 40px;
+                            height: 40px;
+                        }
+                    }
+                    
+                    .package-details {
+                        .package-name {
+                            font-family: 'Poppins', sans-serif;
+                            font-weight: 600;
+                            font-size: 16px;
+                            color: #1a1a1a;
+                            margin: 0 0 4px 0;
+                        }
+                        
+                        .package-description {
+                            font-family: 'Poppins', sans-serif;
+                            font-size: 14px;
+                            color: #666;
+                            margin: 0;
+                        }
+                    }
+                }
+                
+                .package-pricing {
+                    text-align: right;
+                    
+                    .package-price {
+                        font-family: 'Poppins', sans-serif;
+                        font-weight: 700;
+                        font-size: 20px;
+                        color: #e72b4a;
+                        margin: 0 0 4px 0;
+                    }
+                    
+                    .package-duration {
+                        font-family: 'Poppins', sans-serif;
+                        font-size: 12px;
+                        color: #999;
+                        margin: 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Questions Section
+.questions-section {
+    .questions-progress {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+            
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #e72b4a, #ff6b6b);
+                border-radius: 4px;
+                transition: width 0.3s ease;
+            }
+        }
+    }
+    
+    .questions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        
+        .question-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #e72b4a;
+        }
+    }
+}
+
+// Payment Section
+.payment-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    
+    .payment-summary {
+        text-align: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #e72b4a, #ff6b6b);
+        color: white;
+        border-radius: 12px;
+        
+        .amount-display {
+            margin-top: 1rem;
+            
+            .MuiTypography-h4 {
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+        }
+    }
+    
+    .payment-method {
+        .payment-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            
+            .payment-button-container {
+                margin-top: 1rem;
+            }
+        }
+    }
+    
+    .appointment-terms {
+        .terms-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            
+            li {
+                padding: 0.5rem 0;
+                border-bottom: 1px solid #f0f0f0;
+                
+                &:last-child {
+                    border-bottom: none;
+                }
+                
+                &::before {
+                    content: "✓";
+                    color: #4caf50;
+                    font-weight: bold;
+                    margin-right: 0.5rem;
+                }
+            }
+        }
+    }
+}
+
+// Success Content
+.success-content {
+    text-align: center;
+    padding: 2rem;
+    
+    .appointment-details {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        text-align: left;
+        
+        .MuiTypography-body2 {
+            margin-bottom: 0.5rem;
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+// Loading States
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 0.5rem;
+}
+
+// Navigation Buttons
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 2rem;
+    
+    .back-button {
+        min-width: 100px;
+        text-transform: none;
+        font-weight: 500;
+    }
+    
+    .next-button {
+        min-width: 120px;
+        text-transform: none;
+        font-weight: 600;
+        padding: 10px 24px;
+    }
+    
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 1rem;
+        
+        .back-button,
+        .next-button {
+            width: 100%;
+        }
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .booking-modal-container {
+        padding: 0.25rem;
+    }
+    
+    .form-grid {
+        gap: 1rem;
+    }
+    
+    .date-time-section {
+        gap: 1rem;
+    }
+    
+    .package-selection {
+        gap: 1rem;
+    }
+    
+    .payment-section {
+        gap: 1rem;
+    }
+}
+
+// Animation Classes
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.step-content {
+    animation: fadeIn 0.3s ease-out;
+}
+
+// Custom Scrollbar
+.package-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.package-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.package-grid::-webkit-scrollbar-thumb {
+    background: #e72b4a;
+    border-radius: 4px;
+}
+
+.package-grid::-webkit-scrollbar-thumb:hover {
+    background: #c41e3a;
+}
+
+// Development Payment Notice
+.development-payment-notice {
+    border: 2px dashed #2196f3;
+    border-radius: 8px;
+    background-color: #e3f2fd;
+    
+    .MuiTypography-root {
+        font-weight: 600;
+        color: #1976d2;
+    }
+}

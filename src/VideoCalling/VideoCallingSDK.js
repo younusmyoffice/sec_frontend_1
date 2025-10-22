@@ -21,7 +21,7 @@ function VideoCallingSDK() {
   const [isMeetingStarted, setMeetingStarted] = useState(false);
   const [isMeetingLeft, setIsMeetingLeft] = useState(false);
   const params = useParams();
-  console.log('params : ',params?.appID)
+  console.log('params : ', params?.appId);
   const isMobile = window.matchMedia(
     "only screen and (max-width: 768px)"
   ).matches;

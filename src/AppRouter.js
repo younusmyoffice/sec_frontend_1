@@ -28,6 +28,7 @@ import {
     PatientAuthentication,
     ClinicAuthentication,
     DiagnostAuthentication,
+    SuperAdminAuthentication,
 } from "./loginComponent/RequireAuthentication";
 import BodyDashboard from "./PatientModule/BodyDashboard/BodyDashboard";
 import Explore from "./PatientModule/Explore/Explore";
@@ -38,7 +39,7 @@ import Shared from "./PatientModule/MyActivity/Shared/Shared";
 import Upcoming from "./PatientModule/PatientAppointment/UpComing/Upcoming";
 import Completed from "./PatientModule/PatientAppointment/Completed/Completed";
 import Cancelled from "./PatientModule/PatientAppointment/Cancelled/Cancelled";
-// import Chats from "./Dashboard/PatientAppointment/Chats/Chats";
+import Chats from "./PatientModule/PatientAppointment/Chats/Chats";
 import AppointmentDashboard from "./PatientModule/PatientAppointment/AppointmentDashboard";
 import MainDashboard from "./PatientModule/MainDashboard/MainDashboard";
 import Payment from "./PatientModule/Profile/Payment";
@@ -132,7 +133,7 @@ import SuperAdminLogin from "./Auth/Login/LoginSuperAdmin/LoginSuperAdmin";
 import VideoCallingSDK from "./VideoCalling/VideoCallingSDK";
 import ChatRoom from "./ChatsScreen/ChatRoom";
 import AdminLabDetail from "./HCFModule/HCFAdmin/AdminDiagnosticCenter/AdminLabs/AdminLabDetails/AdminLabDetail";
-import HcfDrDetailsCard from "./PatientModule/DrDetailsCard/HcfDrDetailsCard";
+import HcfDrDetailsCard from "./PatientModule/PatientHCF/DrDetailsCard/DrDetailsContainers/HcfDrDetailsCard.js";
 
 const ManageDashboard = lazy(() => import("./PatientModule/PatientManage/ManageDashboard"));
 // import MyActivity from "./PatientModule/MyActivity/MyActivity";
@@ -381,6 +382,19 @@ const socket = socketIO.connect("http://localhost:4001", {
     reconnectionDelayMax: 5000, // Max delay between reconnection attempts (5 seconds)
 });
 
+// Add connection debugging
+socket.on('connect', () => {
+    console.log('🔌 Socket connected successfully:', socket.id);
+});
+
+socket.on('connect_error', (error) => {
+    console.error('❌ Socket connection error:', error);
+});
+
+socket.on('disconnect', (reason) => {
+    console.log('🔌 Socket disconnected:', reason);
+});
+
 export const AppRouter = () => (
     <UserProvider>
         <Suspense fallback={<PageLoader text="Please wait while we load your application" />}>
@@ -511,6 +525,7 @@ export const AppRouter = () => (
                                 <Route path={"upcoming"} element={<PatientAuthentication><Upcoming /></PatientAuthentication>}></Route>
                                 <Route path={"completed"} element={<PatientAuthentication><Completed /></PatientAuthentication>}></Route>
                                 <Route path={"cancelled"} element={<PatientAuthentication><Cancelled /></PatientAuthentication>}></Route>
+                                <Route path={"chats"} element={<PatientAuthentication><Chats /></PatientAuthentication>}></Route>
                                 <Route path={"chats/:user/:roomID/:appointment_id"} element={<PatientAuthentication><Home socket={socket} /></PatientAuthentication>}></Route>
                                 <Route
                                     path={"chats/:roomID/:appointment_id"}
@@ -884,6 +899,14 @@ export const AppRouter = () => (
                                         
                                     }
                                 ></Route>
+                                <Route
+                                    path="clinicChats/:user/:roomID/:appointment_id"
+                                    element={<ClinicAuthentication><React.Suspense fallback={<Skeleton variant="rectangular" width="100%" height={900} />}>
+                                    <ChatPage socket={socket} />
+                                </React.Suspense></ClinicAuthentication>
+                                        
+                                    }
+                                ></Route>
                             </Route>
                             <Route path="clinicProfile" element={<ClinicAuthentication><ClinicProfile /></ClinicAuthentication>}>
                                 <Route
@@ -1125,7 +1148,7 @@ export const AppRouter = () => (
                         {/* -------------HCF Routes Ends------------------ */}
 
                         {/* ------------- Super Admin Starts----------- */}
-                        <Route path="superAdmin" element={<SuperAdminBody />}>
+                        <Route path="superAdmin" element={<SuperAdminAuthentication><SuperAdminBody /></SuperAdminAuthentication>}>
                             <Route path="dashboard" element={<SuperAdminDashboard />}>
                                 <Route
                                     path="mainDashboard"
@@ -1230,7 +1253,7 @@ export const AppRouter = () => (
                         {/* --------S----uper Admin Ends ------------- */}
 
                         {/* Video calling SDK and chats----------------- starts */}
-                        <Route path="/videoCallingSdk/:appId" element={<VideoCallingSDK />}></Route>
+                        <Route path="/videocallingsdk/:appId" element={<VideoCallingSDK />}></Route>
                         <Route path="/chatRoom" element={<ChatRoom />}></Route>
                         {/* Video Calling SDK Ends--------------- */}
 

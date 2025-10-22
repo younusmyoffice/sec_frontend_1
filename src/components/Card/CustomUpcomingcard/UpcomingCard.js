@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { TextField } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
+import { useNavigate } from "react-router-dom"; // ✅ Add navigation import
 
 // import "./customUpcomingCard.scss";
 // import CustomButton from '../../../components/CustomButton/custom-button';
@@ -38,6 +39,7 @@ const UpcomingCard = ({
     AcceptOrRejectButtonClicked,
     accAndRejClicked
 }) => {
+    const navigate = useNavigate(); // ✅ Add navigate hook
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -58,6 +60,8 @@ const UpcomingCard = ({
     const [joinAppointmentClinic, setJoinAppointmentClinic] = useState({
         appointment_id: null,
         doctor_id: null,
+        patient_id: null, // ✅ Add missing patient_id field
+        status: "in_progress", // ✅ Add missing status field
         option: "accept",
     });
     const [rejectAppointment, setRejectAppointment] = useState({
@@ -89,27 +93,46 @@ const UpcomingCard = ({
         setJoinAppointmentClinic({
             appointment_id: data?.appointment_id,
             doctor_id: data?.doctor_id,
+            patient_id: data?.patient_id, // ✅ Add missing patient_id
+            status: "in_progress", // ✅ Add missing status field
             option: "join",
         });
     }, []);
 
     const JoinAppointment = async () => {
         setClicked(!clicked);
+        console.log("🔍 Joining clinic appointment with data:", joinAppointmentClinic);
         try {
             const response = await axiosInstance.post(
                 "/sec/hcf/joinAppointmentClinic",
                 JSON.stringify(joinAppointmentClinic),
-                { Accept: "Application/json" },
+                { 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                },
             );
-            setSnackMessage("joined Confirmed");
+            setSnackMessage("Joined Successfully");
             setSnackType("success");
             setSnackOpen(true);
-            console.log("RESPONSE : ", response?.data);
+            console.log("✅ Join RESPONSE : ", response?.data);
+            
+            // ✅ Navigate to chat page after successful join
+            const patientName = `${data?.first_name || ''}${data?.middle_name || ''}${data?.last_name || ''}`;
+            const roomID = data?.roomid || data?.room_id || 'default';
+            const appointmentId = data?.appointment_id;
+            
+            console.log("🔍 Navigation data:", { patientName, roomID, appointmentId });
+            
+            // Navigate to clinic chat page
+            navigate(`/clinicDashboard/clinicmyappointment/clinicchats/${patientName}/${roomID}/${appointmentId}`);
+            
             // acceptButtonClicked("child")
             AcceptOrRejectButtonClicked(!accAndRejClicked);
         } catch (error) {
-            console.log(error.response);
-            setSnackMessage("error during joining appointment");
+            console.log("❌ Join ERROR:", error.response);
+            setSnackMessage("Error during joining appointment");
             setSnackType("error");
             setSnackOpen(true);
         }
@@ -290,7 +313,7 @@ const UpcomingCard = ({
                             }}
                             label={Joinlabel}
                             isTransaprent={false}
-                            handleClick={JoinAppointment}
+                            handleClick={onClickJoinHandler || JoinAppointment} // ✅ Use onClickJoinHandler if provided, fallback to JoinAppointment
                         />
                     </div>
                     <div style={{ display: "flex", alignItems: "center" }}>

@@ -6,18 +6,18 @@ const AppointmentDashboard = () => {
     const navigate = useNavigate();
     const [navigateToRoute, setNavigateToRoute] = useState(
         localStorage.getItem("path") == "upcoming"
-            ? "/PatientModule/appointment/upcoming"
+            ? "/patientDashboard/appointment/upcoming"
             : localStorage.getItem("path") == "completed"
-            ? "/PatientModule/appointment/completed"
+            ? "/patientDashboard/appointment/completed"
             : localStorage.getItem("path") == "cancelled"
-            ? "/PatientModule/appointment/cancelled"
-            : "/PatientModule/appointment/upcoming",
+            ? "/patientDashboard/appointment/cancelled"
+            : "/patientDashboard/appointment/upcoming",
     );
 
-    // localStorage.getItem('path') =='upcoming' ? '/PatientModule/appointment/upcoming'
-    // : localStorage.getItem('path') == 'completed' ? '/PatientModule/appointment/completed'
-    // : localStorage.getItem('path') == 'cancelled' ? '/PatientModule/appointment/cancelled'
-    // : '/PatientModule/appointment/upcoming';
+    // localStorage.getItem('path') =='upcoming' ? '/patientDashboard/appointment/upcoming'
+    // : localStorage.getItem('path') == 'completed' ? '/patientDashboard/appointment/completed'
+    // : localStorage.getItem('path') == 'cancelled' ? '/patientDashboard/appointment/cancelled'
+    // : '/patientDashboard/appointment/upcoming';
 
     useEffect(() => {
         navigate(String(navigateToRoute));

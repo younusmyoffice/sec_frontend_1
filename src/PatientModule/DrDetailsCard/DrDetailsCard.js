@@ -4,18 +4,18 @@ import React, { useEffect, useState } from "react";
 import "./drdetailscard.scss";
 import { useNavigate, useParams } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
-import ContainerOne from "./ContainerOne";
-import ContainerTwo from "./ContainerTwo";
-import ContainerThree from "./ContainerThree";
-import ContainerFour from "./ContainerFour";
+import ContainerOne from "./DoctorDetailContainerOne";
+import ContainerTwo from "./DoctorDetailContainerTwo";
+import ContainerThree from "./DoctorDetailContainerThree";
+import ContainerFour from "./DoctorDetailContainerFour";
 import DrImage from "../../static/images/DrImages/doctor_alter.jpeg";
 import axiosInstance from "../../config/axiosInstance";
 import { formatDateDay, formatTime } from "../../constants/const";
 
 const DrDetailsCard = () => {
     const params = useParams();
-    const ID = params.resID;
-    console.log(ID);
+    const doctorID = params.resID;
+    console.log("this is doctor doctorID", doctorID);
 
     const [drCardData, setDrCardData] = useState();
     const [review, setReview] = useState();
@@ -28,25 +28,28 @@ const DrDetailsCard = () => {
     const [doctorTotalReviews, setDoctorTotalReviews] = useState();
     const [doctorTotalExperience, setDoctorTotalExperience] = useState();
 
+    
     const fetchDataNew = async () => {
         setloading(true);
         try {
+            console.log("doctorID in fetchDataNew", doctorID);
             const response = await axiosInstance.post(
                 `/sec/patient/DashboardDoctordetailsbyId`,
-                JSON.stringify({
-                    suid: ID,
-                }),
+                { suid: Number(doctorID) },
+                { headers: { 'Content-Type': 'application/json' } }
             );
             console.log("Response Received Doctor Details : ", response?.data?.response[0]);
+            console.log("Full API Response:", response?.data);
+            
             setDrCardData(response.data.response);
-            setDoctorLicense(response?.data?.doctorLicense),
-            setDoctorAward(response?.data?.doctorAwards),
-            setDoctorExperience(response?.data?.doctorExperience)
-            setReview(response?.data?.doctorReviewData)
-            setDoctorTotalconsultations(response?.data?.doctorTotalconsultations)
-            setDoctorAverageRating(response?.data?.doctorAverageRating)
-            setDoctorTotalReviews(response?.data?.doctorTotalReviews)
-            setDoctorTotalExperience(response?.data?.doctorTotalExperience)
+            setDoctorLicense(response?.data?.doctorLicense || []);
+            setDoctorAward(response?.data?.doctorAwards || []);
+            setDoctorExperience(response?.data?.doctorExperience || []);
+            setReview(response?.data?.doctorReviewData || []);
+            setDoctorTotalconsultations(response?.data?.doctorTotalconsultations || 0);
+            setDoctorAverageRating(response?.data?.doctorAverageRating || 0);
+            setDoctorTotalReviews(response?.data?.doctorTotalReviews || 0);
+            setDoctorTotalExperience(response?.data?.doctorTotalExperience || 0);
 
         } catch (error) {
             console.log("Dr detauils error", error.response);
@@ -54,13 +57,22 @@ const DrDetailsCard = () => {
             setloading(false);
         }
     };
-
+console.log("doctorID in useEffect", doctorID);
     useEffect(() => {
-        fetchDataNew();
-    }, []);
-console.log("doctorLicense",doctorLicense)
-console.log("doctorAward",doctorAward)
-console.log("doctorExperience",doctorExperience)
+        
+        if (doctorID) {
+            fetchDataNew();
+        }
+    }, [doctorID]);
+
+    // Debug logging
+    console.log("🔍 DrDetailsCard Debug:");
+    console.log("  - doctorID:", doctorID);
+    console.log("  - drCardData:", drCardData);
+    console.log("  - doctorLicense:", doctorLicense);
+    console.log("  - doctorAward:", doctorAward);
+    console.log("  - doctorExperience:", doctorExperience);
+    console.log("  - loading:", loading);
 
     const classes = useStyles();
     const navigate = useNavigate();
@@ -75,15 +87,15 @@ console.log("doctorExperience",doctorExperience)
             <Box sx={{ width: "100%", height: "100%" }}>
                 {/* 1st Container */}
                 <ContainerOne
-                    isLoading={loading} // Pass isLoading prop to Container1
-                    Fname={drCardData?.first_name}
-                    Mname={drCardData?.middle_name}
-                    Lname={drCardData?.last_name}
-                    Qualification={drCardData?.department_name}
-                    DrImage={drCardData?.profile_picture || drimg}
-                    DrId={drCardData?.suid}
-                    hospital={drCardData?.hospital_org}
-                    worktime={`${formatDateDay(drCardData?.working_days_start)} - ${formatDateDay(drCardData?.working_days_end)} | ${formatTime(drCardData?.working_time_start)} to ${formatTime(drCardData?.working_time_end)}`}
+                    isLoading={loading}
+                    Fname={drCardData?.[0]?.first_name || drCardData?.first_name}
+                    Mname={drCardData?.[0]?.middle_name || drCardData?.middle_name}
+                    Lname={drCardData?.[0]?.last_name || drCardData?.last_name}
+                    Qualification={drCardData?.[0]?.department_name || drCardData?.department_name}
+                    DrImage={drCardData?.[0]?.profile_picture || drCardData?.profile_picture || drimg}
+                    DrId={drCardData?.[0]?.suid || drCardData?.suid}
+                    hospital={drCardData?.[0]?.hospital_org || drCardData?.hospital_org}
+                    worktime={`${formatDateDay(drCardData?.[0]?.working_days_start || drCardData?.working_days_start)} - ${formatDateDay(drCardData?.[0]?.working_days_end || drCardData?.working_days_end)} | ${formatTime(drCardData?.[0]?.working_time_start || drCardData?.working_time_start)} to ${formatTime(drCardData?.[0]?.working_time_end || drCardData?.working_time_end)}`}
                 />
                 {/* 2nd container  */}
                 <ContainerTwo
@@ -96,18 +108,18 @@ console.log("doctorExperience",doctorExperience)
 
                 {/* 3rd container */}
                 <ContainerThree 
-                review={review}
-                description={drCardData?.description}
-                isLoading={loading} // Pass isLoading prop to Container1
-/>
+                    review={review}
+                    description={drCardData?.[0]?.description || drCardData?.description}
+                    isLoading={loading}
+                />
                 {/* 4th container 1st card */}
                 <ContainerFour
-                    Qualification={drCardData?.qualification}
-                    YearOfQualification={drCardData?.qualified_year}
-                    RegDate={drCardData?.reg_date}
-                    StateReg={drCardData?.state_reg_number}
-                    CountryReg={drCardData?.country_reg_number}
-                    University={drCardData?.university_name}
+                    Qualification={drCardData?.[0]?.qualification || drCardData?.qualification}
+                    YearOfQualification={drCardData?.[0]?.qualified_year || drCardData?.qualified_year}
+                    RegDate={drCardData?.[0]?.reg_date || drCardData?.reg_date}
+                    StateReg={drCardData?.[0]?.state_reg_number || drCardData?.state_reg_number}
+                    CountryReg={drCardData?.[0]?.country_reg_number || drCardData?.country_reg_number}
+                    University={drCardData?.[0]?.university_name || drCardData?.university_name}
                     doctorLicense={doctorLicense}
                     doctorAward={doctorAward}
                     doctorExperience={doctorExperience}

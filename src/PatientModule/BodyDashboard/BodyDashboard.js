@@ -14,11 +14,11 @@ const BodyDashboard = () => {
     const [activeItem, setActiveItem] = useState();
     const [profile, setProfile] = useState(
         localStorage.getItem("activeComponent") === "dashboard"
-            ? "/PatientModule/dashboard/profile"
+            ? "/patientDashboard/dashboard/profile"
             : localStorage.getItem("activeComponent") === "appointment"
-            ? "/PatientModule/appointment/profile"
+            ? "/patientDashboard/appointment/profile"
             : localStorage.getItem("activeComponent") === "manage"
-            ? "/PatientModule/manage/profile"
+            ? "/patientDashboard/manage/profile"
             : null,
     );
 

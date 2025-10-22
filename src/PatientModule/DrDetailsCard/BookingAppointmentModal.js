@@ -70,8 +70,11 @@ dayjs.extend(timezone);
 
 const steps = ["Details", "Date & Time", "Duration", "Questions", "Payment"];
 
-export default function HorizontalLinearStepper({ drID, hcfDoc }) {
+export default function HorizontalLinearStepper({  hcfDoc }) {
     const params = useParams();
+    const drID = params?.resID;
+    console.log("drID : ", drID);
+    console.log("params : ", params?.resID);
     const { validateStepData, getStepErrors, clearStepErrors, hasStepErrors } = useFormValidation();
     
     const [activeStep, setActiveStep] = React.useState(0);
@@ -116,7 +119,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
     const [isAppointmentBooked, setIsAppointmentBooked] = React.useState(false); // Track if appointment is already booked
     const [timeslotData, setTimeslotData] = React.useState({
         appointment_date: null,
-        doctor_id: Number(drID),
+        doctor_id: drID,
         duration: null,
     });
 
@@ -124,7 +127,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         appointment_date: null,
         appointment_time: null,
         patient_id: Number(localStorage.getItem("patient_suid")),
-        doctor_id: Number(drID),
+        doctor_id: drID,
         fileName: null,
         file: null,
         action_done_by: 5,
@@ -148,13 +151,13 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
     console.log(
         "this is the flag inside of the book appointment modal : ",
         hcfDoc +
-        `this is the hcf id : ${params?.reshcfID} and this is the doc id : ${params?.hcddocid}`,
+        `this is the hcf id : ${params?.reshcfID} and this is the doc id : ${params?.resID}`,
     );
     
     // Debug the corrected parameter mapping
     console.log("🔧 BookingAppointmentModal parameter mapping:");
     console.log("  - HCF ID (reshcfID):", params?.reshcfID);
-    console.log("  - Doctor ID (hcddocid):", params?.hcddocid);
+    console.log("  - Doctor ID (hcddocid):", drID);
     console.log("  - hcfDoc flag:", hcfDoc);
     const [messagingPlan, setMessaginplanActive] = React.useState(false);
     const [voiceMessagingPlan, setVoiceMessaginplanActive] = React.useState(false);
@@ -228,8 +231,8 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             const appointmentPayload = {
                 ...appointmentData,
                 payment_method_nonce: nonce_value,
-                hcf_id: hcfDoc ? params?.reshcfID : undefined, // Use reshcfID for HCF ID
-                doctor_id: hcfDoc ? params?.hcddocid : undefined // Use hcddocid for doctor ID
+                // hcf_id: hcfDoc ? params?.reshcfID : undefined, // Use reshcfID for HCF ID
+                doctor_id: drID ? drID : undefined // Use hcddocid for doctor ID
             };
             
             console.log("Creating appointment with data:", appointmentPayload);

@@ -10,6 +10,7 @@ import CustomButton from "../../../components/CustomButton/custom-button";
 import { useAuthentication } from "../../../loginComponent/UserProvider";
 import CustomSnackBar from "../../../components/CustomSnackBar/custom-sack-bar";
 import { baseURL } from "../../../constants/const";
+import Cookies from "js-cookie";
 
 const SuperAdminLogin = () => {
     const [showPassword, setShowPassword] = useState(true);
@@ -48,10 +49,13 @@ const SuperAdminLogin = () => {
                 console.log("access_token : ", response?.data?.response?.access_token);
                 console.log("doctor suid : ", response?.data?.response?.suid);
 
-                Authentication.PatientLogin(email);
-                // alert("succesfully loggedIn");
-                // navigate('/patientverification' , {replace : true});
-                console.log("navigate to patient");
+                Authentication.SuperAdminLogin(email);
+                // Store SuperAdmin email in cookies for authentication persistence
+                Cookies.set("superAdminEmail", email, { expires: 7 });
+                localStorage.setItem("superAdmin_suid", response?.data?.response?.suid);
+                localStorage.setItem("access_token", response?.data?.response?.access_token);
+                
+                console.log("SuperAdmin login successful");
                 setIslogin(false);
                 navigate("/superadmin", { replace: true });
             }

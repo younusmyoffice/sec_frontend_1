@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useParams } from "react-router-dom";
 import axios from "axios";
-import Container5 from "../Container5";
-import Container3 from "../Container3";
+import Container5 from "../HcfDetailContainer5";
+import Container3 from "../HcfDetailContainer3";
 import { baseURL, CallCardData } from "../../../../constants/const";
 import { Box } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -41,6 +41,9 @@ const Department = () => {
         try {
             setIsLoadingCard(true);
             const response = await axiosInstance(`/sec/patient/getHcfdocByDept/${specialist}/6/${ID.hcfID}`);
+            console.log("🔍 Department API Response:", response?.data);
+            console.log("🔍 Specialist data:", response?.data?.response[specialist]);
+            console.log("🔍 First doctor data:", response?.data?.response[specialist]?.[0]);
             setSpecializationCardData(response?.data?.response[specialist] || []);
         } catch (err) {
             console.log("Specialization error:", err);
@@ -75,9 +78,9 @@ const Department = () => {
     return (
         <>
             <nav className="NavBar-Container-Appoinement">
-                <NavLink to={`/patientdashboard/hcfDetailCard/${ID.hcfID}/about`}>About</NavLink>
-                <NavLink to={`/patientdashboard/hcfDetailCard/${ID.hcfID}/department`}>Department</NavLink>
-                <NavLink to={`/patientdashboard/hcfDetailCard/${ID.hcfID}/labs`}>Labs</NavLink>
+                <NavLink to={`/patientDashboard/hcfDetailCard/${ID.hcfID}/about`}>About</NavLink>
+                <NavLink to={`/patientDashboard/hcfDetailCard/${ID.hcfID}/department`}>Department</NavLink>
+                <NavLink to={`/patientDashboard/hcfDetailCard/${ID.hcfID}/labs`}>Labs</NavLink>
             </nav>
             <div className="about-data" style={{ marginTop: "4rem", width: "100%" }}>
                 {/* Horizontal scroll container */}
@@ -107,7 +110,7 @@ const Department = () => {
                                     nav_specialization.map((specialization, index) => (
                                         <CustomButton
                                             key={index}
-                                            to={`/patientdashboard/${specialization?.department_name.toLowerCase()}`}
+                                            to={`/patientDashboard/${specialization?.department_name.toLowerCase()}`}
                                             label={`${specialization?.department_name}`}
                                             isTransaprent={
                                                 specialization.department_name.toLowerCase() ===
@@ -143,12 +146,20 @@ const Department = () => {
         style={{ margin: "1% 0" }}
     />
 ) : specializationCardData && specializationCardData.length > 0 ? (
-    <CallCardData
-        linkPath={`/patientdashboard/hcfDetailCard/hcfdoctor/`}
-        sendCardData={specializationCardData}
-        textField={""}
-        hcfID={ID}
-    />
+    <>
+        {console.log("🔍 CallCardData props:", {
+            linkPath: `/patientDashboard/hcfDetailCard/hcfDoctor/`,
+            sendCardData: specializationCardData,
+            hcfID: {hcfID: ID.hcfID},
+            firstDoctor: specializationCardData[0]
+        })}
+        <CallCardData
+            linkPath={`/patientDashboard/hcfDetailCard/hcfDoctor/`}
+            sendCardData={specializationCardData}
+            textField={""}
+            hcfID={{hcfID: ID.hcfID}}
+        />
+    </>
 ) : (
     <NoAppointmentCard text_one={"NO Doctor found"}/>
 )}

@@ -9,7 +9,7 @@ const MainDashboard = () => {
     // const params = useParams();
     // console.log(params);
 
-    // const NavigationLink = '/patientdashboard/explore';
+    // const NavigationLink = '/patientDashboard/explore';
 
     useEffect(() => {
         navigate("/patientDashboard/dashboard/explore");

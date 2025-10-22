@@ -21,10 +21,10 @@ import { getProfileImageSrc } from "../../utils/imageUtils";
 export const AppointmentNavbar = () => {
     return (
         <nav className="NavBar-Container-Appoinement">
-            <NavLink to={"/PatientModule/appointment/upcoming"}>Upcoming</NavLink>
-            <NavLink to={"/PatientModule/appointment/completed"}>Completed</NavLink>
-            <NavLink to={"/PatientModule/appointment/cancelled"}>Cancelled</NavLink>
-            <NavLink to={"/PatientModule/appointment/chats"}>Chats</NavLink>
+            <NavLink to={"/patientDashboard/appointment/upcoming"}>Upcoming</NavLink>
+            <NavLink to={"/patientDashboard/appointment/completed"}>Completed</NavLink>
+            <NavLink to={"/patientDashboard/appointment/cancelled"}>Cancelled</NavLink>
+            <NavLink to={"/patientDashboard/appointment/chats"}>Chats</NavLink>
         </nav>
     );
 };

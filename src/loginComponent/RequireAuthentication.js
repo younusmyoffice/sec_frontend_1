@@ -58,3 +58,14 @@ export const DiagnostAuthentication = ({ children }) => {
     }
     return children;
 };
+
+export const SuperAdminAuthentication = ({ children }) => {
+    const Authentication = useAuthentication();
+    const location = useLocation();
+    const hasValidToken = isTokenValid();
+    // If user is not logged in it will redirect it to the login page
+    if (!Cookies.get("superAdminEmail") && !Authentication.superAdmin && !hasValidToken) {
+        return <Navigate to={"/superAdminLogin"} state={{ path: location?.pathname }} />;
+    }
+    return children;
+};

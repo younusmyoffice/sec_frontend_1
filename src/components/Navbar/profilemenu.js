@@ -347,11 +347,11 @@ const profilemenu = ({ profilepath }) => {
                     onClick={() => {
                         profilepath === "patient"
                             ? localStorage.getItem("activeComponent") === "dashboard"
-                                ? navigate("/patientdashboard/dashboard/profile")
+                                ? navigate("/patientDashboard/dashboard/profile")
                                 : localStorage.getItem("activeComponent") === "appointment"
-                                ? navigate("/patientdashboard/appointment/profile")
+                                ? navigate("/patientDashboard/appointment/profile")
                                 : localStorage.getItem("activeComponent") === "manage"
-                                ? navigate("/patientdashboard/manage/profile")
+                                ? navigate("/patientDashboard/manage/profile")
                                 : null
                             : profilepath === "doctor"
                             ? localStorage.getItem("activeComponent") === "dashboard"

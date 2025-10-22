@@ -65,21 +65,21 @@ const ContactDetails = () => {
     useEffect(() => {
         setProfileLink(
             localStorage.getItem("activeComponent") === "dashboard"
-                ? "/PatientModule/dashboard/profile"
+                ? "/patientDashboard/dashboard/profile"
                 : localStorage.getItem("activeComponent") === "appointment"
-                ? "/PatientModule/appointment/profile"
+                ? "/patientDashboard/appointment/profile"
                 : localStorage.getItem("activeComponent") === "manage"
-                ? "/PatientModule/manage/profile"
+                ? "/patientDashboard/manage/profile"
                 : null,
         );
 
         setContactLink(
             localStorage.getItem("activeComponent") === "dashboard"
-                ? "/PatientModule/dashboard/contact"
+                ? "/patientDashboard/dashboard/contact"
                 : localStorage.getItem("activeComponent") === "appointment"
-                ? "/PatientModule/appointment/contact"
+                ? "/patientDashboard/appointment/contact"
                 : localStorage.getItem("activeComponent") === "manage"
-                ? "/PatientModule/manage/contact"
+                ? "/patientDashboard/manage/contact"
                 : null,
         );
         FetchCountryNames();

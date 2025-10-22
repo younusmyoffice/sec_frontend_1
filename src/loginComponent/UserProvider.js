@@ -10,6 +10,7 @@ export const UserProvider = ({ children }) => {
     const [hcf, setHcf] = useState();
     const [clinic, setClinic] = useState();
     const [diagnost, setDiagnost] = useState();
+    const [superAdmin, setSuperAdmin] = useState();
 
     const DoctorLogin = (user) => {
         setDoctor(user);
@@ -31,6 +32,10 @@ export const UserProvider = ({ children }) => {
         setDiagnost(user);
     };
 
+    const SuperAdminLogin = (user) => {
+        setSuperAdmin(user);
+    };
+
     const LogoutDoctor = () => {
         setDoctor(null);
     };
@@ -48,7 +53,11 @@ export const UserProvider = ({ children }) => {
     };
     
     const LogoutDiagnost = () => {
-        setHcf(null);
+        setDiagnost(null);
+    };
+
+    const LogoutSuperAdmin = () => {
+        setSuperAdmin(null);
     };
 
     // using the UserContextProvider provider we will provide the values
@@ -71,6 +80,9 @@ export const UserProvider = ({ children }) => {
                 ClinicLogin,
                 clinic,
                 diagnost,
+                SuperAdminLogin,
+                LogoutSuperAdmin,
+                superAdmin,
 
             }}
         >

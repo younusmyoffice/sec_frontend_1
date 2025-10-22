@@ -129,19 +129,30 @@ export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID
                                 />
                             </Box>
                         ) : (
-                            sendCardData?.slice(0, 10).map((dataprop, index) => (
-                                <Link
-                                    to={hcfID === null || undefined ? `${linkPath}${dataprop.suid}` : `${linkPath}${dataprop.suid}/${hcfID?.hcfID}`}
-                                    style={{
-                                        width: "300px",
-                                        textDecoration: "none",
-                                        flexShrink: 0,
-                                    }}
-                                    key={index}
-                                >
-                                    <DoctorCard DrData={dataprop}/>
-                                </Link>
-                            ))
+                            sendCardData?.slice(0, 10).map((dataprop, index) => {
+                                const url = hcfID === null || undefined ? `${linkPath}${dataprop.suid}` : `${linkPath}${dataprop.suid}/${hcfID?.hcfID}`;
+                                console.log("🔍 CallCardData URL construction:", {
+                                    dataprop,
+                                    dataprop_suid: dataprop.suid,
+                                    hcfID,
+                                    hcfID_hcfID: hcfID?.hcfID,
+                                    linkPath,
+                                    finalURL: url
+                                });
+                                return (
+                                    <Link
+                                        to={url}
+                                        style={{
+                                            width: "300px",
+                                            textDecoration: "none",
+                                            flexShrink: 0,
+                                        }}
+                                        key={index}
+                                    >
+                                        <DoctorCard DrData={dataprop}/>
+                                    </Link>
+                                );
+                            })
                         )}
                     </Box>
                 </div>

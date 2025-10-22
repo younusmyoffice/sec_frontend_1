@@ -18,71 +18,19 @@ import dept from "../../../static/images/DrImages/Out Patient Department.png";
 import { TableData } from "./TableData";
 import name from "../../../static/images/DrImages/Name.png";
 import exam from "../../../static/images/DrImages/Examination.png";
+import axiosInstance from "../../../config/axiosInstance";
 
 function createData(name, calories, fat, carbs, protein, action) {
     return { name, calories, fat, carbs, protein, action };
 }
 
-const rows = [
-    createData(
-        <TableData image={dept} name={"No of Doctor"} />,
-        <></>,
-        <Typography
-            sx={{
-                color: "#E72B4A",
-                fontFamily: "Poppins",
-                fontSize: "2rem",
-                fontStyle: "normal",
-                fontWeight: "600",
-                lineHeight: "4.625rem",
-                marginTop: "30px",
-                marginLeft: "20px",
-            }}
-        >
-            23
-        </Typography>,
-    ),
-    createData(
-        <TableData image={name} name={"No of Patient"} />,
-        <></>,
-        <Typography
-            sx={{
-                color: "#E72B4A",
-                fontFamily: "Poppins",
-                fontSize: "2rem",
-                fontStyle: "normal",
-                fontWeight: "600",
-                lineHeight: "4.625rem",
-                marginTop: "30px",
-                marginLeft: "20px",
-            }}
-        >
-            16
-        </Typography>,
-    ),
-    createData(
-        <TableData image={exam} name={"No of HCF"} />,
-        <></>,
-        <Typography
-            sx={{
-                color: "#E72B4A",
-                fontFamily: "Poppins",
-                fontSize: "2rem",
-                fontStyle: "normal",
-                fontWeight: "600",
-                lineHeight: "4.625rem",
-                marginTop: "30px",
-                marginLeft: "20px",
-            }}
-        >
-            5
-        </Typography>,
-    ),
-];
+// Dynamic data will be created based on API response
 
 const DashboardTable = () => {
     const [loading, setLoading] = useState(true);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [dashboardData, setDashboardData] = useState(null);
+    const [error, setError] = useState(null);
     const open = Boolean(anchorEl);
     
     const handleClick = (event) => {
@@ -96,9 +44,87 @@ const DashboardTable = () => {
     const [openDialogCancle, setOpenDialogCancle] = useState(false);
     const [openDialogReschedule, setOpenDialogReschedule] = useState(false);
 
+    // Fetch dashboard data from API
+    const fetchDashboardData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axiosInstance.get('/sec/superadmin/DashboardCount');
+            console.log("Dashboard Table Data:", response?.data);
+            setDashboardData(response?.data);
+        } catch (err) {
+            console.error("Error fetching dashboard data:", err);
+            setError(err.message || "Failed to fetch dashboard data");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        setTimeout(() => setLoading(false), 1000);
+        fetchDashboardData();
     }, []);
+
+    // Create dynamic rows based on API data
+    const createRows = () => {
+        if (!dashboardData) return [];
+        
+        return [
+            createData(
+                <TableData image={dept} name={"No of Doctor"} />,
+                <></>,
+                <Typography
+                    sx={{
+                        color: "#E72B4A",
+                        fontFamily: "Poppins",
+                        fontSize: "2rem",
+                        fontStyle: "normal",
+                        fontWeight: "600",
+                        lineHeight: "4.625rem",
+                        marginTop: "30px",
+                        marginLeft: "20px",
+                    }}
+                >
+                    {dashboardData.DOCTORS || 0}
+                </Typography>,
+            ),
+            createData(
+                <TableData image={name} name={"No of Patient"} />,
+                <></>,
+                <Typography
+                    sx={{
+                        color: "#E72B4A",
+                        fontFamily: "Poppins",
+                        fontSize: "2rem",
+                        fontStyle: "normal",
+                        fontWeight: "600",
+                        lineHeight: "4.625rem",
+                        marginTop: "30px",
+                        marginLeft: "20px",
+                    }}
+                >
+                    {dashboardData.PATIENT || 0}
+                </Typography>,
+            ),
+            createData(
+                <TableData image={exam} name={"No of HCF"} />,
+                <></>,
+                <Typography
+                    sx={{
+                        color: "#E72B4A",
+                        fontFamily: "Poppins",
+                        fontSize: "2rem",
+                        fontStyle: "normal",
+                        fontWeight: "600",
+                        lineHeight: "4.625rem",
+                        marginTop: "30px",
+                        marginLeft: "20px",
+                    }}
+                >
+                    {dashboardData.HCF || 0}
+                </Typography>,
+            ),
+        ];
+    };
 
     return (
         <>
@@ -133,9 +159,17 @@ const DashboardTable = () => {
                                         </TableCell>
                                     </TableRow>
                                   ))
-                                :rows.map((row) => (
+                                : error ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} align="center">
+                                            <Typography color="error">
+                                                Error loading data: {error}
+                                            </Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : createRows().map((row, index) => (
                                     <TableRow
-                                        key={row.name}
+                                        key={index}
                                         sx={{
                                             "&:last-child td, &:last-child th": { border: 0 },
                                         }}
@@ -178,7 +212,7 @@ const DashboardTable = () => {
                                                             setOpenDialogCancle(!openDialogCancle)
                                                         }
                                                     >
-                                                        Mothly
+                                                        Monthly
                                                     </MenuItem>
                                                 </Menu>
                                             </div>

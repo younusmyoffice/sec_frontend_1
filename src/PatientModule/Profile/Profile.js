@@ -97,6 +97,7 @@ const Profile = () => {
                 }),
             );
             console.log("Patient Profile Details : ", response?.data?.response[0]);
+            console.log("🔍 Profile image data:", response?.data?.response[0]?.profile_picture);
             const profileData = response?.data?.response[0];
             setProfileUpdate({
                 email: profileData?.email,
@@ -124,23 +125,34 @@ const Profile = () => {
     useEffect(() => {
         setProfileLink(
             localStorage.getItem("activeComponent") === "dashboard"
-                ? "/PatientModule/dashboard/profile"
+                ? "/patientDashboard/dashboard/profile"
                 : localStorage.getItem("activeComponent") === "appointment"
-                ? "/PatientModule/appointment/profile"
+                ? "/patientDashboard/appointment/profile"
                 : localStorage.getItem("activeComponent") === "manage"
-                ? "/PatientModule/manage/profile"
+                ? "/patientDashboard/manage/profile"
                 : null,
         );
 
         setContactLink(
             localStorage.getItem("activeComponent") === "dashboard"
-                ? "/PatientModule/dashboard/contact"
+                ? "/patientDashboard/dashboard/contact"
                 : localStorage.getItem("activeComponent") === "appointment"
-                ? "/PatientModule/appointment/contact"
+                ? "/patientDashboard/appointment/contact"
                 : localStorage.getItem("activeComponent") === "manage"
-                ? "/PatientModule/manage/contact"
+                ? "/patientDashboard/manage/contact"
                 : null,
         );
+        
+        // Check if profile image exists in localStorage as fallback
+        const storedProfile = localStorage.getItem("profile");
+        if (storedProfile && !profileUpdate.profile_picture) {
+            console.log("🔄 Using profile image from localStorage:", storedProfile.substring(0, 50));
+            setProfileUpdate(prev => ({
+                ...prev,
+                profile_picture: storedProfile
+            }));
+        }
+        
         fetchDataProfile();
     }, []);
 
@@ -288,11 +300,19 @@ const Profile = () => {
                                 textAlign: "center"
                             }}>
                                 <Box sx={{ position: "relative", marginBottom: "16px" }}>
+                                    {console.log("🖼️ Avatar Debug:", {
+                                        hasProfilePicture: !!profileUpdate?.profile_picture,
+                                        profilePictureLength: profileUpdate?.profile_picture?.length,
+                                        profilePictureType: typeof profileUpdate?.profile_picture,
+                                        profilePictureStart: profileUpdate?.profile_picture?.substring(0, 50)
+                                    })}
                                     <Avatar
                                         alt="Profile Picture"
                                         src={
                                             profileUpdate?.profile_picture
-                                                ? `data:image/jpeg;base64,${profileUpdate.profile_picture}`
+                                                ? profileUpdate.profile_picture.startsWith('data:')
+                                                    ? profileUpdate.profile_picture
+                                                    : `data:image/jpeg;base64,${profileUpdate.profile_picture}`
                                                 : "/images/avatar.png"
                                         }
                                         sx={{ 

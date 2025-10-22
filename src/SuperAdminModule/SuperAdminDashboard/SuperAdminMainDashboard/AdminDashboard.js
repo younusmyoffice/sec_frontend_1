@@ -57,11 +57,21 @@ const AdminDashboard = () => {
 
     return (
         <>
-            <div style={{ display: "flex" }}>
+            <div style={{ 
+                display: "flex", 
+                flexWrap: "wrap", 
+                gap: "20px", 
+                justifyContent: "center",
+                padding: "20px"
+            }}>
                 <div className="DoctorDashboardCard" onClick={() => handleNavigate('/superadmin/history/doctor')}>
                     <div className="Number-Container">
                     {loading ? (
                             <Skeleton variant="text" width={100} height={80} />
+                        ) : error ? (
+                            <Typography color="error" sx={{ marginTop: "30px", marginLeft: "20px" }}>
+                                Error
+                            </Typography>
                         ) : (
                         <Typography
                             sx={{
@@ -75,7 +85,7 @@ const AdminDashboard = () => {
                                 marginLeft: "20px",
                             }}
                         >
-                            {doctorCount}
+                            {doctorCount || 0}
                         </Typography>
                         )}
                     </div>
@@ -114,10 +124,14 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className="DoctorDashboardCard" style={{ marginLeft: "20px" }} onClick={() => handleNavigate('/superadmin/history/patient')}>
+                <div className="DoctorDashboardCard" onClick={() => handleNavigate('/superadmin/history/patient')}>
                     <div className="Number-Container">
                     {loading ? (
                             <Skeleton variant="text" width={100} height={80} />
+                        ) : error ? (
+                            <Typography color="error" sx={{ marginTop: "30px", marginLeft: "20px" }}>
+                                Error
+                            </Typography>
                         ) : (
                         <Typography
                             sx={{
@@ -131,7 +145,7 @@ const AdminDashboard = () => {
                                 marginLeft: "20px",
                             }}
                         >
-                           {patientCount}
+                           {patientCount || 0}
                         </Typography>
                         )}
                     </div>
@@ -170,10 +184,14 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className="DoctorDashboardCard" style={{ marginLeft: "20px" }} onClick={() => handleNavigate('/superadmin/history/hcf')}>
+                <div className="DoctorDashboardCard" onClick={() => handleNavigate('/superadmin/history/hcf')}>
                     <div className="Number-Container">
                     {loading ? (
                             <Skeleton variant="text" width={100} height={80} />
+                        ) : error ? (
+                            <Typography color="error" sx={{ marginTop: "30px", marginLeft: "20px" }}>
+                                Error
+                            </Typography>
                         ) : (
                         <Typography
                             sx={{
@@ -187,7 +205,7 @@ const AdminDashboard = () => {
                                 marginLeft: "20px",
                             }}
                         >
-                            {healthcareFacilityCount}
+                            {healthcareFacilityCount || 0}
                         </Typography>
                         )}
                     </div>
