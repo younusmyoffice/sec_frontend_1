@@ -15,9 +15,12 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import DiagnostCenterTableCard from "../DiagnosticCenterChat/DiagnostCenterTableCard";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 const DiagnosticPatientShared = () => {
     const [cardData, setCardData] = useState([]);
@@ -26,21 +29,56 @@ const DiagnosticPatientShared = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    /**
+     * Validate Diagnostic staff ID from localStorage
+     * SECURITY: Ensures staff ID is present before making API calls
+     * 
+     * @returns {string|null} Staff ID or null if invalid
+     */
+    const validateStaffId = useCallback(() => {
+        const staffId = localStorage.getItem("diagnostic_suid");
+
+        if (!staffId) {
+            logger.warn("⚠️ Diagnostic staff ID not found in localStorage");
+            toastService.warning("Staff ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ Diagnostic staff ID validated:", staffId);
+        return staffId;
+    }, []);
+
+    /**
+     * Fetch examined tests
+     * Loads all examined tests for the diagnostic center
+     */
     const fetchData = async () => {
+        logger.debug("📋 Fetching examined tests");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const resp = await axiosInstance(`/sec/hcf/testExamined/${staff_id}`);
+            const resp = await axiosInstance.get(`/sec/hcf/testExamined/${staffId}`);
             const data = resp?.data?.response;
 
             // Check if response is an array, otherwise set to empty array
             if (Array.isArray(data)) {
+                logger.debug("✅ Examined tests received", { count: data.length });
                 setCardData(data);
             } else {
-                setCardData([]); // No data found
+                logger.debug("⚠️ No examined tests found or invalid response format");
+                setCardData([]);
             }
         } catch (err) {
-            console.error("Error:", err);
-            setCardData([]); // Set to empty array on error
+            logger.error("❌ Error fetching examined tests:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            toastService.error("Failed to load examined tests");
+            setCardData([]);
         } finally {
             setLoading(false);
         }

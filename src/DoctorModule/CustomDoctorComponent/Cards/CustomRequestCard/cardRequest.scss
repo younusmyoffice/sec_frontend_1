@@ -17,17 +17,29 @@
     height: 6rem;
     justify-content: space-between;
     align-items: center;
-
-
+    padding: 1rem 1.25rem; /* Add padding inside card - more horizontal padding for buttons */
+    margin-bottom: 1rem; /* Add spacing between cards */
+    border-radius: 0.5rem; /* Rounded corners for card */
+    transition: background-color 0.2s ease; /* Smooth hover effect */
+    
+    &:hover {
+        background-color: #fafafa; /* Light hover background */
+    }
+    
+    &:last-child {
+        margin-bottom: 0; /* Remove margin from last card */
+    }
 }
 
 .card-details-container {
     display: flex;
     align-items: center;
-    gap: 0.5rem; /* Space between elements */
+    gap: 0.75rem; /* Increased spacing between elements */
     white-space: nowrap; /* Prevent text wrapping */
     overflow: hidden; /* Handle overflow */
     text-overflow: ellipsis; /* Show ellipsis for overflowing text */
+    flex: 1; /* Allow container to take available space */
+    min-width: 0; /* Allow flex item to shrink below content size */
 }
 
 
@@ -37,6 +49,9 @@
 
 .request-button-container{
     display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Space between Accept button and ellipsis icon */
+    padding-right: 0.5rem; /* Add padding from right edge */
 }
 
 .textfield-cont {

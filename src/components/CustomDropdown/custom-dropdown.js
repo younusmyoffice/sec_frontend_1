@@ -28,11 +28,11 @@ const CustomDropdown = ({
             transition: "border-color 0.3s ease",
         },
         "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
+            borderColor: "#e72b4a",
             borderWidth: "2px",
         },
         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
+            borderColor: "#e72b4a",
             borderWidth: "2px",
         },
         "& .MuiSelect-select": {
@@ -45,7 +45,7 @@ const CustomDropdown = ({
             fontWeight: 500,
             color: "#666",
             "&.Mui-focused": {
-                color: "#1976d2",
+                color: "#e72b4a",
             }
         },
         "& .MuiMenuItem-root": {

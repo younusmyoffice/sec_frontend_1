@@ -43,34 +43,37 @@ const CardRequest = ({ options, name, appointment_date, profile_picture, onClick
             <div className="Request-main-container1">
                 <div className="Request-inner-container1">
                     {/* -----Image Container-------- */}
-                    <div style={{ width: "3.13981rem", height: "height: 4.71831rem" }}>
+                    <div className="request-image-wrapper">
                         <div className="RequestimageContainer">
                             <Box
                                 className="image-container"
                                 component={"img"}
-                                sx={{ width: "100%", height: "100%" }}
-                                src={profile_picture}
+                                sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                src={profile_picture || profileImage}
                                 alt="Profile Image"
-                            ></Box>
+                                onError={(e) => {
+                                    e.target.src = profileImage;
+                                }}
+                            />
                         </div>
                     </div>
 
                     {/* --------- Details Container-------- */}
-                    <div style={{ marginLeft: "2%" }}>
-                        <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                            <Typography
-                                sx={{
-                                    color: "#313033",
-                                    fontFamily: "Poppins",
-                                    fontSize: "1.125rem",
-                                    fontStyle: "normal",
-                                    fontWeight: "400",
-                                    lineHeight: "1.75rem",
-                                }}
-                            >
-                                {name}
-                            </Typography>
-                        </div>
+                    <div className="request-details-wrapper">
+                        <Typography
+                            className="request-patient-name"
+                            sx={{
+                                color: "#313033",
+                                fontFamily: "Poppins",
+                                fontSize: "1.125rem",
+                                fontStyle: "normal",
+                                fontWeight: "500",
+                                lineHeight: "1.75rem",
+                                marginBottom: "0.5rem",
+                            }}
+                        >
+                            {name || "Patient Name"}
+                        </Typography>
                         <div className="card-details-container">
                             <Typography
                                 sx={{
@@ -81,22 +84,31 @@ const CardRequest = ({ options, name, appointment_date, profile_picture, onClick
                                     fontWeight: "400",
                                     lineHeight: "1.125rem",
                                     letterSpacing: "0.006rem",
-                                    width: "16rem",
+                                    flex: 1,
+                                    minWidth: 0,
                                 }}
                             >
-                                Schedule | {appointment_date}| Attachments{" "}
+                                Schedule | {appointment_date || "N/A"} | Attachments
                             </Typography>
                             <Box
                                 component={"a"}
                                 href="#"
+                                className="view-link"
                                 sx={{
                                     color: "#E72B4A",
                                     fontFamily: "Poppins",
                                     fontSize: "0.75rem",
                                     fontStyle: "normal",
-                                    fontWeight: "400",
+                                    fontWeight: "500",
                                     lineHeight: "1.125rem",
                                     letterSpacing: "0.006rem",
+                                    textDecoration: "none",
+                                    cursor: "pointer",
+                                    transition: "color 0.2s ease",
+                                    "&:hover": {
+                                        color: "#c41d37",
+                                        textDecoration: "underline",
+                                    },
                                 }}
                             >
                                 View
@@ -106,7 +118,7 @@ const CardRequest = ({ options, name, appointment_date, profile_picture, onClick
                 </div>
                 {/* ------------ Button Container------------ */}
                 <div className="request-button-container">
-                    <div style={{ display: "flex", alignItems: "center", marginRight: "2%" }}>
+                    <div className="request-button-wrapper">
                         <CustomButton
                             buttonCss={{
                                 display: "flex",
@@ -118,19 +130,32 @@ const CardRequest = ({ options, name, appointment_date, profile_picture, onClick
                                 gap: "0.5rem",
                                 flexShrink: "0",
                                 borderRadius: "6.25rem",
+                                fontFamily: "Poppins",
+                                fontWeight: "500",
+                                transition: "all 0.2s ease",
                             }}
                             label={options}
                             isTransaprent={false}
                             handleClick={onClickHandler}
                         />
                     </div>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div className="request-menu-wrapper">
                         <MoreHorizIcon
+                            className="request-menu-icon"
                             sx={{
                                 cursor: "pointer",
-                                color: "#E6E1E5",
+                                color: "#787579",
                                 border: "1px solid #E6E1E5",
-                                borderRadius: "50px",
+                                borderRadius: "50%",
+                                padding: "0.5rem",
+                                width: "2rem",
+                                height: "2rem",
+                                transition: "all 0.2s ease",
+                                "&:hover": {
+                                    backgroundColor: "#f5f5f5",
+                                    borderColor: "#E72B4A",
+                                    color: "#E72B4A",
+                                },
                             }}
                             onClick={handleClick}
                         />
@@ -149,212 +174,293 @@ const CardRequest = ({ options, name, appointment_date, profile_picture, onClick
                             </MenuItem>
                             <CustomModal
                                 isOpen={openDialogCancle1}
+                                conditionOpen={setOpenDialogCancle1}
+                                maxWidth="lg"
+                                class_name="patient-details-modal-wrapper"
                                 title={
                                     <Box
+                                        className="modal-title-container"
                                         sx={{
-                                            border: "1px solid #E6E1E5",
-                                            borderTop: "1px",
-                                            borderRight: "1px",
-                                            borderLeft: "1px",
-                                            width: "570px",
-                                            height: "82px",
+                                            borderBottom: "1px solid #E6E1E5",
+                                            width: "100%",
+                                            padding: "1.5rem",
                                             display: "flex",
-                                            justifycontent: "flexstart",
+                                            justifyContent: "flex-start",
+                                            alignItems: "center",
+                                            position: "relative",
                                         }}
                                     >
-                                        <h2
-                                            style={{
-                                                fontfamily: "poppins",
-                                                fontSize: "20px",
-                                                fontstyle: "normal",
-                                                fontweight: "500",
-                                                lineheight: "30px",
-                                                width: "101px",
-                                                height: "30px",
+                                        <Typography
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                fontSize: "1.25rem",
+                                                fontStyle: "normal",
+                                                fontWeight: "600",
+                                                lineHeight: "1.875rem",
+                                                color: "#313033",
                                             }}
                                         >
-                                            PatientDetails
-                                        </h2>
+                                            Patient Details
+                                        </Typography>
                                     </Box>
                                 }
                             >
-                                {" "}
-                                <div style={{}}>
-                                    <>
-                                        <div className="patient-details">
+                                <Box 
+                                    sx={{ 
+                                        padding: "1.5rem",
+                                        maxHeight: "calc(90vh - 140px)",
+                                        overflowY: "auto",
+                                        backgroundColor: "#ffffff",
+                                    }}
+                                >
+                                    {/* Patient Details Section */}
+                                    <Typography
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            fontSize: "1rem",
+                                            fontStyle: "normal",
+                                            fontWeight: "600",
+                                            lineHeight: "1.5rem",
+                                            color: "#313033",
+                                            marginBottom: "1rem",
+                                        }}
+                                    >
+                                        Patient Details
+                                    </Typography>
+                                    <Box className="patient-details-grid">
+                                        <Box className="patient-detail-item">
                                             <Typography
-                                                style={{
-                                                    fontfamily: "poppins",
-                                                    fontSize: "16px",
-                                                    fontstyle: "normal",
-                                                    fontweight: "500",
-                                                    lineheight: "30px",
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.75rem",
+                                                    fontStyle: "normal",
+                                                    fontWeight: "400",
+                                                    lineHeight: "1.125rem",
+                                                    letterSpacing: "0.006rem",
+                                                    color: "#787579",
+                                                    marginBottom: "0.25rem",
                                                 }}
                                             >
-                                                Patient Details
+                                                Name
                                             </Typography>
-                                        </div>
-
-                                        <div className="details-names">
                                             <Typography
-                                                style={{
-                                                    fontfamily: "poppins",
-                                                    fontSize: "12px",
-                                                    fontstyle: "normal",
-                                                    fontweight: "400",
-                                                    lineheight: "18px",
-                                                    letterSpacing: "0.096px",
-                                                    color: "#AEAAAE",
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.875rem",
+                                                    fontWeight: "500",
+                                                    color: "#313033",
                                                 }}
                                             >
-                                                Patient Name
+                                                sofia sindrella SHG
+                                            </Typography>
+                                        </Box>
+                                        <Box className="patient-detail-item">
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.75rem",
+                                                    fontStyle: "normal",
+                                                    fontWeight: "400",
+                                                    lineHeight: "1.125rem",
+                                                    letterSpacing: "0.006rem",
+                                                    color: "#787579",
+                                                    marginBottom: "0.25rem",
+                                                }}
+                                            >
+                                                Age
                                             </Typography>
                                             <Typography
-                                                style={{
-                                                    fontfamily: "poppins",
-                                                    fontSize: "12px",
-                                                    fontstyle: "normal",
-                                                    fontweight: "400",
-                                                    lineheight: "18px",
-                                                    letterSpacing: "0.096px",
-                                                    color: "#AEAAAE",
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.875rem",
+                                                    fontWeight: "500",
+                                                    color: "#313033",
+                                                }}
+                                            >
+                                                8
+                                            </Typography>
+                                        </Box>
+                                        <Box className="patient-detail-item">
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.75rem",
+                                                    fontStyle: "normal",
+                                                    fontWeight: "400",
+                                                    lineHeight: "1.125rem",
+                                                    letterSpacing: "0.006rem",
+                                                    color: "#787579",
+                                                    marginBottom: "0.25rem",
                                                 }}
                                             >
                                                 Gender
                                             </Typography>
                                             <Typography
-                                                style={{
-                                                    fontfamily: "poppins",
-                                                    fontSize: "12px",
-                                                    fontstyle: "normal",
-                                                    fontweight: "400",
-                                                    lineheight: "18px",
-                                                    letterSpacing: "0.096px",
-                                                    color: "#AEAAAE",
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.875rem",
+                                                    fontWeight: "500",
+                                                    color: "#313033",
                                                 }}
                                             >
-                                                Age
+                                                female
                                             </Typography>
-                                        </div>
+                                        </Box>
+                                    </Box>
 
-                                        <div className="names-details">
-                                            <Typography>John Doe</Typography>
-                                            <Typography>Male</Typography>
-                                            <Typography>40 years</Typography>
-                                        </div>
-
-                                        <Box
-                                            sx={{
-                                                border: "1px solid #E6E1E5",
-                                                borderTop: "1px",
-                                                borderRight: "1px",
-                                                borderLeft: "1px",
-                                                width: "570px",
-                                                height: "20px",
-                                                display: "flex",
-                                                justifycontent: "flexstart",
-                                            }}
-                                        ></Box>
-                                        <div className="file-heading">
-                                            <Typography
-                                                style={{
-                                                    fontfamily: "poppins",
-                                                    fontSize: "16px",
-                                                    fontstyle: "normal",
-                                                    fontweight: "500",
-                                                    lineheight: "30px",
-                                                }}
-                                            >
-                                                Attached Files
-                                            </Typography>
-                                        </div>
-                                        <div className="file-name">
-                                            <Typography
-                                                style={{
-                                                    fontfamily: "poppins",
-                                                    fontSize: "12px",
-                                                    fontstyle: "normal",
-                                                    fontweight: "400",
-                                                    lineheight: "18px",
-                                                    letterSpacing: "0.096px",
-                                                    color: "#AEAAAE",
-                                                }}
-                                            >
-                                                File Name
-                                            </Typography>
-                                        </div>
-                                        <div className="file-download">
-                                            <Typography>Report.pdf</Typography>
-
-                                            <div className="dwnl-icon">
-                                                <CustomButton
-                                                    label="view"
-                                                    isTransaprent={"True"}
-                                                    buttonCss={{
-                                                        borderRight: "1px",
-                                                        borderLeft: "1px",
-                                                        borderTop: "1px",
-                                                        borderBottom: "1px",
-                                                    }}
-                                                ></CustomButton>
-                                                <DownloadIcon
-                                                    style={{
-                                                        color: "#E72B4A",
-                                                    }}
-                                                />
-                                                <CustomButton
-                                                    label="Download"
-                                                    isTransaprent={"True"}
-                                                    buttonCss={{
-                                                        borderRight: "1px",
-                                                        borderLeft: "1px",
-                                                        borderTop: "1px",
-                                                        borderBottom: "1px",
-                                                    }}
-                                                ></CustomButton>
-                                            </div>
-                                        </div>
-                                        <Box
-                                            sx={{
-                                                border: "1px solid #E6E1E5",
-                                                borderTop: "1px",
-                                                borderRight: "1px",
-                                                borderLeft: "1px",
-                                                width: "570px",
-                                                height: "20px",
-                                                display: "flex",
-                                                justifycontent: "flexstart",
-                                            }}
-                                        ></Box>
-                                        <div className="file-heading">
-                                            <Typography
-                                                style={{
-                                                    fontfamily: "poppins",
-                                                    fontSize: "16px",
-                                                    fontstyle: "normal",
-                                                    fontweight: "500",
-                                                    lineheight: "30px",
-                                                }}
-                                            >
-                                                Questioner
-                                            </Typography>
-                                        </div>
+                                    <Box
+                                        sx={{
+                                            borderTop: "1px solid #E6E1E5",
+                                            margin: "1.5rem 0",
+                                        }}
+                                    />
+                                    {/* Attached Files Section */}
+                                    <Box className="file-section">
                                         <Typography
-                                            style={{
-                                                fontfamily: "poppins",
-                                                fontSize: "12px",
-                                                fontstyle: "normal",
-                                                fontweight: "400",
-                                                lineheight: "18px",
-                                                letterSpacing: "0.096px",
-                                                color: "#AEAAAE",
-                                                marginTop: "1rem",
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                fontSize: "1rem",
+                                                fontStyle: "normal",
+                                                fontWeight: "600",
+                                                lineHeight: "1.5rem",
+                                                color: "#313033",
+                                                marginBottom: "1rem",
                                             }}
                                         >
-                                            Question 1
+                                            Attached files
                                         </Typography>
-                                    </>
-                                </div>
+                                        <Box className="file-name-label">
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.75rem",
+                                                    fontStyle: "normal",
+                                                    fontWeight: "400",
+                                                    lineHeight: "1.125rem",
+                                                    letterSpacing: "0.006rem",
+                                                    color: "#787579",
+                                                    marginBottom: "0.5rem",
+                                                }}
+                                            >
+                                                File name
+                                            </Typography>
+                                        </Box>
+                                        <Box className="file-actions-row">
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.875rem",
+                                                    fontWeight: "500",
+                                                    color: "#313033",
+                                                    flex: 1,
+                                                }}
+                                            >
+                                                ChatGPT Image Oct 30, 2025, 05_06_02 PM.png
+                                            </Typography>
+                                            <Box className="file-actions">
+                                                <Typography
+                                                    component="a"
+                                                    href="#"
+                                                    sx={{
+                                                        fontFamily: "Poppins",
+                                                        fontSize: "0.75rem",
+                                                        fontWeight: "500",
+                                                        color: "#E72B4A",
+                                                        textDecoration: "none",
+                                                        marginRight: "1rem",
+                                                        cursor: "pointer",
+                                                        "&:hover": {
+                                                            textDecoration: "underline",
+                                                        },
+                                                    }}
+                                                >
+                                                    view
+                                                </Typography>
+                                                <Box className="download-button-wrapper">
+                                                    <DownloadIcon
+                                                        sx={{
+                                                            color: "#E72B4A",
+                                                            fontSize: "1rem",
+                                                            marginRight: "0.25rem",
+                                                        }}
+                                                    />
+                                                    <Typography
+                                                        component="button"
+                                                        sx={{
+                                                            fontFamily: "Poppins",
+                                                            fontSize: "0.75rem",
+                                                            fontWeight: "500",
+                                                            color: "#E72B4A",
+                                                            border: "none",
+                                                            background: "transparent",
+                                                            cursor: "pointer",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            padding: 0,
+                                                            "&:hover": {
+                                                                opacity: 0.8,
+                                                            },
+                                                        }}
+                                                    >
+                                                        Download
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                    <Box
+                                        sx={{
+                                            borderTop: "1px solid #E6E1E5",
+                                            margin: "1.5rem 0",
+                                        }}
+                                    />
+                                    {/* Questions Details Section */}
+                                    <Box className="questions-section">
+                                        <Typography
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                fontSize: "1rem",
+                                                fontStyle: "normal",
+                                                fontWeight: "600",
+                                                lineHeight: "1.5rem",
+                                                color: "#313033",
+                                                marginBottom: "1rem",
+                                            }}
+                                        >
+                                            Questions Details
+                                        </Typography>
+                                        <Box className="questions-grid">
+                                            {[1, 2, 3, 4, 5].map((num) => (
+                                                <Box key={num} className="question-item">
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: "Poppins",
+                                                            fontSize: "0.75rem",
+                                                            fontStyle: "normal",
+                                                            fontWeight: "400",
+                                                            lineHeight: "1.125rem",
+                                                            letterSpacing: "0.006rem",
+                                                            color: "#787579",
+                                                            marginBottom: "0.25rem",
+                                                        }}
+                                                    >
+                                                        Question {num}
+                                                    </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: "Poppins",
+                                                            fontSize: "0.875rem",
+                                                            fontWeight: "500",
+                                                            color: "#313033",
+                                                        }}
+                                                    >
+                                                        {num <= 2 ? "Low" : "answer"}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    </Box>
+                                </Box>
                             </CustomModal>
                             <MenuItem onClick={() => setOpenDialogCancle(!openDialogCancle)}>
                                 Reject
@@ -375,62 +481,99 @@ const CardRequest = ({ options, name, appointment_date, profile_picture, onClick
                                     </Fragment>
                                 }
                             >
-                                <Box sx={{ textAlign: "center" }}>
-                                    <Typography>
-                                        Are you sure. you want to cancel the appointment
+                                <Box sx={{ textAlign: "center", padding: "1rem 0" }}>
+                                    <Typography
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            fontSize: "1rem",
+                                            fontWeight: "400",
+                                            color: "#313033",
+                                            lineHeight: "1.5rem",
+                                        }}
+                                    >
+                                        Are you sure you want to cancel the appointment?
                                     </Typography>
                                 </Box>
-                                <div style={{ marginTop: "4%" }}>
-                                    <>
-                                        <Box
+                                <Box sx={{ marginTop: "2rem", padding: "0 1.5rem 1.5rem" }}>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexWrap: "wrap",
+                                            flexDirection: "column",
+                                        }}
+                                    >
+                                        <Typography
                                             sx={{
-                                                marginTop: "5%",
-                                                display: "flex",
-                                                flexWrap: "wrap",
-                                                flexDirection: "column",
+                                                fontFamily: "Poppins",
+                                                fontWeight: "600",
+                                                fontSize: "1rem",
+                                                lineHeight: "1.5rem",
+                                                color: "#313033",
+                                                marginBottom: "1rem",
                                             }}
                                         >
+                                            Reason For Rejection
+                                        </Typography>
+                                        <CustomRadioButton
+                                            label={""}
+                                            handleChange={({ target }) =>
+                                                setRadioVal(target.value)
+                                            }
+                                            value={radioVal}
+                                            items={radioValues}
+                                        />
+                                        <Box sx={{ marginTop: "2rem", width: "100%" }}>
                                             <Typography
                                                 sx={{
-                                                    fontWeight: "600",
-                                                    fontSize: "16px",
-                                                    lineHeight: "24px",
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "0.875rem",
+                                                    fontWeight: "500",
+                                                    color: "#313033",
+                                                    marginBottom: "0.5rem",
                                                 }}
                                             >
-                                                Reason For Rejection
+                                                Add Note
                                             </Typography>
-                                            <CustomRadioButton
-                                                label={""}
-                                                handleChange={({ target }) =>
-                                                    setRadioVal(target.value)
-                                                }
-                                                value={radioVal}
-                                                items={radioValues}
-                                            />
-                                            <Box sx={{ marginTop: "5%", width: "100%" }}>
-                                                <Typography>Add Note</Typography>
-                                                <TextField
-                                                    style={{ width: "100%", padding: "3%" }}
-                                                    placeholder=" Note: Lorem ipsum dolor sit amet. Qui dolor nostrum sit
-                                            eius necessitatibus id quia expedita et molestiae
-                                            laborum qui nihil excepturi qui tenetur blanditiis."
-                                                    multiline
-                                                    rows={3}
-                                                    maxRows={4}
-                                                />
-                                            </Box>
-                                            <Box
-                                                sx={{
-                                                    marginTop: "6%",
-                                                    display: "flex",
-                                                    justifyContent: "center",
+                                            <TextField
+                                                sx={{ 
+                                                    width: "100%",
+                                                    "& .MuiOutlinedInput-root": {
+                                                        fontFamily: "Poppins",
+                                                    }
                                                 }}
-                                            >
-                                                <CustomButton label="Done" />
-                                            </Box>
+                                                placeholder="Note: Lorem ipsum dolor sit amet. Qui dolor nostrum sit eius necessitatibus id quia expedita et molestiae laborum qui nihil excepturi qui tenetur blanditiis."
+                                                multiline
+                                                rows={3}
+                                                maxRows={4}
+                                            />
                                         </Box>
-                                    </>
-                                </div>
+                                        <Box
+                                            sx={{
+                                                marginTop: "2rem",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                gap: "1rem",
+                                            }}
+                                        >
+                                            <CustomButton 
+                                                label="Cancel"
+                                                isTransaprent={true}
+                                                buttonCss={{
+                                                    fontFamily: "Poppins",
+                                                    border: "1px solid #E6E1E5",
+                                                    color: "#313033",
+                                                }}
+                                                handleClick={handleClose}
+                                            />
+                                            <CustomButton 
+                                                label="Done"
+                                                buttonCss={{
+                                                    fontFamily: "Poppins",
+                                                }}
+                                            />
+                                        </Box>
+                                    </Box>
+                                </Box>
                             </CustomModal>
                         </Menu>
                     </div>

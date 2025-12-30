@@ -20,8 +20,11 @@ import CustomModal from "../../../../components/CustomModal";
 import CustomTextField from "../../../../components/CustomTextField";
 import CustomDropdown from "../../../../components/CustomDropdown";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import CustomSnackBar from "../../../../components/CustomSnackBar";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 import "./sharelist.scss";
 
@@ -43,25 +46,78 @@ const ShareList = () => {
 
 
 
+    /**
+     * Validate Diagnostic staff ID from localStorage
+     * SECURITY: Ensures staff ID is present before making API calls
+     * 
+     * @returns {string|null} Staff ID or null if invalid
+     */
+    const validateStaffId = useCallback(() => {
+        const staffId = localStorage.getItem("diagnostic_suid");
+
+        if (!staffId) {
+            logger.warn("⚠️ Diagnostic staff ID not found in localStorage");
+            toastService.warning("Staff ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ Diagnostic staff ID validated:", staffId);
+        return staffId;
+    }, []);
+
+    /**
+     * Fetch report share list
+     * Loads all reports available for sharing
+     */
     const fetchData = async () => {
+        logger.debug("📋 Fetching report share list");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const resp = await axiosInstance(`/sec/hcf/reportShareList/${staff_id}`);
-            setCardData(Array.isArray(resp?.data?.response) ? resp.data.response : []);
+            const resp = await axiosInstance.get(`/sec/hcf/reportShareList/${staffId}`);
+            const reports = Array.isArray(resp?.data?.response) ? resp.data.response : [];
+            
+            logger.debug("✅ Report share list received", { count: reports.length });
+            setCardData(reports);
         } catch (err) {
-            console.log("Error:", err);
-            setCardData([]); // Set to empty array on error
+            logger.error("❌ Error fetching report share list:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            toastService.error("Failed to load report share list");
+            setCardData([]);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Fetch labs/departments
+     * Loads all available labs for the diagnostic center
+     */
     const fetchLabsDepartments = async () => {
+        logger.debug("📋 Fetching labs/departments");
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            return;
+        }
+
         try {
-            const resp = await axiosInstance(`/sec/hcf/getHcfLabs/${staff_id}`);
-            setLabItems(resp?.data?.response || []);
+            const resp = await axiosInstance.get(`/sec/hcf/getHcfLabs/${staffId}`);
+            const labs = resp?.data?.response || [];
+            
+            logger.debug("✅ Labs/departments received", { count: labs.length });
+            setLabItems(labs);
         } catch (err) {
-            console.log("Error:", err);
+            logger.error("❌ Error fetching labs/departments:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            toastService.error("Failed to load labs/departments");
+            setLabItems([]);
         }
     };
 
@@ -83,29 +139,74 @@ const ShareList = () => {
             reader.readAsDataURL(uploadedFile); // Read file as base64
         }
     };
+    /**
+     * Post/upload report
+     * Uploads a test report file to the server
+     * 
+     * @param {string} test_id - Test ID
+     * @param {string} pdfFileName - PDF file name
+     * @param {string} pdfBase64 - Base64 encoded PDF file
+     */
     const postReport = async (test_id, pdfFileName, pdfBase64) => {
-        setButtonloading(true)
+        logger.debug("📤 Uploading report", { test_id, pdfFileName });
+        setButtonloading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setButtonloading(false);
+            return;
+        }
+
+        // Validate inputs
+        if (!test_id || !pdfFileName || !pdfBase64) {
+            logger.warn("⚠️ Missing required fields for report upload");
+            toastService.error("Please fill all required fields");
+            setSnackBarMessage("Please fill all required fields");
+            setSnackBarOpen(true);
+            setSnackBarType("error");
+            setButtonloading(false);
+            return;
+        }
+
         try {
-            await axiosInstance.post(
+            const response = await axiosInstance.post(
                 `/sec/hcf/testReportUpload`,
                 JSON.stringify({
                     test_id: String(test_id),
                     fileName: pdfFileName,
                     file: pdfBase64,
-                    staff_id: staff_id,
+                    staff_id: staffId,
                 }),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }
             );
-            setSnackBarMessage("Report Shared successfully!");
+            
+            logger.debug("✅ Report uploaded successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Report Shared successfully!";
+            setSnackBarMessage(successMessage);
             setSnackBarOpen(true);
             setSnackBarType("success");
+            toastService.success(successMessage);
+            
             fetchData(); // Refresh data after posting
         } catch (err) {
-            setSnackBarMessage("Failed to upload report.");
+            logger.error("❌ Error uploading report:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            
+            const errorMessage = err?.response?.data?.message ||
+                                "Failed to upload report. Please try again.";
+            
+            setSnackBarMessage(errorMessage);
             setSnackBarOpen(true);
             setSnackBarType("error");
-            console.log("Error:", err);
+            toastService.error(errorMessage);
         } finally {
-            setButtonloading(false)
+            setButtonloading(false);
         }
     };
 

@@ -1,18 +1,46 @@
+/**
+ * CustomCountryCodeSelector Component Styles
+ * 
+ * Styles for the country code selector with mobile number input field.
+ * Features:
+ * - Material-UI standard TextField styling
+ * - Focus states with brand colors
+ * - Error state styling
+ * - Disabled state styling
+ * - Responsive design
+ * 
+ * Color Reference:
+ * - #d21969, #d21941, #d2194d: Brand color variants (pink/magenta)
+ * - #d32f2f: Material-UI error red
+ * - rgba(0, 0, 0, 0.42): Material-UI default border color (disabled)
+ * - rgba(0, 0, 0, 0.87): Material-UI hover border color (active)
+ * 
+ * Note: Variables import removed to prevent Sass deprecation warnings.
+ * To use SCSS variables in the future, use @use instead of @import.
+ */
+
 .country-code-selector {
-  // Match the standard Material-UI TextField design
+  // ============================================
+  // Form Control Styles
+  // ============================================
+  // Styling for the FormControl wrapper around the country code dropdown
+  
   .MuiFormControl-root {
     .MuiInput-root {
       border-bottom: 1px solid rgba(0, 0, 0, 0.42);
       transition: border-bottom-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
       
+      // Hover state: darker border
       &:hover {
         border-bottom: 2px solid rgba(0, 0, 0, 0.87);
       }
       
+      // Focus state: brand color border
       &.Mui-focused {
-        border-bottom: 2px solid #1976d2;
+        border-bottom: 2px solid #d21969;
       }
       
+      // Disabled state: light gray border and text
       &.Mui-disabled {
         border-bottom: 1px solid rgba(0, 0, 0, 0.26);
         color: rgba(0, 0, 0, 0.38);
@@ -20,11 +48,16 @@
     }
   }
 
+  // ============================================
+  // Select Dropdown Styles
+  // ============================================
+  // Styles for the country code selector dropdown
+  
   .MuiSelect-select {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 30px 0 0 0 ;
+    padding: 30px 0 0 0;
     
     .MuiBox-root {
       display: flex;
@@ -33,14 +66,21 @@
     }
   }
 
+  // ============================================
+  // Menu Item Styles
+  // ============================================
+  // Styles for individual country options in the dropdown
+  
   .MuiMenuItem-root {
     padding: 8px 16px;
     min-height: 48px;
     
+    // Hover effect: light gray background
     &:hover {
       background-color: #f5f5f5;
     }
     
+    // Selected state: blue background
     &.Mui-selected {
       background-color: #e3f2fd;
       
@@ -50,19 +90,27 @@
     }
   }
 
+  // ============================================
+  // TextField Styles
+  // ============================================
+  // Styles for the mobile number input field
+  
   .MuiTextField-root {
     .MuiInput-root {
       border-bottom: 1px solid rgba(0, 0, 0, 0.42);
       transition: border-bottom-color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
       
+      // Hover state: darker border
       &:hover {
         border-bottom: 2px solid rgba(0, 0, 0, 0.87);
       }
       
+      // Focus state: brand color border (red/pink)
       &.Mui-focused {
-        border-bottom: 2px solid #1976d2;
+        border-bottom: 2px solid #d21941;
       }
       
+      // Disabled state: light gray border and text
       &.Mui-disabled {
         border-bottom: 1px solid rgba(0, 0, 0, 0.26);
         color: rgba(0, 0, 0, 0.38);
@@ -70,7 +118,11 @@
     }
   }
 
-  // Custom styles for the search input
+  // ============================================
+  // Search Input Styles
+  // ============================================
+  // Styles for the search input in the country dropdown
+  
   .MuiBox-root {
     .MuiTextField-root {
       .MuiInput-root {
@@ -88,14 +140,22 @@
     }
   }
 
-  // Loading state styles
+  // ============================================
+  // Loading Spinner Styles
+  // ============================================
+  // Styles for the circular progress indicator while fetching countries
+  
   .MuiBox-root {
     .MuiCircularProgress-root {
-      color: #d32f2f;
+      color: #d32f2f; // Material-UI error red
     }
   }
 
-  // Error state styles
+  // ============================================
+  // Error State Styles
+  // ============================================
+  // Styles applied when validation fails (red borders and text)
+  
   &.error {
     .MuiInput-root {
       border-bottom-color: #d32f2f;
@@ -110,7 +170,11 @@
     }
   }
 
-  // Disabled state styles
+  // ============================================
+  // Disabled State Styles
+  // ============================================
+  // Styles for when the component is disabled
+  
   &.disabled {
     .MuiInput-root {
       background-color: transparent;
@@ -120,14 +184,22 @@
     }
   }
 
-  // Focus styles
+  // ============================================
+  // Focus Styles
+  // ============================================
+  // Styles for when any child element is focused
+  
   &:focus-within {
     .MuiInput-root {
-      border-bottom: 2px solid #1976d2;
+      border-bottom: 2px solid #d2194d; // Brand color
     }
   }
 
-  // Responsive styles
+  // ============================================
+  // Responsive Styles
+  // ============================================
+  // Styles for mobile devices (screens smaller than 600px)
+  
   @media (max-width: 600px) {
     .MuiBox-root {
       flex-direction: column;

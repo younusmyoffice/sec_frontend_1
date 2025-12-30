@@ -1,0 +1,48 @@
+// Universal Loading Component Styles
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    // Inline variant - for buttons, small spaces
+    &.loading-inline {
+        display: inline-flex;
+        gap: 8px;
+    }
+
+    // Standalone variant - centered without backdrop
+    &.loading-standalone {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px;
+    }
+
+    // Minimal variant - just spinner
+    &.loading-minimal {
+        display: inline-block;
+    }
+
+    // Overlay variant handled by Backdrop component
+}
+
+// Smooth animations
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Accessibility: reduce motion for users who prefer it
+@media (prefers-reduced-motion: reduce) {
+    .loading-container {
+        animation: none;
+    }
+}
+

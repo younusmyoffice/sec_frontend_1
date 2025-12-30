@@ -1,0 +1,45 @@
+/**
+ * Common Logo Styles
+ * 
+ * Shared logo styling for authentication and signup pages.
+ * This ensures consistent logo appearance across all auth-related components.
+ * 
+ * Usage:
+ * @use "static/scss/common/logo" as *;
+ */
+
+// Base logo mixin - can be used to create logo variants
+@mixin logo-base {
+    text-align: center;
+    max-width: 100%;
+    
+    img {
+        max-width: 100%;
+        height: auto;
+        max-height: 200px;
+        display: block;
+        margin: 0 auto;
+    }
+}
+
+// Default logo class
+.logo {
+    @include logo-base;
+    margin-top: 50px;
+    margin-bottom: 0;
+}
+
+// Variant: Logo with bottom margin (for pages that need spacing below)
+.logo-with-margin {
+    @include logo-base;
+    margin-top: 50px;
+    margin-bottom: 2rem;
+}
+
+// Variant: Logo with reduced top margin
+.logo-compact {
+    @include logo-base;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+

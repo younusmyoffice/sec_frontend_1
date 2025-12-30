@@ -1,7 +1,16 @@
 @use "../../static/scss/base/variables" as *;
 @use "../../static/scss/main.scss" as *;
 
-.usage {
+// OLD: This was conflicting with BodyDashboard styles
+// .usage {
+//     display: flex;
+//     flex-direction: row;
+//     flex-wrap: wrap;
+//     width: 100%;
+// }
+
+// FIXED: Use more specific class name to avoid conflicts
+.usage-page {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

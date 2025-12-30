@@ -103,9 +103,29 @@ const ClinicAuditLog = () => {
 
                 <Box
                     component={"div"}
-                    sx={{ position: "relative", top: "4em", width: "100%", height: "100%" }}
+                    sx={{ 
+                        flex: 1,
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        overflow: "hidden",
+                        marginTop: "4em",
+                    }}
                 >
-                    <TableContainer component={Paper} style={{ background: "white" }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <TableContainer 
+                        component={Paper} 
+                        style={{ 
+                            background: "white",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "auto", // Enable scrolling for table content
+                            maxHeight: "calc(100vh - 250px)", // Adjusted to account for navbar and spacing
+                        }}
+                    >
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>

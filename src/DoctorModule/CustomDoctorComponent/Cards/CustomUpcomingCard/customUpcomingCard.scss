@@ -17,6 +17,10 @@
     height: 8rem;
     justify-content: space-between;
     align-items: center;
+    padding: 10px;
+    border: 1px solid rgb(238, 238, 238);
+    border-radius: 10px;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
 
 }
 
@@ -32,6 +36,7 @@
 
 .Request-inner-container{
     display: flex;
+
 }
 
 .request-button-container{

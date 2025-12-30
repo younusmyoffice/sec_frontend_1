@@ -63,7 +63,7 @@ const DoctorProfileCard = ({
                                     sx={{
                                         marginTop: '8px',
                                         backgroundColor: '#e3f2fd',
-                                        color: '#1976d2',
+                                        color: '#e72b4a',
                                         fontWeight: 600,
                                         fontSize: '11px'
                                     }}
@@ -116,7 +116,7 @@ const DoctorProfileCard = ({
                 
                 {(location || phone || email) && (
                     <>
-                        <Divider sx={{ margin: '1.5rem 0', opacity: 0.6 }} />
+                        {/* <Divider sx={{ margin: '1.5rem 0', opacity: 0.6 }} />
                         <div className="contact-info">
                             {location && (
                                 <div className="contact-item">
@@ -142,7 +142,7 @@ const DoctorProfileCard = ({
                                     </Typography>
                                 </div>
                             )}
-                        </div>
+                        </div> */}
                     </>
                 )}
             </div>

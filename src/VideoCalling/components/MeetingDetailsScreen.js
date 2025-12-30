@@ -50,9 +50,28 @@ export function MeetingDetailsScreen({
                 appointment_id: params?.appId,
                 socket_id: meetingId,
             });
-            alert('this is success : ',meetingId)
+            toast.success("Meeting created successfully!", {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: true,
+                closeButton: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
         } catch (error) {
-          console.log(`Error while uploading the socket ID : ${error}`)
+            console.log(`Error while uploading the socket ID : ${error}`);
+            toast.error("Failed to save meeting ID. Please try again.", {
+                position: "bottom-left",
+                autoClose: 4000,
+                hideProgressBar: true,
+                closeButton: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
         }
     };
 

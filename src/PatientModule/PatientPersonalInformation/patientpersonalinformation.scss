@@ -1,31 +1,104 @@
-body {
+/**
+ * PatientPersonalInformation Styles
+ * 
+ * Styles for patient personal information form
+ * Uses common color scheme and responsive design
+ */
+
+// Main container - full viewport with light background
+.container {
+    background-color: #F5F5F5; // Common light background color (replaced aliceblue)
+    width: 100vw;
+    height: 100vh;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    // overflow-x: hidden;
-    // overflow-y: hidden;
-    background-color: aliceblue;
 }
 
+// Logo container - centered
 .logo2 {
     margin: auto;
+    display: flex;
+    justify-content: center;
+    padding-top: 2rem;
+    
+    img {
+        max-width: 164px;
+        height: auto;
+    }
 }
 
-.form-group6 {
-    margin-left: 42.5%;
-}
-
+// Form field container - centers form fields
 .field-center6 {
     margin-top: 3%;
-}
-.container {
-    background-color: aliceblue;
-    width: 100vw;
-    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem; // Consistent spacing
 }
 
-// @media only screen and (max-width: 600px) {
-//     .container {
-//       background-color: green;
-//     }
-//   }
+// Form button container - positions submit button
+.form-group6 {
+    margin-left: 42.5%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+// Text center utility - centers text
+.text-center {
+    text-align: center;
+    color: #313033; // Common text color
+    font-family: "Poppins", sans-serif;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+// Component library container
+.component-library {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    
+    .items {
+        width: 100%;
+        max-width: 600px; // Max width for better readability
+    }
+}
+
+// Responsive design - Mobile devices
+@media only screen and (max-width: 600px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .field-center6 {
+        margin-top: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .form-group6 {
+        margin-left: 0;
+        width: 100%;
+        
+        button {
+            width: 100% !important;
+            max-width: 300px;
+        }
+    }
+    
+    .component-library .items {
+        max-width: 100%;
+    }
+}
+
+// Tablet devices
+@media only screen and (min-width: 601px) and (max-width: 1024px) {
+    .container {
+        padding: 2rem;
+    }
+    
+    .component-library .items {
+        max-width: 500px;
+    }
+}

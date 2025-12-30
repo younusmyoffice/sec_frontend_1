@@ -12,9 +12,12 @@ import {
     Skeleton,
 } from "@mui/material";
 import React, { useState, useEffect, useMemo } from "react";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import DiagnostCenterTableCard from "../DiagnosticCenterChat/DiagnostCenterTableCard";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 const RejectedTable = () => {
     const [cardData, setCardData] = useState([]);
@@ -23,13 +26,50 @@ const RejectedTable = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    /**
+     * Validate Diagnostic staff ID from localStorage
+     * SECURITY: Ensures staff ID is present before making API calls
+     * 
+     * @returns {string|null} Staff ID or null if invalid
+     */
+    const validateStaffId = useCallback(() => {
+        const staffId = localStorage.getItem("diagnostic_suid");
+
+        if (!staffId) {
+            logger.warn("⚠️ Diagnostic staff ID not found in localStorage");
+            toastService.warning("Staff ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ Diagnostic staff ID validated:", staffId);
+        return staffId;
+    }, []);
+
+    /**
+     * Fetch rejected tests
+     * Loads all rejected test requests for the diagnostic center
+     */
     const fetchData = async () => {
+        logger.debug("📋 Fetching rejected tests");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const resp = await axiosInstance(`/sec/hcf/testRejected/${staff_id}`);
-            setCardData(resp?.data?.response || []);
+            const resp = await axiosInstance.get(`/sec/hcf/testRejected/${staffId}`);
+            const rejectedTests = resp?.data?.response || [];
+            
+            logger.debug("✅ Rejected tests received", { count: rejectedTests.length });
+            setCardData(rejectedTests);
         } catch (err) {
-            console.error("Error: ", err);
+            logger.error("❌ Error fetching rejected tests:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            toastService.error("Failed to load rejected tests");
+            setCardData([]);
         } finally {
             setLoading(false);
         }

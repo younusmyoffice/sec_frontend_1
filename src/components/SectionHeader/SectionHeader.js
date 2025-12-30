@@ -71,7 +71,7 @@ const SectionHeader = ({
                                 sx={{
                                     marginLeft: '12px',
                                     backgroundColor: '#e3f2fd',
-                                    color: '#1976d2',
+                                    color: '#e72b4a',
                                     fontWeight: 600,
                                     fontSize: '11px',
                                     height: '24px'

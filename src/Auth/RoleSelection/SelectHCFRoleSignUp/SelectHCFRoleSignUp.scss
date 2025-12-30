@@ -1,6 +1,21 @@
+/**
+ * SelectHCFRoleSignUp Component Styles
+ * 
+ * Styles for the HCF role selection signup page.
+ * Features:
+ * - Split-screen layout (image left, form right)
+ * - Responsive design with mobile breakpoints
+ * - Brand colors (#e72b4a, #e73a56)
+ * - Radio button styling
+ * - Image background with gradient overlay
+ */
+
+// Legacy import comments (deprecated Sass @import removed)
 // @import "../../../static/scss/base/variables";
 // @import "../../../static/scss/main.scss";
+@use "static/scss/common/logo" as *;
 
+// Main page container - full viewport background
 .register-photo {
     background: #f1f7fc;
     display: flex;
@@ -38,10 +53,10 @@
     box-sizing: border-box;
 }
 
+// Logo styles moved to common/_logo.scss
+// Using .logo-compact variant for this component
 .logo {
-    text-align: center;
-    margin-top: 15px;
-    max-width: 100%;
+    @extend .logo-compact;
 }
 
 .register-photo .form-container {

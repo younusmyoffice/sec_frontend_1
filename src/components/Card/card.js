@@ -79,7 +79,7 @@ const CustomCard = ({
                                 height: "20px",
                                 marginBottom: "6px",
                                 backgroundColor: "#e3f2fd",
-                                color: "#1976d2",
+                                color: "#e72b4a",
                                 fontWeight: 500
                             }}
                         />

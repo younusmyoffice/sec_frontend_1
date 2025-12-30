@@ -14,11 +14,11 @@ const SelectHCFSignup = () => {
     const handleSubmit = () => {
         const navigateToRoute =
             radioVal === "Diagnostic Center"
-                ? "/diagnostcentersignup"
+                ? "/diagnosticCompleteProfile"
                 : radioVal === "Clinic"
                 ? "/diagnostclinicsignup"
                 : radioVal === "HCF Admin"
-                ? "/hcfadminsignup"
+                ? "/hcfAdminCompleteProfile"
                 : null;
 
         navigate(navigateToRoute);

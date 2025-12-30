@@ -14,7 +14,10 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import DiagnostCenterTableCard from "./DiagnostCenterTableCard";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 const Shared = () => {
     const [cardData, setCardData] = useState([]);
@@ -23,14 +26,50 @@ const Shared = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const staff_id = localStorage.getItem('diagnostic_suid');
 
+    /**
+     * Validate Diagnostic staff ID from localStorage
+     * SECURITY: Ensures staff ID is present before making API calls
+     * 
+     * @returns {string|null} Staff ID or null if invalid
+     */
+    const validateStaffId = useCallback(() => {
+        const staffId = localStorage.getItem("diagnostic_suid");
+
+        if (!staffId) {
+            logger.warn("⚠️ Diagnostic staff ID not found in localStorage");
+            toastService.warning("Staff ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ Diagnostic staff ID validated:", staffId);
+        return staffId;
+    }, []);
+
+    /**
+     * Fetch shared reports
+     * Loads all shared reports for the diagnostic center
+     */
     const fetchData = async () => {
+        logger.debug("📋 Fetching shared reports");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const resp = await axiosInstance(`/sec/hcf/reportShared/${staff_id}`);
-            // setCardData(resp?.data?.response || []);
-            setCardData(Array.isArray(resp?.data?.response) ? resp.data.response : []);
+            const resp = await axiosInstance.get(`/sec/hcf/reportShared/${staffId}`);
+            const reports = Array.isArray(resp?.data?.response) ? resp.data.response : [];
+            
+            logger.debug("✅ Shared reports received", { count: reports.length });
+            setCardData(reports);
         } catch (err) {
-            console.log("Error:", err);
+            logger.error("❌ Error fetching shared reports:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            toastService.error("Failed to load shared reports");
+            setCardData([]);
         } finally {
             setLoading(false);
         }
@@ -62,7 +101,26 @@ const Shared = () => {
     };
 
     return (
-        <TableContainer component={Paper} style={{ background: "white" }}>
+        <Box sx={{ 
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            overflow: "hidden",
+        }}>
+            {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+            <TableContainer 
+                component={Paper} 
+                style={{ 
+                    background: "white",
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    overflow: "auto", // Enable scrolling for table content
+                    maxHeight: "calc(100vh - 200px)", // Adjusted to account for spacing
+                }}
+            >
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                     <TableRow>
@@ -114,7 +172,8 @@ const Shared = () => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
-        </TableContainer>
+            </TableContainer>
+        </Box>
     );
 };
 

@@ -1,7 +1,26 @@
+/**
+ * HcfDetailContainer2 Component
+ * 
+ * Displays HCF statistics in a grid layout:
+ * - Patient count
+ * - Experience
+ * - Rating
+ * - Reviews
+ * 
+ * Features:
+ * - Loading skeleton states ✅
+ * - Responsive icon grid layout
+ * - Static data display (should be replaced with real data from API)
+ * 
+ * @component
+ */
+
 import { Box, Typography, Skeleton } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
+import PropTypes from "prop-types";
+import logger from "../../../utils/logger"; // Centralized logging
 
 import personIcon from "../../../static/images/DrImages/icon.svg";
 import messageIcon from "../../../static/images/DrImages/message.svg";
@@ -43,7 +62,14 @@ const useStyles = makeStyles({
     },
 });
 
-const Container2 = ({ isLoading }) => {
+/**
+ * Container2 Component - HCF Statistics Display
+ * 
+ * @param {boolean} isLoading - Loading state for skeleton display
+ */
+const Container2 = ({ isLoading = false }) => {
+    logger.debug("🔵 HcfDetailContainer2 component rendering", { isLoading });
+    
     const classes = useStyles();
     const navigate = useNavigate();
 
@@ -125,6 +151,16 @@ const Container2 = ({ isLoading }) => {
             )}
         </Box>
     );
+};
+
+// PropTypes for component documentation and type checking
+Container2.propTypes = {
+    isLoading: PropTypes.bool, // Loading state for skeleton display
+};
+
+// Default props
+Container2.defaultProps = {
+    isLoading: false, // Default to not loading
 };
 
 export default Container2;

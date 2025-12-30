@@ -24,7 +24,7 @@ export const ROUTES = {
   PATIENT_SIGNUP: "/signupPage",
   DOCTOR_SIGNUP: "/signupPage",
   HCF_ADMIN_SIGNUP: "/signupPage",
-  DIAGNOST_CENTER_SIGNUP: "/diagnostCenterSignup",
+  DIAGNOST_CENTER_SIGNUP: "/diagnosticCompleteProfile",
   DIAGNOST_CLINIC_SIGNUP: "/diagnostClinicSignup",
 
   

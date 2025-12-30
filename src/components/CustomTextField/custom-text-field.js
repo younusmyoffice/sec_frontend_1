@@ -34,7 +34,6 @@ const CustomTextField = ({
         <TextField
             type={type}
             className={`${isValid ? "valid-class" : ""}${isInvalid ? "invalid-class" : ""}`}
-            typeof={type}
             id={id}
             multiline={multiline}
             rows={rows}
@@ -64,10 +63,10 @@ const CustomTextField = ({
                         transition: "border-color 0.3s ease",
                     },
                     "&:hover:not(.Mui-disabled):before": {
-                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #1976d2",
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #d32f2f",
                     },
                     "&.Mui-focused:after": {
-                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #1976d2",
+                        borderBottom: (error || isInvalid) ? "2px solid #d32f2f !important" : "2px solid #d32f2f",
                         transform: "scaleX(1)",
                     },
                     "&:after": {
@@ -80,13 +79,15 @@ const CustomTextField = ({
                     fontSize: "14px",
                     fontWeight: 500,
                     transition: "all 0.3s ease",
+                    marginTop: "8px", // Add space between label and input text
+                    transformOrigin: "top left", // Keep label positioned at top left
                     "&.Mui-focused": {
-                        color: (error || isInvalid) ? "#d32f2f !important" : "#1976d2",
+                        color: (error || isInvalid) ? "#d32f2f !important" : "#d32f2f",
                     }
                 },
                 "& .MuiInputBase-input": {
                     fontSize: "14px",
-                    padding: "12px 0",
+                    padding: "16px 0px", // Add vertical spacing to separate label and input text
                     color: "#333",
                     "&::placeholder": {
                         color: "#999",
@@ -97,11 +98,11 @@ const CustomTextField = ({
                     borderRadius: "8px",
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: (error || isInvalid) ? "#d32f2f" : "#1976d2",
+                        borderColor: (error || isInvalid) ? "#d32f2f" : "#d32f2f",
                         borderWidth: "2px",
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        borderColor: (error || isInvalid) ? "#d32f2f" : "#1976d2",
+                        borderColor: (error || isInvalid) ? "#d32f2f" : "#d32f2f",
                         borderWidth: "2px",
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
@@ -156,6 +157,7 @@ CustomTextField.defaultProps = {
     leftIcon: null,  // Allow custom icon to be passed
     rightIcon: null,  // Allow custom icon to be passed
     onChange: () => {},
+    onInput: () => {}, // Fixed: Added onInput default function
     onLeftIconClick: () => {},  // Default no-op for icon click
     onRightIconClick: () => {}, // Default no-op for icon click
     error: false, // Default no error state
@@ -174,7 +176,15 @@ CustomTextField.propTypes = {
     leftIcon: PropTypes.node,
     rightIcon: PropTypes.node,
     onChange: PropTypes.func,
-    onInput: PropTypes.string.isRequired,
+    onInput: PropTypes.func, // Fixed: onInput is a function, not a string
+    textcss: PropTypes.object,
+    inputType: PropTypes.string,
+    CustomValue: PropTypes.string,
+    placeholder: PropTypes.string,
+    type: PropTypes.string,
+    multiline: PropTypes.bool,
+    rows: PropTypes.number,
+    maxRows: PropTypes.number,
     onLeftIconClick: PropTypes.func,  // Prop type for left icon click handler
     onRightIconClick: PropTypes.func, // Prop type for right icon click handler
     error: PropTypes.bool, // Prop type for error state

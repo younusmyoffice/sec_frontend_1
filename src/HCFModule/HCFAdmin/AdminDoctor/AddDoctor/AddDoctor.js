@@ -1,5 +1,5 @@
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import CustomButton from "../../../../components/CustomButton";
 import { DoctorInfo } from "./DoctorInfo";
 import CustomTextField from "../../../../components/CustomTextField";
@@ -17,15 +17,17 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import dayjs from "dayjs";
 import CustomModal from "../../../../components/CustomModal";
 import CustomOTPInput from "../../../../components/OTPInput";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import AddPlanCard from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/AddPlanCard";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
-import ListingModal from "../../../../DoctorModule/DoctorListing/CreateNewListing/AddPlan/ListingModal";
+import ListingModal from "../../../../HCFModule/HCFAdmin/AdminDoctor/AddPackage/clinicListingModal";
 import HCFAddQuestioner from "./HCFAddQuestioner";
 import HCFAddTerms from "./HCFAddTerms";
 import AddIcon from "@mui/icons-material/Add";
 import { NavLink, useNavigate } from "react-router-dom";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
 
 function createData(name, action) {
     return { name, action };
@@ -101,7 +103,28 @@ const HCFAddDoctors = () => {
         setModalOpen(false);
     };
 
-    console.log("OTP length : ", otp === null ? "null" : otp.length);
+    // ============================================
+    // Security & Validation Functions
+    // ============================================
+
+    /**
+     * Validate HCF admin ID from localStorage
+     * SECURITY: Ensures admin ID is present before making API calls
+     * 
+     * @returns {string|null} HCF admin ID or null if invalid
+     */
+    const validateHcfAdminId = useCallback(() => {
+        const adminId = localStorage.getItem("hcfadmin_suid");
+
+        if (!adminId) {
+            logger.warn("⚠️ HCF Admin ID not found in localStorage");
+            toastService.warning("HCF Admin ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ HCF Admin ID validated:", adminId);
+        return adminId;
+    }, []);
 
     const handleChange = (event) => {
         setAge(event.target.value);
@@ -199,41 +222,257 @@ const HCFAddDoctors = () => {
         // Format as "YYYY-MM-DD"
         return `${year}-${month}-${day}`;
     }
-// submitting the data of the listing -----------------------------------
+    // ============================================
+    // API Functions
+    // ============================================
+
+    /**
+     * Create doctor listing with working details and plans
+     * Step 3: After email verification, creates listing with plans
+     * API: POST /sec/hcf/addDoctorWorkingDetailsAndPlan
+     * 
+     * Plan structure required:
+     * {
+     *   plan_fee: number,
+     *   plan_name: string (dropdown: "message", "call", "video"),
+     *   plan_duration: string ("30 minutes", "60 minutes", etc.),
+     *   start_date: string (YYYY-MM-DD),
+     *   end_date: string (YYYY-MM-DD),
+     *   is_trial: number (1 or 0),
+     *   no_of_reviews: number,
+     *   plan_description: string
+     * }
+     */
     const postCreateListing = async () => {
+        logger.debug("📤 Creating doctor listing with working details and plans");
         setSnacksuccess(false);
         setSnackerror(false);
-        setSnacksuccess(false);
-        try {
-            const response = await axiosInstance.post("/sec/hcf/addDoctorWorkingDetailsAndPlan",createListing);
-            console.log("post create listing : ", response);
-            setSnacksuccessMessage("Listing created succesfully")
-            setSnacksuccess(true);
-            // Capture doctor_list_id if returned
-            const listId = response?.data?.response?.docListingCreate?.doctor_list_id || response?.data?.response?.docListingUpdated?.[0]?.doctor_list_id;
-            if (listId) setDoctorListId(listId);
-            setCreateListing({
-                hcf_id: null,
-                doctor_id: null,
-                listing_name: null,
-                working_days_start: null,
-                working_days_end: null,
-                working_time_start: null,
-                working_time_end: null,
-            })
-            // setEmail(null);
-            // setPassword(null);
-            // setConfirmPassword(null);
-            // setMobile(null);
-            resetForm();
-            setIsFormValid(false);
-            setEnableListing(false);
-            setPostcreatelisting(false)
-        } catch (error) {
-            console.log("Error : ", error);
-            setSnackerrorMessage("!Some error occured...")
+
+        // Validate required fields
+        if (!createListing.doctor_id) {
+            logger.error("❌ Doctor ID is missing");
+            toastService.error("Doctor ID is missing. Please verify email first.");
+            setSnackerrorMessage("Doctor ID is missing. Please verify email first.");
             setSnackerror(true);
-            setPostcreatelisting(false)
+            setPostcreatelisting(false);
+            return;
+        }
+
+        if (!createListing.listing_name) {
+            logger.warn("⚠️ Listing name is required");
+            toastService.error("Please enter a listing name");
+            setSnackerrorMessage("Please enter a listing name");
+            setSnackerror(true);
+            setPostcreatelisting(false);
+            return;
+        }
+
+        if (!createListing.working_days_start || !createListing.working_days_end) {
+            logger.warn("⚠️ Working days are required");
+            toastService.error("Please select working days");
+            setSnackerrorMessage("Please select working days");
+            setSnackerror(true);
+            setPostcreatelisting(false);
+            return;
+        }
+
+        if (!createListing.working_time_start || !createListing.working_time_end) {
+            logger.warn("⚠️ Working time is required");
+            toastService.error("Please select working time");
+            setSnackerrorMessage("Please select working time");
+            setSnackerror(true);
+            setPostcreatelisting(false);
+            return;
+        }
+
+        if (!plandata || plandata.length === 0) {
+            logger.warn("⚠️ At least one plan is required");
+            toastService.error("Please add at least one plan");
+            setSnackerrorMessage("Please add at least one plan");
+            setSnackerror(true);
+            setPostcreatelisting(false);
+            return;
+        }
+
+        // Prepare plans with required structure
+        // FIXED: Ensure all plan fields are properly formatted and validated
+        const formattedPlans = plandata.map(plan => {
+            const planFee = Number(plan.plan_fee);
+            
+            // Validate plan fee is a positive number
+            if (isNaN(planFee) || planFee <= 0) {
+                logger.error("❌ Invalid plan fee", { plan });
+                throw new Error(`Invalid plan fee for ${plan.plan_name}: ${plan.plan_fee}`);
+            }
+            
+            // Validate plan duration exists
+            if (!plan.plan_duration || plan.plan_duration.trim() === '') {
+                logger.error("❌ Missing plan duration", { plan });
+                throw new Error(`Missing plan duration for ${plan.plan_name}`);
+            }
+            
+            // FIXED: Include doctor_id and doctor_list_id in each plan
+            // Backend requires these IDs in each plan object when inserting into sec_doctor_fee_plans
+            const formattedPlan = {
+                doctor_id: Number(createListing.doctor_id), // Required: doctor_id from createListing state
+                plan_fee: planFee,
+                plan_name: plan.plan_name, // "message", "call", or "video" (from dropdown)
+                plan_duration: plan.plan_duration,
+                start_date: createListing.working_days_start, // Use working days start date
+                end_date: createListing.working_days_end, // Use working days end date
+                is_trial: 1, // Default to 1 as per API example
+                no_of_reviews: 1, // Default to 1 as per API example
+                plan_description: plan.plan_description || `${plan.plan_name.charAt(0).toUpperCase() + plan.plan_name.slice(1)} plan`
+            };
+            
+            // Add doctor_list_id if available (might be null on first creation, backend will set it)
+            if (doctorListId) {
+                formattedPlan.doctor_list_id = Number(doctorListId);
+            }
+            
+            return formattedPlan;
+        });
+        
+        logger.debug("📋 Formatted plans for API", { 
+            count: formattedPlans.length,
+            plans: formattedPlans.map(p => ({ 
+                plan_name: p.plan_name, 
+                plan_fee: p.plan_fee, 
+                plan_duration: p.plan_duration 
+            }))
+        });
+
+        // Prepare final payload
+        // FIXED: Ensure all IDs are numbers as required by the API
+        const hcfId = createListing.hcf_id || localStorage.getItem("hcfadmin_suid");
+        const doctorId = createListing.doctor_id;
+        
+        if (!hcfId) {
+            logger.error("❌ HCF ID is missing");
+            toastService.error("HCF ID is missing. Please log in again.");
+            setSnackerrorMessage("HCF ID is missing. Please log in again.");
+            setSnackerror(true);
+            setPostcreatelisting(false);
+            return;
+        }
+        
+        if (!doctorId) {
+            logger.error("❌ Doctor ID is missing");
+            toastService.error("Doctor ID is missing. Please verify email first.");
+            setSnackerrorMessage("Doctor ID is missing. Please verify email first.");
+            setSnackerror(true);
+            setPostcreatelisting(false);
+            return;
+        }
+        
+        const payload = {
+            hcf_id: Number(hcfId), // Convert to number
+            doctor_id: Number(doctorId), // Convert to number
+            listing_name: createListing.listing_name,
+            working_days_start: createListing.working_days_start,
+            working_days_end: createListing.working_days_end,
+            working_time_start: createListing.working_time_start,
+            working_time_end: createListing.working_time_end,
+            plan: formattedPlans
+        };
+
+        logger.debug("📤 Listing creation payload:", {
+            hcf_id: payload.hcf_id,
+            doctor_id: payload.doctor_id,
+            listing_name: payload.listing_name,
+            working_days_start: payload.working_days_start,
+            working_days_end: payload.working_days_end,
+            working_time_start: payload.working_time_start,
+            working_time_end: payload.working_time_end,
+            plan_count: formattedPlans.length,
+            plans: formattedPlans.map(p => ({ 
+                doctor_id: p.doctor_id,
+                plan_name: p.plan_name, 
+                plan_fee: p.plan_fee, 
+                plan_duration: p.plan_duration,
+                start_date: p.start_date,
+                end_date: p.end_date
+            }))
+        });
+
+        try {
+            const response = await axiosInstance.post(
+                "/sec/hcf/addDoctorWorkingDetailsAndPlan",
+                JSON.stringify(payload),
+                {
+                    headers: {
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+            
+            logger.debug("✅ Listing created successfully", { response: response?.data });
+            
+            // FIXED: Capture doctor_list_id from multiple possible response structures
+            const listId = response?.data?.response?.docListingCreate?.doctor_list_id || 
+                          response?.data?.response?.docListingUpdated?.[0]?.doctor_list_id ||
+                          response?.data?.doctor_list_id ||
+                          response?.data?.response?.doctor_list_id ||
+                          response?.data?.response?.data?.doctor_list_id;
+            
+            logger.debug("📋 Extracted doctor_list_id from response", { 
+                listId,
+                fullResponse: response?.data 
+            });
+            
+            if (listId) {
+                setDoctorListId(listId);
+                logger.debug("✅ Doctor list ID captured and stored:", listId);
+            } else {
+                logger.warn("⚠️ No doctor_list_id found in response", { 
+                    response: response?.data 
+                });
+            }
+
+            const successMessage = response?.data?.message || 
+                                 response?.data?.response?.message ||
+                                 "Listing created successfully";
+            setSnacksuccessMessage(successMessage);
+            setSnacksuccess(true);
+            toastService.success(successMessage);
+
+            // FIXED: Don't reset form immediately - keep doctor_id and enableListing for questions/terms
+            // Only reset the listing form fields, but keep doctor_id and enableListing
+            setListingName("");
+            setDateRange([null, null]);
+            setTimeRange([null, null]);
+            setPlandata([]);
+            
+            // Keep doctor_id and enableListing so questions/terms sections can render
+            // Don't reset createListing completely - keep doctor_id
+            // Don't set enableListing to false - keep it true so questions/terms are visible
+            
+            setPostcreatelisting(false); // Reset the flag so useEffect doesn't trigger again
+            
+            logger.debug("✅ Form updated after successful listing creation", {
+                doctor_id: createListing.doctor_id,
+                doctor_list_id: listId,
+                enableListing: true // Keep it enabled
+            });
+        } catch (error) {
+            logger.error("❌ Error creating listing:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            logger.error("❌ Error status:", error?.response?.status);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                error?.response?.data?.error ||
+                                error?.response?.data?.response?.message ||
+                                error?.message ||
+                                "Failed to create listing. Please check all fields and try again.";
+            
+            setSnackerrorMessage(errorMessage);
+            setSnackerror(true);
+            toastService.error(errorMessage);
+            setPostcreatelisting(false);
+            
+            // Keep enableListing and doctor_id on error so user can retry
+            // Don't reset the form completely
         }
     };
 
@@ -244,50 +483,115 @@ const HCFAddDoctors = () => {
         
     },[postcreatelisting] )
 
+    /**
+     * Register HCF Clinic Doctor
+     * Step 1: Creates doctor account and sends email OTP
+     * API: POST /sec/hcf/addDoctor
+     * On success (status 202): Opens OTP modal for email verification
+     * 
+     * @returns {Promise<void>}
+     */
     const registerHcfClinicDoctor = async () => {
+        logger.debug("📤 Registering HCF clinic doctor");
         setSnackerror(false);
         setSnacksuccess(false);
 
-        try {
-            const response = await axiosInstance.post("/sec/hcf/addDoctor", {
-                hcf_id: localStorage.getItem("hcfadmin_suid"), // pass the hcf suid
-                email: email, // verify this first
-                mobile: mobile,
-                role_id: "6", // role id of the doctor
-                password: confirmPassword,
-            });
-            console.log("register api response  : ",response);
-            console.log("HCF doctor register: ", response.status);
-            if (response.status === 202) {
-                console.log("response v:V : ", response);
-                setSnacksuccessMessage(response?.data?.error);
-                setSnacksuccess(true);
-                openModal();
-            }
-            setSnacksuccess(true);
-            // Optionally reset form or navigate the user after success
-            // resetForm();
-            // navigate('/someRoute');
-        } catch (error) {
-            setSnacksuccess(false);
-            console.log("Error: ", error);
-            setSnackerrorMessage("Some error occured");
-            setSnackerror(true);
+        // Validate form before submission
+        if (!isFormValid) {
+            logger.warn("⚠️ Form validation failed");
+            toastService.error("Please fill all fields correctly");
+            return;
+        }
 
-            // Example of error handling - check for duplicate email
-            if (error.response && error.response.status === 409) {
-                setEmailError("Email already exists");
-                console.log("error : ", error);
-            } else if (error.response && error.response.status === 400) {
-                // Handle bad request or other validation errors
-                console.log("error : ", error);
-                setMobileError(error.response.error);
+        const hcfId = validateHcfAdminId();
+        if (!hcfId) {
+            return;
+        }
+
+        // Prepare payload
+        const payload = {
+            hcf_id: hcfId,
+            email: email,
+            mobile: mobile,
+            role_id: "6", // Role ID for doctor
+            password: confirmPassword,
+        };
+
+        logger.debug("📤 Doctor registration payload:", {
+            ...payload,
+            password: "***" // Mask password in logs
+        });
+
+        try {
+            const response = await axiosInstance.post(
+                "/sec/hcf/addDoctor",
+                JSON.stringify(payload),
+                {
+                    headers: {
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+            
+            logger.debug("✅ Doctor registration response:", {
+                status: response.status,
+                data: response?.data
+            });
+
+            // Status 202 indicates OTP sent to email - open OTP modal
+            if (response.status === 202) {
+                logger.debug("✅ OTP sent to email, opening OTP modal");
+                const message = response?.data?.message || 
+                               response?.data?.error || 
+                               "OTP has been sent to your email. Please verify.";
+                setSnacksuccessMessage(message);
+                setSnacksuccess(true);
+                toastService.success("OTP sent to your email");
+                openModal(); // Open OTP modal
             } else {
-                // Handle other errors like network issues
-                console.log("error : ", error);
-                setSnackerrorMessage(error.response.error);
-                setSnackerror(true);
+                // Other success status
+                logger.debug("✅ Doctor registered successfully");
+                const successMessage = response?.data?.message || "Doctor registered successfully";
+                setSnacksuccessMessage(successMessage);
+                setSnacksuccess(true);
+                toastService.success(successMessage);
             }
+        } catch (error) {
+            logger.error("❌ Error registering doctor:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            setSnacksuccess(false);
+            
+            // Handle specific error cases
+            if (error.response?.status === 409) {
+                const errorMsg = "Email already exists";
+                setEmailError(errorMsg);
+                setSnackerrorMessage(errorMsg);
+                toastService.error(errorMsg);
+            } else if (error.response?.status === 400) {
+                const errorMsg = error?.response?.data?.message || 
+                               error?.response?.data?.error || 
+                               "Invalid request. Please check your input.";
+                setSnackerrorMessage(errorMsg);
+                toastService.error(errorMsg);
+                
+                // Set specific field errors if provided
+                if (error?.response?.data?.errors?.email) {
+                    setEmailError(error.response.data.errors.email);
+                }
+                if (error?.response?.data?.errors?.mobile) {
+                    setMobileError(error.response.data.errors.mobile);
+                }
+            } else {
+                const errorMsg = error?.response?.data?.message ||
+                               error?.response?.data?.error ||
+                               "Failed to register doctor. Please try again.";
+                setSnackerrorMessage(errorMsg);
+                toastService.error(errorMsg);
+            }
+            
+            setSnackerror(true);
         }
     };
 
@@ -300,32 +604,105 @@ const HCFAddDoctors = () => {
         // Clear any other state if necessary
     };
 
+    /**
+     * Verify Doctor Email OTP
+     * Step 2: Verifies email OTP code
+     * API: POST /sec/auth/verifyEmail
+     * On success: Enables listing creation section and stores doctor_id
+     * 
+     * @returns {Promise<void>}
+     */
     const verifyDocOTP = async () => {
+        logger.debug("🔐 Verifying doctor email OTP");
         setSnackerror(false);
         setSnacksuccess(false);
         setEnableListing(false);
+
+        // Validate OTP length
+        if (!otp || otp.length !== 6) {
+            logger.warn("⚠️ Invalid OTP code length");
+            toastService.error("Please enter the complete 6-digit OTP code");
+            return;
+        }
+
+        // Validate email
+        if (!email || !email.includes("@")) {
+            logger.warn("⚠️ Invalid email address");
+            toastService.error("Please enter a valid email address");
+            return;
+        }
+
+        const payload = {
+            email: email,
+            activation_code: otp,
+        };
+
+        logger.debug("🔐 OTP verification payload:", {
+            email: payload.email,
+            activation_code: payload.activation_code?.substring(0, 2) + "****" // Mask OTP in logs
+        });
+
         try {
-            const response = await axiosInstance.post("/sec/auth/verifyEmail", {
-                email,
-                activation_code: otp,
+            const response = await axiosInstance.post(
+                "/sec/auth/verifyEmail",
+                JSON.stringify(payload),
+                {
+                    headers: {
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+            
+            logger.debug("✅ OTP verification response:", {
+                status: response.status,
+                data: response?.data
             });
-            console.log("OTP response ")
+
             if (response.status === 200) {
+                logger.debug("✅ Email OTP verified successfully");
+                
+                // Extract doctor_id from response
+                const doctorId = response?.data?.response?.suid || 
+                               response?.data?.suid || 
+                               response?.data?.response?.doctor_id;
+                
+                if (doctorId) {
+                    logger.debug("✅ Doctor ID extracted:", doctorId);
+                    setDoctorsuid(doctorId);
+                    
+                    // Update createListing with doctor_id
+                    setCreateListing(prev => ({
+                        ...prev,
+                        doctor_id: doctorId,
+                        hcf_id: localStorage.getItem("hcfadmin_suid")
+                    }));
+                } else {
+                    logger.warn("⚠️ Doctor ID not found in response");
+                }
+
                 setSnacksuccessMessage("OTP verified successfully!");
                 setSnacksuccess(true);
+                toastService.success("Email verified successfully");
                 closeModal();
-                setEnableListing(true);
-                // console.log("doctor : ",response?.data?.response?.suid);
-                // setDoctorsuid(response?.data?.response?.suid);
-                setCreateListing({...createListing , doctor_id : response?.data?.response?.suid })
-                // resetForm(); // Reset form after successful OTP verification
+                setEnableListing(true); // Enable listing creation section
             } else {
-                setSnackerrorMessage("Failed to verify OTP.");
+                logger.warn("⚠️ OTP verification returned non-200 status:", response.status);
+                setSnackerrorMessage("Failed to verify OTP. Please try again.");
                 setSnackerror(true);
+                toastService.error("Failed to verify OTP");
             }
         } catch (error) {
-            setSnackerrorMessage("OTP verification failed. Please try again.");
+            logger.error("❌ OTP verification failed:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                               error?.response?.data?.error ||
+                               "Invalid OTP. Please check and try again.";
+            
+            setSnackerrorMessage(errorMessage);
             setSnackerror(true);
+            toastService.error(errorMessage);
         }
     };
 
@@ -340,7 +717,7 @@ const HCFAddDoctors = () => {
         const formatDateResp1 = formatDate(newRange[0]);
         const formatDateResp2 = formatDate(newRange[1]);
         setCreateListing({...createListing , working_days_start : dayjs(newRange[0]).format("YYYY-MM-DD") , working_days_end : dayjs(newRange[1]).format("YYYY-MM-DD") })
-        console.log("date range : ", formatDateResp1, formatDateResp2);
+        logger.debug("📅 Date range selected:", { from: formatDateResp1, to: formatDateResp2 });
     };
 
     const handleTimeRangeChange = (newRange) => {
@@ -353,11 +730,10 @@ const HCFAddDoctors = () => {
             working_time_end: newRange[1]?.isValid() ? newRange[1]?.format("HH:mm:ss") : null,
         });
     
-        console.log(
-            "Time range:",
-            newRange[0]?.isValid() ? newRange[0]?.format("HH:mm:ss") : "Invalid date",
-            newRange[1]?.isValid() ? newRange[1]?.format("HH:mm:ss") : "Invalid date"
-        );
+        logger.debug("⏰ Time range selected:", {
+            start: newRange[0]?.isValid() ? newRange[0]?.format("HH:mm:ss") : null,
+            end: newRange[1]?.isValid() ? newRange[1]?.format("HH:mm:ss") : null
+        });
     };
     
     // for plans 
@@ -367,12 +743,26 @@ const HCFAddDoctors = () => {
         setRenderTheApiAfterDelete(value);
     };
 
+    /**
+     * Handle plan data after adding from ListingModal
+     * Updates plandata state with the plan information
+     * 
+     * @param {Array} planData - Array of plan objects from ListingModal
+     */
     const RenderDataAfterAddingPlan = (value) => {
+        logger.debug("📋 Plan data received from modal:", value);
         setRenderDataAfterAddPlan(value);
-        setplandata(renderDataAfterAddPlan)
-        setCreateListing({...createListing , renderDataAfterAddPlan })
-        console.log('renderDataAfterAddPlan : ',value);
-    }
+        
+        // Update plandata with the received plan array
+        if (value && Array.isArray(value.plan)) {
+            setplandata(value.plan);
+            logger.debug("✅ Plans updated:", { count: value.plan.length });
+        } else if (value && Array.isArray(value)) {
+            // Handle case where value is directly an array
+            setplandata(value);
+            logger.debug("✅ Plans updated (direct array):", { count: value.length });
+        }
+    };
 
     //  const handleModalClose = () => {
     //         setOpenDialog(false); // Function to close the modal
@@ -467,7 +857,6 @@ const HCFAddDoctors = () => {
                                         // rightIcon={"verify"}
                                         // onRightIconClick={() => {
                                         //     openModal();
-                                        //                         console.log("right icon clicked")
                                         //                     }}
                                     />
 {/*----------------- modal for otp ------------------ */}
@@ -508,7 +897,6 @@ const HCFAddDoctors = () => {
                                         // rightIcon={"verify"}
                                         // onRightIconClick={() => {
                                         //     openModal();
-                                        //                         console.log("right icon clicked")
                                         //                     }}
                                     />
                                 </div>
@@ -665,7 +1053,6 @@ const HCFAddDoctors = () => {
                                     buttonCss={{ marginTop: "40px" }}
                                     // isDisabled={!isFormValid} // Disable button based on form validity
                                     handleClick={() => {
-                                        console.log("asdfa");
                                         postCreateListing();
                                     }}
                                 /> */}
@@ -676,7 +1063,7 @@ const HCFAddDoctors = () => {
                         <div style={{ width: "75%", display : enableLising  ?  'block' : 'none' }}>
                             <div className="main-container">
                                 <div className="Add-container">
-                                    <Typography>Add Plan</Typography>
+                                    <Typography>Add Plans</Typography>
                                     <div className="Add-addicon">
                                         <Box
                                             sx={{
@@ -699,14 +1086,47 @@ const HCFAddDoctors = () => {
                                                 showSaveButton={false}
                                                 enableAdditionalButton={true}
                                                 additionalButtonName={"Add plan"}
-                                                onAdditionalButtonClick={ (e) => {
-                                                    console.log("data L ",e?.plan);
-                                                    setCreateListing({...createListing,plan : e?.plan})
-                                                    setplandata(e?.plan);
-                                                }  }
+                                                doctor_id={createListing?.doctor_id} // Pass doctor_id from createListing state
+                                                doctor_list_id={doctorListId} // Pass doctor_list_id if available
+                                                onAdditionalButtonClick={(e) => {
+                                                    logger.debug("📋 Plan data from modal:", e?.plan);
+                                                    if (e?.plan && Array.isArray(e.plan) && e.plan.length > 0) {
+                                                        // Validate plans have required fields before setting
+                                                        const validPlans = e.plan.filter(plan => {
+                                                            const isValid = plan.plan_name && 
+                                                                           plan.plan_fee !== null && 
+                                                                           plan.plan_fee !== undefined && 
+                                                                           plan.plan_fee !== '' &&
+                                                                           plan.plan_duration;
+                                                            
+                                                            if (!isValid) {
+                                                                logger.warn("⚠️ Invalid plan filtered out", { plan });
+                                                            }
+                                                            return isValid;
+                                                        });
+                                                        
+                                                        if (validPlans.length > 0) {
+                                                            setplandata(validPlans);
+                                                            toastService.success(`${validPlans.length} plan(s) added successfully`);
+                                                            logger.debug("✅ Valid plans added:", { 
+                                                                count: validPlans.length,
+                                                                plans: validPlans 
+                                                            });
+                                                        } else {
+                                                            logger.error("❌ No valid plans to add");
+                                                            toastService.error("Please ensure all plans have price and duration filled");
+                                                        }
+                                                    } else {
+                                                        logger.warn("⚠️ No plans received from modal");
+                                                        toastService.warning("No plans selected. Please select at least one plan.");
+                                                    }
+                                                }}
                                                 disableBackdropClick={false}
                                                 saveButtonEnable={false}
-                                                conditionOpen={setOpenDialog}
+                                                conditionOpen={(isOpen) => {
+                                                    logger.debug("🔄 ListingModal conditionOpen callback", { isOpen });
+                                                    setOpenDialog(isOpen);
+                                                }}
                                                 openDialog={openDialog}
                                                 // handleClose={() => true}
                                             />
@@ -735,16 +1155,23 @@ const HCFAddDoctors = () => {
                                     buttonCss={{ marginTop: "40px" }}
                                     // isDisabled={!isFormValid} // Disable button based on form validity
                                     handleClick={() => {
-                                        console.log("asdfa");
-                                        setPostcreatelisting(true)
-                                        // postCreateListing();
+                                        logger.debug("📤 Creating listing with plans");
+                                        setPostcreatelisting(true);
+                                        // postCreateListing() will be called via useEffect
                                     }}
                                 />
                             {/* Render Questions and Terms when we have a listing id */}
-                            {postcreatelisting && doctorListId && (
+                            {/* FIXED: Show questions/terms when doctorListId exists (after successful listing creation) */}
+                            {doctorListId && createListing?.doctor_id && (
                                 <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                    <HCFAddQuestioner doctor_id={createListing?.doctor_id} doctor_list_id={doctorListId} />
-                                    <HCFAddTerms doctor_id={createListing?.doctor_id} doctor_list_id={doctorListId} />
+                                    <HCFAddQuestioner 
+                                        doctor_id={createListing.doctor_id} 
+                                        doctor_list_id={doctorListId} 
+                                    />
+                                    <HCFAddTerms 
+                                        doctor_id={createListing.doctor_id} 
+                                        doctor_list_id={doctorListId} 
+                                    />
                                 </Box>
                             )}
                         </div>

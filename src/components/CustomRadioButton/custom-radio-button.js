@@ -14,7 +14,7 @@ const CustomRadioButton = ({
     orientation = "vertical"
 }) => {
     return (
-        <FormControl sx={{ width: "100%" }}>
+        <FormControl sx={{ width: "100%", display: "flex", alignItems: "center" }}>
             {label && (
                 <FormLabel 
                     id="custom-radio-buttons-group"
@@ -24,8 +24,10 @@ const CustomRadioButton = ({
                         fontWeight: 600,
                         color: "#333",
                         marginBottom: "12px",
+                        textAlign: "center",
+                        width: "100%",
                         "&.Mui-focused": {
-                            color: "#1976d2",
+                            color: "#e72b4a",
                         }
                     }}
                 >
@@ -39,6 +41,10 @@ const CustomRadioButton = ({
                 sx={{
                     ...radioGroupCss,
                     fontFamily: "Poppins, sans-serif",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
                 }}
                 onChange={handleChange}
                 row={orientation === "horizontal"}
@@ -48,11 +54,14 @@ const CustomRadioButton = ({
                         key={idx}
                         sx={{
                             margin: orientation === "horizontal" ? "0 16px 0 0" : "0 0 8px 0",
+                            width: orientation === "vertical" ? "100%" : "auto",
+                            // justifyContent: orientation === "vertical" ? "center" : "flex-start",
                             "& .MuiFormControlLabel-label": {
                                 fontFamily: "Poppins, sans-serif",
                                 fontSize: "14px",
                                 fontWeight: 500,
                                 color: "#333",
+                                textAlign: "center",
                             },
                             ...radiocss
                         }}

@@ -250,9 +250,9 @@
 //                         <Route path="/selectSignup" element={<SelectSignup />}></Route>
 //                         <Route path="/doctorSignup" element={<DoctorSignup />}></Route>
 //                         <Route path="/selectHcfSignup" element={<SelectHCFSignup />}></Route>
-//                         <Route path="/diagnostCenterSignup" element={<DiagnostSignUp />}></Route>
+//                         <Route path="/diagnosticCompleteProfile" element={<DiagnostSignUp />}></Route>
 //                         <Route path="/diagnostClinicSignup" element={<ClinicSignUp />}></Route>
-//                         <Route path="/hcfAdminSignup" element={<AdminSignUp />}></Route>
+//                         <Route path="/hcfAdminCompleteProfile" element={<AdminSignUp />}></Route>
 //                         {/* ------ signup routes ends------ */}
 //                         <Route path="/patientForgotPassword" element={<Patientforgotpassword />} />
 //                         <Route
@@ -472,7 +472,7 @@
 
 //                         <Route path="/hcfLogin" element={<Hcflogin />} />
 //                         {/* -------------------Clinic Route Starts--------------------- */}
-//                         <Route path="/diagnostClinicLogin" element={<ClinicLogin />} />
+//                         <Route path="/clinicLogin" element={<ClinicLogin />} />
 //                         <Route path="/clinicDashboard" element={<ClinicMainDashboard />}>
 //                             <Route path="clinicBodyDashboard" element={<ClinicDashboard />}>
 //                                 <Route path="cliniRequests" element={<ClinicRequests />}></Route>

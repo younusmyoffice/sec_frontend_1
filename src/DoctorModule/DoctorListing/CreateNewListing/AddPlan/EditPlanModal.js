@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress, TextField, Typography } from "@mui/material";
 import CustomButton from "../../../../components/CustomButton";
 import CustomModal from "../../../../components/CustomModal";
 import CustomTextField from "../../../../components/CustomTextField";
@@ -232,35 +232,27 @@ const EditPlanModal = ({
                         <div key={renderKey}>
                             {console.log("EditPlanModal - Rendering form with data:", formData, "renderKey:", renderKey)}
                             <div style={{ marginBottom: "20px" }}>
-                                <CustomTextField
+                                <TextField
                                     key={`plan_name_${formData.plan_name}_${renderKey}`}
                                     label="Plan Name"
-                                    CustomValue={formData.plan_name || ""}
+                                    value={formData.plan_name || ""}
+                                    placeholder="Plan Name"
+                                    variant="standard"
                                     onChange={(e) => handleInputChange('plan_name', e.target.value)}
-                                    textcss={{
-                                        width: "100%",
-                                        height: "56px",
-                                        fontFamily: "poppins",
-                                        fontSize: "16px"
-                                    }}
-                                    required
+                                    
+                                    
                                 />
                             </div>
 
                             <div style={{ marginBottom: "20px" }}>
-                                <CustomTextField
+                                <TextField
                                     key={`plan_fee_${formData.plan_fee}_${renderKey}`}
                                     label="Plan Fee"
                                     type="number"
-                                    CustomValue={formData.plan_fee || ""}
+                                    value={formData.plan_fee || ""}
+                                    placeholder="Plan Fee"
+                                    variant="standard"
                                     onChange={(e) => handleInputChange('plan_fee', e.target.value)}
-                                    textcss={{
-                                        width: "100%",
-                                        height: "56px",
-                                        fontFamily: "poppins",
-                                        fontSize: "16px"
-                                    }}
-                                    required
                                 />
                             </div>
 
@@ -269,6 +261,7 @@ const EditPlanModal = ({
                                     key={`plan_duration_${formData.plan_duration}_${renderKey}`}
                                     label="Duration (minutes)"
                                     items={dropdownItems}
+                                    variant="standard"  
                                     activeItem={formData.plan_duration || ""}
                                     handleChange={(value) => handleInputChange('plan_duration', value)}
                                     dropdowncss={{
@@ -281,18 +274,13 @@ const EditPlanModal = ({
                             </div>
 
                             <div style={{ marginBottom: "20px" }}>
-                                <CustomTextField
+                                <TextField
                                     key={`plan_description_${formData.plan_description}_${renderKey}`}
                                     label="Plan Description"
-                                    CustomValue={formData.plan_description || ""}
+                                    value={formData.plan_description || ""}
+                                    placeholder="Plan Description"
+                                    variant="standard"
                                     onChange={(e) => handleInputChange('plan_description', e.target.value)}
-                                    multiline
-                                    rows={3}
-                                    textcss={{
-                                        width: "100%",
-                                        fontFamily: "poppins",
-                                        fontSize: "16px"
-                                    }}
                                 />
                             </div>
 

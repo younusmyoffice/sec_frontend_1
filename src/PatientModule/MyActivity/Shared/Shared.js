@@ -23,55 +23,132 @@ import { PaginationCard } from "../../PatientAppointment/PatientCards";
 import ShareTable from "./ShareTable";
 import CustomButton from "../../../components/CustomButton";
 import { ShareModals } from "./ShareModals";
-import axiosInstance from "../../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance"; // Handles access token automatically
 import NoAppointmentCard from "../../PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import logger from "../../../utils/logger"; // Centralized logging
+import toastService from "../../../services/toastService"; // Toast notifications
 
+/**
+ * Shared Component
+ * 
+ * Displays patient's shared medical reports
+ * Features:
+ * - Fetches shared reports from API
+ * - Table view with pagination
+ * - Download shared reports
+ * - Date and category filtering
+ * 
+ * @component
+ */
 const Shared = () => {
+    logger.debug("🔵 Shared component rendering");
     const [value, setValue] = useState([null, null]);
     const [tableData, setTableData] = useState([]);
-    const [patientID, setPatientID] = React.useState(localStorage.getItem("patient_suid"));
+    const [patientID, setPatientID] = useState(localStorage.getItem("patient_suid"));
     const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [page, setPage] = useState(0); // Current page for pagination
+    const [rowsPerPage, setRowsPerPage] = useState(5); // Rows per page
 
-    function getWeeksAfter(date, amount) {
-        return date ? date.add(amount, "week") : undefined;
-    }
-
+    /**
+     * Set active component in localStorage for navigation tracking
+     */
     useEffect(() => {
-        // for active component path
-        localStorage.setItem("activeComponent", "dashboard");
+        try {
+            localStorage.setItem("activeComponent", "dashboard");
+        } catch (error) {
+            logger.error("Failed to set activeComponent in localStorage:", error);
+        }
     }, []);
 
-    const patient_id = localStorage.getItem("patient_suid");
+    /**
+     * Fetch shared reports from API
+     * Retrieves reports that were shared with the patient
+     * 
+     * @param {string} patient_id - Patient's SUID
+     */
     const fetchData = async (patient_id) => {
+        logger.debug("📡 Fetching shared reports", { patient_id });
         setLoading(true);
+        
         try {
-            // Corrected URL string interpolation
+            // Validate patient ID
+            if (!patient_id) {
+                logger.error("❌ Patient ID not found");
+                toastService.error("Patient information not available");
+                setTableData([]);
+                return;
+            }
+            
             const response = await axiosInstance.get(`/sec/patient/reportsShared/${patient_id}`);
-
-            // Handle the response
-            setTableData(response?.data?.response || []);
+            const reports = response?.data?.response || [];
+            
+            logger.debug("✅ Shared reports fetched successfully", { 
+                count: reports.length 
+            });
+            
+            setTableData(reports);
+            
+            if (reports.length > 0) {
+                toastService.success(`${reports.length} shared reports loaded`);
+            } else {
+                logger.warn("⚠️ No shared reports found");
+            }
         } catch (error) {
-            console.error("Error fetching data:", error);
+            logger.error("❌ Failed to fetch shared reports:", error);
+            toastService.error("Failed to load shared reports");
+            setTableData([]); // Fallback to empty array
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Initialize component and fetch data on mount
+     * Gets patient_id from localStorage
+     */
     useEffect(() => {
-        fetchData(patient_id); // Pass both patient_id and status to the function
+        logger.debug("🔵 Shared component mounted");
+        
+        const patient_id = localStorage.getItem("patient_suid");
+        
+        if (patient_id) {
+            setPatientID(patient_id);
+            fetchData(patient_id);
+        } else {
+            logger.error("❌ Patient ID not found in localStorage");
+            toastService.error("Please login to view your shared reports");
+            setLoading(false);
+        }
     }, []);
 
+    /**
+     * Handle page change for pagination
+     * 
+     * @param {Event} event - Change event
+     * @param {number} newPage - New page number
+     */
     const handleChangePage = (event, newPage) => {
+        logger.debug("📄 Page changed", { newPage });
         setPage(newPage);
     };
 
+    /**
+     * Handle rows per page change for pagination
+     * Resets to page 0 when rows per page changes
+     * 
+     * @param {Event} event - Change event
+     */
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        logger.debug("📊 Rows per page changed", { newRowsPerPage });
+        setRowsPerPage(newRowsPerPage);
+        setPage(0); // Reset to page 0
     };
 
+    /**
+     * Get current page data for pagination
+     * Slices tableData based on current page and rows per page
+     */
     const displayedData = tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     return (
@@ -96,7 +173,19 @@ const Shared = () => {
             </Box> */}
 
             <Box className="allfile-main-container">
-                <TableContainer component={Paper} style={{ background: "white" }}>
+                {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                <TableContainer 
+                    component={Paper} 
+                    style={{ 
+                        background: "white",
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        overflow: "auto", // Enable scrolling for table content
+                        maxHeight: "calc(100vh - 200px)", // Adjusted to account for spacing
+                    }}
+                >
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                             <TableRow>
@@ -129,8 +218,43 @@ const Shared = () => {
                                 // Render "No Data Found" if tableData is empty
                                 <NoAppointmentCard text_one={"No Data Found"} />
                             ) : (
-                                // Render actual data
-                                displayedData.map((row) => (
+                                // Render shared reports data
+                                displayedData.map((row) => {
+                                    // Log row data for debugging (development only)
+                                    if (process.env.NODE_ENV === 'development') {
+                                        logger.debug("📋 Rendering shared row", {
+                                            hasReportPath: !!row?.report_path,
+                                            reportName: row?.report_name,
+                                            hasDate: !!row?.date,
+                                            hasTime: !!row?.time
+                                        });
+                                    }
+                                    
+                                    /**
+                                     * Handle report download
+                                     * Creates a temporary anchor element to trigger download
+                                     */
+                                    const handleDownload = () => {
+                                        if (row?.report_path) {
+                                            logger.debug("📥 Downloading shared report", { 
+                                                fileName: row.report_name 
+                                            });
+                                            
+                                            const link = document.createElement("a");
+                                            link.href = row.report_path;
+                                            link.download = row.report_name || "report";
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                            
+                                            toastService.success("Report downloaded successfully");
+                                        } else {
+                                            logger.error("❌ Report path not available");
+                                            toastService.error("Report not available for download");
+                                        }
+                                    };
+                                    
+                                    return (
                                     <TableRow
                                         key={row.name}
                                         sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -146,32 +270,22 @@ const Shared = () => {
                                             {row?.date
                                                 ? `${row.date.split("T")[0]} | ${
                                                       row?.time?.split("T")[1]?.split(".")[0] ||
+                                                      row?.created_at?.split("T")[1]?.split(".")[0] ||
+                                                      row?.updated_at?.split("T")[1]?.split(".")[0] ||
                                                       "No Time"
                                                   }`
                                                 : "No Date"}
                                         </TableCell>
                                         <TableCell
                                             align="right"
-                                            onClick={() => {
-                                                if (row?.report_path) {
-                                                    const link = document.createElement("a");
-                                                    link.href = row.report_path;
-                                                    link.download = row.report_name || "report"; // Default filename if `report_name` is not available
-                                                    document.body.appendChild(link);
-                                                    link.click();
-                                                    document.body.removeChild(link);
-                                                } else {
-                                                    alert("Report not available for download.");
-                                                }
-                                            }}
+                                            onClick={handleDownload}
                                             sx={{
-                                                cursor: row?.report_path
-                                                    ? "pointer"
-                                                    : "not-allowed", // Change cursor to pointer if a report is available
-                                                color: row?.report_path ? "black" : "gray", // Optional: Indicate if the report is available visually
-                                                textDecoration: row?.report_path
-                                                    ? "none"
-                                                    : "none",
+                                                cursor: row?.report_path ? "pointer" : "not-allowed",
+                                                color: row?.report_path ? "#313033" : "#999",
+                                                "&:hover": row?.report_path ? {
+                                                    textDecoration: "underline",
+                                                    color: "#E72B4A"
+                                                } : {}
                                             }}
                                         >
                                             {row?.report_name || "No Report"}
@@ -181,7 +295,8 @@ const Shared = () => {
                                             {row?.category || "No Category"}
                                         </TableCell>
                                     </TableRow>
-                                ))
+                                    );
+                                })
                             )}
                         </TableBody>
                         

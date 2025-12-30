@@ -17,6 +17,8 @@ import {
     useMediaQuery,
     SwipeableDrawer,
     Tooltip,
+    Card,
+    CardContent,
 } from "@mui/material";
 import MuiAppBar from "@mui/material/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
@@ -65,6 +67,7 @@ import icon from "../../static/images/logos/bergerIcon.png"
 /// /till here
 
 const drawerWidth = 270;
+const closedDrawerWidth = 80; // Closed/minimized drawer width
 const mobileDrawerWidth = 280;
 
 const openedMixin = (theme) => ({
@@ -82,9 +85,9 @@ const closedMixin = (theme) => ({
         duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: "hidden",
-    width: `calc(${theme.spacing(11)} + 1px)`,
+    width: `calc(${theme.spacing(10)} + 1px)`, // 80px = 10 * 8 - 0 + 1
     [theme.breakpoints.up("sm")]: {
-        width: `calc(${theme.spacing(9)} + 1px)`, // Reduced from 12 to 9
+        width: `calc(${theme.spacing(10)} + 1px)`, // Consistent: 80px
     },
 });
 
@@ -103,15 +106,16 @@ const AppBar = styled(MuiAppBar, {
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(["width", "margin"], {
         easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
+        duration: theme.transitions.duration.enteringScreen,
     }),
+    // FIXED: AppBar should adjust based on drawer state
     ...(open && {
-        marginLeft: drawerWidth,
+        marginLeft: drawerWidth, // 270px when open
         width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(["width", "margin"], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
+    }),
+    ...(!open && {
+        marginLeft: closedDrawerWidth, // 80px when closed
+        width: `calc(100% - ${closedDrawerWidth}px)`,
     }),
 }));
 
@@ -134,7 +138,28 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
 
 // Removed makeStyles - using sx prop instead for MUI v5 compatibility
 
-const CustomMenuDrawer = ({ list1, list2, children, handleOnMenuSelect, profilepath }) => {
+/**
+ * CustomMenuDrawer Component
+ * 
+ * Provides a responsive drawer navigation layout with:
+ * - Sidebar navigation drawer
+ * - Top AppBar with search and profile controls
+ * - Responsive mobile/desktop layouts
+ * - Persistent drawer state
+ * 
+ * @param {Array} list1 - Primary menu items
+ * @param {Array} list2 - Secondary menu items (optional)
+ * @param {ReactNode} children - Content to render in main area
+ * @param {Function} handleOnMenuSelect - Handler for menu item selection
+ * @param {string} profilepath - Profile navigation path
+ */
+const CustomMenuDrawer = ({ 
+    list1 = ["item 1", "item 2", "item 3"], 
+    list2 = ["item 1", "item 2", "item 3"], 
+    children, 
+    handleOnMenuSelect = () => {}, 
+    profilepath 
+}) => {
     const theme = useTheme();
     const navigate = useNavigate();
     
@@ -144,7 +169,8 @@ const CustomMenuDrawer = ({ list1, list2, children, handleOnMenuSelect, profilep
     const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
     
     // State management
-    const [open, setOpen] = useState(!isMobile); // Closed on mobile by default
+    // FIXED: Initialize drawer as closed on desktop to match the content margin logic
+    const [open, setOpen] = useState(false); // Start closed so content margin is properly applied
     const [selectedItem, setSeletedItem] = useState(list1[0].name);
     const [mobileOpen, setMobileOpen] = useState(false);
     
@@ -153,7 +179,9 @@ const CustomMenuDrawer = ({ list1, list2, children, handleOnMenuSelect, profilep
         if (isMobile) {
             setOpen(false);
         } else {
-            setOpen(true);
+            // Desktop: Drawer starts closed to avoid content overlap
+            // User can toggle it open if needed
+            setOpen(false);
         }
     }, [isMobile]);
 console.log("this is the profile path : ",profilepath)
@@ -356,6 +384,8 @@ const profile = localStorage.getItem("profile")
 
     // Determine the logo based on the user's role
     const logoSrc = logos[role_id] || logos.default;
+    console.log("🔵 CustomMenuDrawer - Current state:", { open, isMobile, mobileOpen });
+    
     return (
         <Box sx={{ display: "flex", width: "100%" }}>
             <CssBaseline />
@@ -380,16 +410,31 @@ const profile = localStorage.getItem("profile")
                         <MenuIcon />
                     </IconButton>
 
-                    {/* Desktop Logo Button */}
+                    {/* Desktop Menu Toggle Button */}
+                    <IconButton
+                        color="inherit"
+                        aria-label="toggle drawer"
+                        onClick={() => setOpen(!open)}
+                        edge="start"
+                        sx={{
+                            marginRight: 2,
+                            display: { xs: "none", md: "flex" },
+                            color: "#333",
+                            ...(open && { display: "none" })
+                        }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+
+                    {/* Desktop Logo Button - Only show when drawer is closed */}
                     <Box
                         sx={{
-                            display: { xs: "none", md: "flex" },
+                            display: { xs: "none", md: !open ? "flex" : "none" },
                             alignItems: "center",
                             marginRight: 5,
-                            ...(open && { display: "none" }),
                             cursor: "pointer",
                         }}
-                        onClick={handleDrawerOpen}
+                        onClick={() => setOpen(true)}
                         edge="start"
                     >
                         <Box>
@@ -475,15 +520,9 @@ const profile = localStorage.getItem("profile")
                 ModalProps={isMobile ? { keepMounted: true } : undefined}
                 sx={{
                     display: { xs: "none", md: "block" },
-                    "& .MuiDrawer-paper": {
-                        boxSizing: "border-box",
-                        width: drawerWidth,
-                        position: "fixed !important",
-                        top: "0 !important",
-                        left: "0 !important",
-                        height: "100vh !important",
-                        zIndex: "1200 !important",
-                    },
+                    // CRITICAL: Don't override position or width
+                    // Let the styled Drawer component handle width transitions
+                    // based on the 'open' prop via openedMixin/closedMixin
                 }}
             >
                 <DrawerHeader>
@@ -498,7 +537,7 @@ const profile = localStorage.getItem("profile")
                         </Box>
                     )}
                     <IconButton 
-                        onClick={handleDrawerClose}
+                        onClick={() => setOpen(!open)}  // Fixed: Toggle open state
                         sx={{
                             transition: "transform 0.3s ease",
                             "&:hover": {
@@ -508,7 +547,8 @@ const profile = localStorage.getItem("profile")
                         }}
                         title={open ? "Collapse sidebar" : "Expand sidebar"}
                     >
-                        {theme.direction === "rtl" ? <ChevronRight /> : <ChevronLeft />}
+                        {/* FIXED: Show correct chevron based on drawer state */}
+                        {open ? <ChevronLeft /> : <ChevronRight />}
                     </IconButton>
                 </DrawerHeader>
                 <Divider />
@@ -735,31 +775,69 @@ const profile = localStorage.getItem("profile")
                 sx={{ 
                     flexGrow: 1, 
                     width: "100%",
-                    marginLeft: { 
-                        xs: 0, 
-                        sm: 0, 
-                        md: open ? `${drawerWidth}px` : "57px",
-                        lg: open ? `${drawerWidth}px` : "57px"
-                    },
-                    transition: theme.transitions.create(["margin"], {
+                    // CRITICAL: Force margin-left with !important to override global styles
+                    // This ensures content shifts when drawer opens/closes
+                    marginLeft: `${open ? drawerWidth : closedDrawerWidth}px !important`,
+                    transition: theme.transitions.create(["margin", "width"], {
                         easing: theme.transitions.easing.sharp,
-                        duration: theme.transitions.duration.leavingScreen,
+                        duration: theme.transitions.duration.enteringScreen,
                     }),
                     minHeight: "100vh",
-                    backgroundColor: "#fffff",
+                    backgroundColor: "#f5f5f5", // Light gray background
                     position: "relative",
                     zIndex: 1,
                     padding: { 
-                        xs: "0.25rem", 
-                        sm: "0.5rem", 
-                        md: "0.75rem",
-                        lg: "1rem"
+                        xs: "16px",     // Increased padding for card spacing
+                        sm: "20px",     // Increased padding for card spacing
+                        md: "24px",     // Increased padding for card spacing
+                        lg: "28px"      // Increased padding for card spacing
                     },
                     marginTop: { xs: "48px", sm: "56px" }
                 }}
             >
                 <DrawerHeader />
-                {children}
+                {/* Card wrapper for all content */}
+                <Card 
+                    sx={{ 
+                        minHeight: "calc(100vh - 120px)",
+                        maxHeight: "calc(100vh - 120px)", // Prevent exceeding viewport
+                        borderRadius: 2,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                        backgroundColor: "#ffffff",
+                        width: "100%", // Ensure card takes full width
+                        boxSizing: "border-box", // Include padding in width calculation
+                        display: "flex",
+                        flexDirection: "column",
+                        overflow: "hidden" // Prevent card itself from scrolling
+                    }}
+                >
+                    <CardContent 
+                        sx={{ 
+                            padding: { xs: 2, sm: 3, md: 4 },
+                            width: "100%", // Full width of card
+                            boxSizing: "border-box", // Include padding in width
+                            flex: 1,
+                            overflowY: "auto", // Enable vertical scrolling for content
+                            overflowX: "hidden", // Prevent horizontal scrolling
+                            "&::-webkit-scrollbar": {
+                                width: "8px",
+                            },
+                            "&::-webkit-scrollbar-track": {
+                                backgroundColor: "#f1f1f1",
+                                borderRadius: "4px",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "#c1c1c1",
+                                borderRadius: "4px",
+                                "&:hover": {
+                                    backgroundColor: "#a8a8a8",
+                                },
+                            },
+                        }}
+                    >
+                        {children}
+                    </CardContent>
+                </Card>
             </Box>
 
             {renderMobileMenu}
@@ -769,19 +847,14 @@ const profile = localStorage.getItem("profile")
 };
 // sm={4.5} md={4}
 
-CustomMenuDrawer.defaultProps = {
-    headerLabel: "items",
-    list1: ["item 1", "item 2", "item 3"],
-    list2: ["item 1", "item 2", "item 3"],
-    handleOnMenuSelect: () => {},
-};
-
+// PropTypes validation
 CustomMenuDrawer.propTypes = {
     headerLabel: PropTypes.string,
     list1: PropTypes.array,
     list2: PropTypes.array,
     children: PropTypes.node,
     handleOnMenuSelect: PropTypes.func,
+    profilepath: PropTypes.string,
 };
 
 export default CustomMenuDrawer;

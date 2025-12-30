@@ -1,5 +1,6 @@
 // @import "../../../static/scss/base/variables";
 // @import "../../../static/scss/main.scss";
+@use "static/scss/common/logo" as *;
 
 .register-photo {
     background: #f1f7fc;
@@ -23,10 +24,7 @@
 
     background-size: cover;
 }
-.logo {
-    text-align: center;
-    margin-top: 110px;
-}
+// Logo styles moved to common/_logo.scss
 
 .register-photo .form-container {
     display: table;

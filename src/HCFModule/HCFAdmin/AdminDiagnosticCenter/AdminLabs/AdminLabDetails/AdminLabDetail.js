@@ -19,7 +19,7 @@ import React, { useEffect, useState, Fragment } from "react";
 import "./adminlab.scss";
 import CustomButton from "../../../../../components/CustomButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import axiosInstance from "../../../../../config/axiosInstance";
+import axiosInstance from "../../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import NotFound from "../../../../../components/NotFound";
 import { Testlist } from "./Testlist";
 import pen from "../../../../../static/images/DrImages/Pen.svg";
@@ -27,6 +27,9 @@ import CustomModal from "../../../../../components/CustomModal";
 import CustomTextField from "../../../../../components/CustomTextField";
 import CustomSnackBar from "../../../../../components/CustomSnackBar";
 import NoAppointmentCard from "../../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import logger from "../../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 const AdminLabDetail = () => {
     const navigate = useNavigate();
@@ -62,18 +65,55 @@ const AdminLabDetail = () => {
     const [snackOpen, setSnackOpen] = useState(false);
     const [selectedTest, setSelectedTest] = useState(null);
 
-    console.log("this is prammmmsssseeeee", params);
-    // Fetch lab details
+    /**
+     * Validate HCF admin ID from localStorage
+     * SECURITY: Ensures admin ID is present before making API calls
+     * 
+     * @returns {string|null} HCF admin ID or null if invalid
+     */
+    const validateHcfAdminId = useCallback(() => {
+        const adminId = localStorage.getItem("hcfadmin_suid");
+
+        if (!adminId) {
+            logger.warn("⚠️ HCF Admin ID not found in localStorage");
+            toastService.warning("HCF Admin ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ HCF Admin ID validated:", adminId);
+        return adminId;
+    }, []);
+
+    /**
+     * Fetch lab details
+     * Loads lab information for the selected lab ID
+     */
     const fetchData1 = async () => {
+        logger.debug("📋 Fetching lab details", { exam_id, hcf_id });
         setLoading(true);
+        
+        const adminId = validateHcfAdminId();
+        if (!adminId || !exam_id) {
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await axiosInstance.get(
-                `/sec/hcf/getHcfSingleLab/${hcf_id}/${exam_id}`,
+                `/sec/hcf/getHcfSingleLab/${adminId}/${exam_id}`,
             );
-            console.log("response from : ", response?.data?.response);
-            setData1(response?.data?.response);
+            
+            const labData = response?.data?.response || [];
+            logger.debug("✅ Lab details received", { count: labData.length });
+            setData1(labData);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
+            logger.error("❌ Error fetching lab data:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to load lab details. Please try again.";
+            toastService.error(errorMessage);
+            setData1([]);
         } finally {
             setLoading(false);
         }
@@ -83,15 +123,34 @@ const AdminLabDetail = () => {
         fetchData1();
     }, []);
 
-    // Get test list
+    /**
+     * Get test list for the lab
+     * Loads all tests associated with the lab
+     */
     const getTests = async () => {
+        logger.debug("📋 Fetching test list", { exam_id, hcf_id });
         setLoading(true);
+        
+        const adminId = validateHcfAdminId();
+        if (!adminId || !exam_id) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axiosInstance.get(`/sec/hcf/getHcfTests/${hcf_id}/${exam_id}`);
-            console.log("response from : ", response?.data?.response);
-            setTest(response?.data?.response);
+            const response = await axiosInstance.get(`/sec/hcf/getHcfTests/${adminId}/${exam_id}`);
+            const tests = response?.data?.response || [];
+            
+            logger.debug("✅ Test list received", { count: tests.length });
+            setTest(tests);
         } catch (error) {
-            console.error("Error fetching test data:", error.response);
+            logger.error("❌ Error fetching test data:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to load tests. Please try again.";
+            toastService.error(errorMessage);
+            setTest([]);
         } finally {
             setLoading(false);
         }
@@ -107,22 +166,64 @@ const AdminLabDetail = () => {
         checkFields(testdata); // Ensure fields are checked on each testdata update
     }, [testdata]);
 
+    /**
+     * Create new test
+     * Posts test data to the server and refreshes the test list on success
+     */
     const fetchTestData = async () => {
+        logger.debug("📤 Creating new test");
         setSnackOpen(false);
+        
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            return;
+        }
+
         try {
-            await axiosInstance.post(`/sec/hcf/addTests`, JSON.stringify(testdata), {
-                headers: { Accept: "Application/json" },
-            });
-            await setSnackType("success");
-            await setSnackMessage("Test Crested Succesfully");
+            const response = await axiosInstance.post(
+                `/sec/hcf/addTests`,
+                JSON.stringify(testdata),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+            
+            logger.debug("✅ Test created successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Test Created Successfully";
+            setSnackType("success");
+            setSnackMessage(successMessage);
             setSnackOpen(true);
-            setTimeout(() => setOpenDialog(false), 3000);
+            toastService.success(successMessage);
+            
+            setTimeout(() => {
+                setOpenDialog(false);
+                // Reset form
+                setTestData({
+                    lab_exam_id: exam_id,
+                    hcf_id: adminId,
+                    sub_exam_name: null,
+                    test_subexam_price: null,
+                    test_description: null,
+                });
+            }, 2000);
+            
+            // Refresh test list
+            getTests();
         } catch (error) {
-            alert("Fill the details properly");
-            console.error(error.response);
-            await setSnackType("error");
-            await setSnackMessage("some error occured!!!");
+            logger.error("❌ Error creating test:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to create test. Please fill all fields properly and try again.";
+            
+            setSnackType("error");
+            setSnackMessage(errorMessage);
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
     const checkFields = (formData) => {
@@ -156,9 +257,9 @@ const AdminLabDetail = () => {
             test_subexam_price: String(data.test_subexam_price),
             test_description: data.test_description,
         });
-        console.log("edit clicked for exam:", testdata);
+        logger.debug("✏️ Edit test clicked", { sub_exam_id: data.sub_exam_id, sub_exam_name: data.sub_exam_name });
         setOpenEditDialog(true); // Open the modal
-``    };
+    };
     const checkEditFields = (formData) => {
         const isFilled =
             formData.sub_exam_id &&
@@ -177,43 +278,108 @@ const AdminLabDetail = () => {
         checkEditFields(editdata); // Ensure fields are checked on each testdata update
     }, [editdata]);
 
+    /**
+     * Update existing test
+     * Posts updated test data to the server and refreshes the test list on success
+     */
     const UpdateLab = async () => {
+        logger.debug("📤 Updating test");
         setSnackOpen(false);
+        
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            return;
+        }
+
         try {
-            await axiosInstance.post(`/sec/hcf/addTests`, JSON.stringify(editdata), {
-                headers: { Accept: "Application/json" },
-            });
-            await setSnackType("success");
-            await setSnackMessage("Test Update Succesfully");
+            const response = await axiosInstance.post(
+                `/sec/hcf/addTests`,
+                JSON.stringify(editdata),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+            
+            logger.debug("✅ Test updated successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Test Updated Successfully";
+            setSnackType("success");
+            setSnackMessage(successMessage);
             setSnackOpen(true);
-            setTimeout(() => setOpenEditDialog(false), 3000);
+            toastService.success(successMessage);
+            
+            setTimeout(() => setOpenEditDialog(false), 2000);
+            
+            // Refresh test list
+            getTests();
         } catch (error) {
-            alert("Fill the details properly");
-            console.error(error.response);
-            await setSnackType("error");
-            await setSnackMessage("some error occured!!!");
+            logger.error("❌ Error updating test:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to update test. Please fill all fields properly and try again.";
+            
+            setSnackType("error");
+            setSnackMessage(errorMessage);
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
 
+    /**
+     * Delete test
+     * Deletes a test by sub_exam_id and refreshes the test list on success
+     * 
+     * @param {Object} data - Test data object with sub_exam_id and sub_exam_name
+     */
     const handleDelete = async (data) => {
-        if (window.confirm(`Are you sure you want to delete "${data.sub_exam_name}"?`)) {
+        logger.debug("🗑️ Delete test requested", { sub_exam_id: data.sub_exam_id, sub_exam_name: data.sub_exam_name });
+        
+        // Use window.confirm for immediate feedback (could be replaced with CustomModal later)
+        if (window.confirm(`Are you sure you want to delete "${data.sub_exam_name}"? This action cannot be undone.`)) {
             setSnackOpen(false);
+            
+            const adminId = validateHcfAdminId();
+            if (!adminId) {
+                return;
+            }
+
+            // Validate required IDs
+            if (!data.sub_exam_id || !exam_id) {
+                logger.error("❌ Missing required IDs for deletion", { sub_exam_id: data.sub_exam_id, exam_id });
+                toastService.error("Invalid test ID. Please try again.");
+                return;
+            }
+
             try {
-                console.log("Deleting test with sub_exam_id:", data.sub_exam_id);
-                await axiosInstance.delete(`/sec/hcf/deleteTest/${hcf_id}/${exam_id}/${data.sub_exam_id}`);
+                const response = await axiosInstance.delete(
+                    `/sec/hcf/deleteTest/${adminId}/${exam_id}/${data.sub_exam_id}`
+                );
                 
-                await setSnackType("success");
-                await setSnackMessage("Test deleted successfully!");
+                logger.debug("✅ Test deleted successfully", { response: response?.data });
+                
+                const successMessage = response?.data?.message || "Test deleted successfully!";
+                setSnackType("success");
+                setSnackMessage(successMessage);
                 setSnackOpen(true);
+                toastService.success(successMessage);
                 
                 // Refresh the test list after successful deletion
                 getTests();
             } catch (error) {
-                console.error("Error deleting test:", error);
-                await setSnackType("error");
-                await setSnackMessage("Error deleting test!");
+                logger.error("❌ Error deleting test:", error);
+                logger.error("❌ Error response:", error?.response?.data);
+                
+                const errorMessage = error?.response?.data?.message ||
+                                    "Failed to delete test. Please try again.";
+                
+                setSnackType("error");
+                setSnackMessage(errorMessage);
                 setSnackOpen(true);
+                toastService.error(errorMessage);
             }
         }
     };

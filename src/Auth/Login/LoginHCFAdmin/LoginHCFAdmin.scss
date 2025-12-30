@@ -1,19 +1,49 @@
+/**
+ * LoginHCFAdmin Component Styles
+ * 
+ * Styles for the HCF Admin login page following split-screen layout pattern.
+ * Features:
+ * - Two-column layout (image left, form right)
+ * - Centered card design for form
+ * - Responsive design
+ * - Brand color scheme (#e72b4a)
+ */
+
+// Main page container - full viewport with centered content
 .register-photo {
     display: flex;
-    height: 100vh; 
+    height: 100vh; // Full viewport height
     align-items: center;
     justify-content: center;
-    background-color: #f5f5f5; 
+    background-color: #f5f5f5; // Light gray background
 }
 
+// Background decorative image holder (left side - 50% width)
 .image-holder {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   background-color: #f8d7da;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8d7da; // Light pink/red background
+    width: 50%; // Take up half of the screen
 }
 
+// Form container - centered card with shadow
+.form-container {
+    background: #ffff; // White card background
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Card shadow effect
+}
+
+// Component library container
+.component-library {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem; // Spacing around form content
+}
+
+// "Already have account" sign up link
 .already {
     margin-left: auto;
     justify-content: center;
@@ -22,18 +52,21 @@
     font-size: medium;
 }
 
+// Legacy whole container class (not currently used)
 .whole {
     margin: auto;
 }
 
+// Forgot password link styling
 .forgotpassword {
     margin: auto;
     display: contents;
     margin-top: 10px;
     font-size: medium;
-    color: #e72b4a;
+    color: #e72b4a; // Primary brand color (red/pink)
 }
 
+// Page title/heading styling
 .text-center {
     font-size: 24px;
     line-height: 1.5;
@@ -43,10 +76,11 @@
     text-align: center;
 }
 
+// Mobile/OTP login link styling
 .mobile {
     margin: auto;
     margin-top: 10px;
     display: contents;
     font-size: medium;
-    color: #e72b4a;
+    color: #e72b4a; // Primary brand color (red/pink)
 }

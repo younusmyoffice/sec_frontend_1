@@ -39,7 +39,7 @@ import {
 } from "../../../services/paymentService";
 import "./patientBookappointment.scss";
 import "./BookingAppointmentModal.scss";
-import axiosInstance from "../../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance"; // Handles access token automatically
 import NoAppointmentCard from "../../PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import "./bookappointment.scss";
 import { styled } from "@mui/material/styles";
@@ -50,6 +50,8 @@ import isAfter from "date-fns/isAfter";
 import startOfToday from "date-fns/startOfToday";
 import { fetchDocDuration, fetchQuestions, formatDate } from "./bookappointmentapihelperfunction";
 import { useParams } from "react-router-dom";
+import logger from "../../../utils/logger"; // Centralized logging
+import toastService from "../../../services/toastService"; // Toast notifications
 
 const today = startOfToday();
 
@@ -70,15 +72,54 @@ dayjs.extend(timezone);
 
 const steps = ["Details", "Date & Time", "Duration", "Questions", "Payment"];
 
+/**
+ * HorizontalLinearStepper Component - Appointment Booking Modal
+ * 
+ * Multi-step stepper for booking appointments:
+ * 1. Patient details (name, gender, age, problem description, file upload)
+ * 2. Date & Time selection (calendar, duration, time slots)
+ * 3. Package selection (messaging, video, call plans)
+ * 4. Health assessment questions
+ * 5. Payment processing (Braintree)
+ * 
+ * Features:
+ * - Form validation at each step ✅
+ * - Payment integration with Braintree ✅
+ * - File upload for medical reports ✅
+ * - Toast notifications for errors/success ✅
+ * 
+ * API Endpoints:
+ * - POST /sec/patient/getAvailableAppointmentDates (fetch available dates)
+ * - POST /sec/patient/getAppointmentSlots (fetch time slots)
+ * - POST /sec/patient/createAppointmentPackageSelect (fetch packages)
+ * - POST /sec/patient/createAppointmentPackageQuestion (fetch questions)
+ * - POST /sec/patient/createAppointment/ or /sec/patient/createAppointmentHcfDoctor (create appointment)
+ * 
+ * Security:
+ * - Uses axiosInstance (automatic JWT token injection) ✅
+ * - Validates all form inputs ✅
+ * - Secure payment processing via Braintree ✅
+ * 
+ * @component
+ */
 export default function HorizontalLinearStepper({ drID, hcfDoc }) {
+    logger.debug("🔵 BookingAppointmentModal component rendering", {
+        hasDrID: !!drID,
+        hcfDoc: !!hcfDoc
+    });
+    
     const params = useParams();
-    console.log("params : hcf doctor booking appointment modal", params);
+    
+    // Extract IDs from props or URL params
     const doctorID = drID || params?.hcddocid; // Use drID prop first, fallback to URL params
-    console.log("doctorID : hcf doctor booking appointment modal", doctorID);
     const hcfID = params?.reshcfID;
-    console.log("hcfID : hcf doctor booking appointment modal", hcfID);
-    console.log("drID prop : ", drID);
-    console.log("hcfDoc prop : ", hcfDoc);
+    
+    logger.debug("🔍 BookingAppointmentModal IDs", {
+        doctorID,
+        hcfID,
+        drIDFromProp: drID,
+        hcfDoc
+    });
     const { validateStepData, getStepErrors, clearStepErrors, hasStepErrors } = useFormValidation();
     
     const [activeStep, setActiveStep] = React.useState(0);
@@ -151,19 +192,13 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         payment_method_nonce: null,
         problem: null,
     });
-    console.log(hcfDoc);
-
-    console.log(
-        "this is the flag inside of the book appointment modal : ",
-        hcfDoc +
-        `this is the hcf id : ${hcfID} and this is the doc id : ${doctorID}`,
-    );
-    
-    // Debug the corrected parameter mapping
-    console.log("🔧 BookingAppointmentModal parameter mapping:");
-    console.log("  - HCF ID (hcfID):", hcfID);
-    console.log("  - Doctor ID (doctorID):", doctorID);
-    console.log("  - hcfDoc flag:", hcfDoc);
+    // Debug parameter mapping (removed console.log - using logger instead)
+    logger.debug("🔧 BookingAppointmentModal parameter mapping", {
+        hcfID,
+        doctorID,
+        hcfDoc,
+        isHcfDoctorAppointment: !!hcfDoc
+    });
     const [messagingPlan, setMessaginplanActive] = React.useState(false);
     const [voiceMessagingPlan, setVoiceMessaginplanActive] = React.useState(false);
     const [videoMessagingPlan, setVideoMessaginplanActive] = React.useState(false);
@@ -203,67 +238,133 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         );
     };
 
+    /**
+     * Fetch available time slots for selected date and duration
+     * Retrieves available appointment time slots from API
+     */
     const fetch_Time_Slots = async () => {
+        // Validate timeslot data before fetching
+        if (!timeslotData.appointment_date || !timeslotData.duration) {
+            logger.warn("⚠️ Missing date or duration for time slot fetch");
+            return;
+        }
+        
+        logger.debug("⏰ Fetching time slots", timeslotData);
+        
         try {
-            console.log("Fetching time slots with data:", timeslotData);
             const response = await axiosInstance.post(
                 "/sec/patient/getAppointmentSlots",
                 timeslotData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
             );
-            console.log("Time slots response:", response.data);
-            setTime_slot(response?.data?.response?.availableSlots || []);
+            
+            logger.debug("✅ Time slots API response received", {
+                hasSlots: !!response?.data?.response?.availableSlots,
+                slotsLength: response?.data?.response?.availableSlots?.length || 0,
+            });
+            
+            // Validate response structure
+            if (!response?.data?.response?.availableSlots || !Array.isArray(response.data.response.availableSlots)) {
+                logger.warn("⚠️ Invalid time slots response structure");
+                setTime_slot([]);
+                return;
+            }
+            
+            setTime_slot(response.data.response.availableSlots);
         } catch (err) {
-            console.error("Error fetching time slots:", err);
+            logger.error("❌ Failed to fetch time slots:", err);
+            toastService.error(
+                err?.response?.data?.message || 
+                "Failed to load available time slots. Please try again."
+            );
             setTime_slot([]);
         }
     };
 
+    /**
+     * Book appointment with payment nonce
+     * Creates the appointment after payment verification
+     * 
+     * @param {string} nonce_value - Braintree payment nonce
+     */
     const bookappointment = async (nonce_value) => {
         // Prevent duplicate appointment booking
         if (isAppointmentBooked) {
-            console.log("Appointment already booked, skipping duplicate booking");
+            logger.warn("⚠️ Appointment already booked, skipping duplicate booking");
             return;
         }
         
+        // Validate nonce before proceeding
+        if (!nonce_value || typeof nonce_value !== 'string') {
+            logger.error("❌ Invalid payment nonce provided");
+            toastService.error("Invalid payment information");
+            setShowSnackError(true);
+            return;
+        }
+        
+        logger.debug("📝 Creating appointment", {
+            isHcfDoctor: !!hcfDoc,
+            hasHcfId: !!hcfID,
+            hasDoctorId: !!doctorID,
+            hasDate: !!appointmentData.appointment_date,
+            hasTime: !!appointmentData.appointment_time
+        });
+        
         setShowSnack(false);
         setShowSnackError(false);
+        
         try {
+            // Select API endpoint based on appointment type
             const BookAppoinetmentApiPath = hcfDoc
                 ? "/sec/patient/createAppointmentHcfDoctor"
                 : "/sec/patient/createAppointment/";
             
-            // Use the current appointment data which should already have the nonce
+            // Prepare appointment payload with payment nonce
             const appointmentPayload = {
                 ...appointmentData,
                 payment_method_nonce: nonce_value,
-                hcf_id: hcfDoc ? hcfID : undefined, // Use hcfID for HCF ID
-                doctor_id: doctorID ? doctorID : undefined // Use doctorID for doctor ID
+                hcf_id: hcfDoc ? hcfID : undefined, // Use hcfID for HCF appointments
+                doctor_id: doctorID ? doctorID : undefined // Use doctorID for doctor appointments
             };
-            
-            console.log("Creating appointment with data:", appointmentPayload);
             
             const response = await axiosInstance.post(
                 BookAppoinetmentApiPath,
-                JSON.stringify(appointmentPayload)
+                JSON.stringify(appointmentPayload),
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
             );
             
-            console.log("Appointment created successfully:", response.data);
+            logger.debug("✅ Appointment created successfully", {
+                hasResponse: !!response?.data
+            });
+            
             setShowSnack(true);
             setShowSnackError(false);
             setShowSnackMessage("Appointment booked successfully!");
+            toastService.success("Appointment booked successfully!");
             setIsAppointmentBooked(true); // Mark appointment as booked
             
         } catch (error) {
-            console.error("Error creating appointment:", error);
+            logger.error("❌ Failed to create appointment:", error);
+            
+            // Extract error message from response
+            const errorMessage = error?.response?.data?.error || 
+                                error?.response?.data?.message || 
+                                "Failed to create appointment. Please try again.";
+            
             setShowSnack(false);
             setShowSnackError(true);
-            setShowSnackErrorMessage(
-                error?.response?.data?.error || 
-                "Failed to create appointment. Please try again."
-            );
+            setShowSnackErrorMessage(errorMessage);
+            toastService.error(errorMessage);
         }
     };
-    console.log("appointmentData : ", appointmentData);
     const isStepOptional = (step) => {
         return step === 1;
     };
@@ -281,17 +382,16 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         
         // Debug logging for questions step
         if (activeStep === 3) {
-            console.log("Questions validation debug:", {
-                questions: question,
+            logger.debug("❓ Questions validation debug", {
                 questionsLength: question?.length || 0,
-                appointmentData: appointmentData,
                 answerKeys: Object.keys(appointmentData).filter(key => key.startsWith('answer_')),
                 validation: validation
             });
         }
         
         if (!validation.isValid) {
-            console.log("Validation errors:", validation.errors);
+            logger.warn("⚠️ Validation errors detected", { errors: validation.errors });
+            toastService.error("Please fill in all required fields before proceeding");
             return; // Don't proceed if validation fails
         }
         
@@ -343,15 +443,18 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         }
     };
 
-    // Force refresh of Braintree Drop-In instance
+    /**
+     * Force refresh of Braintree Drop-In instance
+     * Regenerates client token and resets the payment form
+     */
     const refreshBraintreeInstance = async () => {
+        logger.debug("🔄 Refreshing Braintree Drop-In instance...");
+        setIsRefreshing(true);
+        
         try {
-            setIsRefreshing(true);
-            console.log("Refreshing Braintree Drop-In instance...");
-            
             // Get fresh client token
             const freshToken = await generateClientToken();
-            console.log("Generated fresh client token:", freshToken);
+            logger.debug("✅ Generated fresh client token", { hasToken: !!freshToken });
             
             // Update values with fresh token; clear stale instance reference
             setValues(prev => ({ ...prev, clientToken: freshToken, instance: null }));
@@ -366,19 +469,25 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             // Force re-render of Braintree component by incrementing key
             setBraintreeKey(prev => prev + 1);
             
-            console.log("Braintree instance refreshed successfully");
+            logger.debug("✅ Braintree instance refreshed successfully");
+            toastService.success("Payment form refreshed successfully");
         } catch (error) {
-            console.error("Error refreshing Braintree instance:", error);
+            logger.error("❌ Error refreshing Braintree instance:", error);
+            toastService.error("Failed to refresh payment form. Please try again.");
         } finally {
             setIsRefreshing(false);
         }
     };
 
     // api function to fetch purchase plan
+    /**
+     * Process payment and book appointment
+     * Generates payment nonce from Braintree and creates appointment
+     */
     const Purchase_plan = async () => {
         // Prevent duplicate payment processing
         if (isProcessingPayment) {
-            console.log("Payment already in progress, ignoring duplicate request");
+            logger.warn("⚠️ Payment already in progress, ignoring duplicate request");
             return;
         }
         
@@ -389,11 +498,11 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             // Both development and production use real Braintree nonce
             // Development uses sandbox, production uses live environment
             const environment = isDevelopmentMode() ? "sandbox" : "production";
-            console.log(`Getting fresh Braintree ${environment} nonce`);
+            logger.debug(`💳 Getting fresh Braintree ${environment} nonce`);
             
             // Check if Braintree instance is available and not torn down
             if (!dropinInstanceRef.current && !values?.instance) {
-                console.log("No Braintree instance available, refreshing...");
+                logger.warn("⚠️ No Braintree instance available, refreshing...");
                 await refreshBraintreeInstance();
                 // Wait a bit for the instance to initialize
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -409,9 +518,9 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             
             // Check if instance is still valid (not torn down)
             try {
-                // Test if instance is still valid by checking if it has the requestPaymentMethod function
+                    // Test if instance is still valid by checking if it has the requestPaymentMethod function
                 if (!currentInstance || typeof currentInstance.requestPaymentMethod !== 'function') {
-                    console.log("Braintree instance is invalid, refreshing...");
+                    logger.warn("⚠️ Braintree instance is invalid, refreshing...");
                     await refreshBraintreeInstance();
                     // Wait a bit for the instance to initialize
                     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -431,7 +540,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             }
             
             // Generate fresh nonce for each payment attempt with retry logic
-            console.log("Requesting payment method from Braintree...");
+            logger.debug("📤 Requesting payment method from Braintree...");
             let nonce_value;
             let retryCount = 0;
             const maxRetries = 2;
@@ -440,16 +549,20 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                 try {
                     const instanceToUse = dropinInstanceRef.current || values?.instance;
                     nonce_value = await get_nonce({ instance: instanceToUse });
-                    console.log(`Generated fresh Braintree ${environment} nonce:`, nonce_value);
+                    
+                    logger.debug(`✅ Generated fresh Braintree ${environment} nonce`, {
+                        attempt: retryCount + 1,
+                        hasNonce: !!nonce_value
+                    });
                     
                     if (nonce_value && typeof nonce_value === 'string') {
                         break; // Success, exit retry loop
                     }
                 } catch (error) {
-                    console.error(`Nonce generation attempt ${retryCount + 1} failed:`, error);
+                    logger.error(`❌ Nonce generation attempt ${retryCount + 1} failed:`, error);
                     
                     if (error.message && error.message.includes('teardown')) {
-                        console.log("Teardown error detected, refreshing Braintree instance...");
+                        logger.warn("⚠️ Teardown error detected, refreshing Braintree instance...");
                 await refreshBraintreeInstance();
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for new instance
                 retryCount++;
@@ -468,7 +581,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             
             // Check if this nonce has already been used
             if (usedNonces.has(nonce_value)) {
-                console.log("Nonce already used, refreshing Braintree instance...");
+                logger.warn("⚠️ Nonce already used, refreshing Braintree instance...");
                 await refreshBraintreeInstance();
                 throw new Error("Payment form has been refreshed. Please try again.");
             }
@@ -486,24 +599,33 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             clearPaymentForm();
 
         } catch (error) {
-            console.error("Error in payment processing:", error);
+            logger.error("❌ Error in payment processing:", error);
             setShowSnackError(true);
+            
+            // Extract error message
+            const errorMessage = error?.message || 
+                                error?.response?.data?.message || 
+                                "Payment processing failed. Please try again.";
             
             // Handle specific teardown error
             if (error.message && error.message.includes('teardown')) {
                 setShowSnackErrorMessage("Payment form has been reset. Please refresh the payment form and try again.");
+                toastService.error("Payment form has been reset. Please refresh and try again.");
             } else if (error.message && error.message.includes('no longer valid')) {
                 // Automatically refresh the Braintree instance for this specific error
-                console.log("Automatically refreshing Braintree instance due to invalid instance error...");
+                logger.warn("⚠️ Automatically refreshing Braintree instance due to invalid instance error...");
                 try {
                     await refreshBraintreeInstance();
                     setShowSnackErrorMessage("Payment form has been automatically refreshed. Please try again.");
+                    toastService.info("Payment form has been refreshed. Please try again.");
                 } catch (refreshError) {
-                    console.error("Failed to auto-refresh Braintree instance:", refreshError);
+                    logger.error("❌ Failed to auto-refresh Braintree instance:", refreshError);
                     setShowSnackErrorMessage("Payment form is no longer valid. Please refresh the page and try again.");
+                    toastService.error("Payment form refresh failed. Please refresh the page.");
                 }
             } else {
-                setShowSnackErrorMessage(error.message || "Payment processing failed. Please try again.");
+                setShowSnackErrorMessage(errorMessage);
+                toastService.error(errorMessage);
             }
         } finally {
             setIsLoading(false);
@@ -549,8 +671,27 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
     // api function to fetch the select package
 
 
+    /**
+     * Fetch selectable appointment packages
+     * Retrieves available consultation packages based on doctor and duration
+     */
     const fetchSelectPackage = async () => {
-        // console.log("Appointnment data : ", drID, appointmentData?.duration);
+        // Validate doctor ID and duration before fetching
+        if (!doctorID) {
+            logger.warn("⚠️ Doctor ID is missing, cannot fetch packages");
+            return;
+        }
+        
+        if (!appointmentData?.duration) {
+            logger.warn("⚠️ Duration is not selected, cannot fetch packages");
+            return;
+        }
+        
+        logger.debug("📦 Fetching selectable packages", {
+            doctorID,
+            duration: appointmentData.duration
+        });
+        
         try {
             const response = await axiosInstance.post(
                 "/sec/patient/createAppointmentPackageSelect/",
@@ -559,21 +700,55 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                     is_active: 1,
                     duration: appointmentData?.duration,
                 }),
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
             );
-            console.log("Package plan : ", response.data?.response.plan);
-            console.log("Doctor list id : ", response.data?.response.plan[0]?.doctor_list_id);
-            setDoctorListId(response.data?.response.plan[0]?.doctor_list_id);
-            setSelectPackage(response?.data?.response.plan);
-            // for (let key in response?.data?.response) {
-            //     duration.push(key);
-            //     // setDuration([...duration , key])
-            // }
+            
+            logger.debug("✅ Package API response received", {
+                hasPlan: !!response?.data?.response?.plan,
+                planLength: response?.data?.response?.plan?.length || 0,
+            });
+            
+            // Validate response structure
+            if (!response?.data?.response?.plan || !Array.isArray(response.data.response.plan)) {
+                logger.warn("⚠️ Invalid packages response structure");
+                setSelectPackage([]);
+                return;
+            }
+            
+            setDoctorListId(response.data?.response?.plan[0]?.doctor_list_id);
+            setSelectPackage(response.data.response.plan);
         } catch (err) {
-            console.log("select Error : ", err);
+            logger.error("❌ Failed to fetch packages:", err);
+            toastService.error(
+                err?.response?.data?.message || 
+                "Failed to load packages. Please try again."
+            );
+            setSelectPackage([]);
         }
     };
 
+    /**
+     * Fetch appointment questions for selected package
+     * Retrieves health assessment questions based on doctor and package
+     */
     const fetchQuestions = async () => {
+        // Validate doctor ID and list ID before fetching
+        if (!doctorID) {
+            logger.warn("⚠️ Doctor ID is missing, cannot fetch questions");
+            return;
+        }
+        
+        if (!doctorListId) {
+            logger.warn("⚠️ Doctor list ID is missing, cannot fetch questions");
+            return;
+        }
+        
+        logger.debug("❓ Fetching appointment questions", { doctorID, doctorListId });
+        
         try {
             const response = await axiosInstance.post(
                 "/sec/patient/createAppointmentPackageQuestion/",
@@ -582,20 +757,60 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                     is_active: 1,
                     doctor_list_id: doctorListId,
                 }),
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
             );
-            setQuestion(response?.data?.response?.questions);
+            
+            logger.debug("✅ Questions API response received", {
+                hasQuestions: !!response?.data?.response?.questions,
+                questionsLength: response?.data?.response?.questions?.length || 0,
+            });
+            
+            // Validate response structure
+            if (!response?.data?.response?.questions) {
+                logger.warn("⚠️ No questions found in response");
+                setQuestion([]);
+                return;
+            }
+            
+            setQuestion(response.data.response.questions);
         } catch (err) {
-            console.log("Questions Error : ", err);
+            logger.error("❌ Failed to fetch questions:", err);
+            toastService.error(
+                err?.response?.data?.message || 
+                "Failed to load questions. Please try again."
+            );
+            setQuestion([]);
         }
     };
 
-    // function to take date as an input
+    /**
+     * Handle date selection from calendar
+     * Formats the selected date and updates appointment data
+     * 
+     * @param {Date} date - Selected date from calendar
+     */
     const selectDate = (date) => {
-        console.log("Date selected:", date);
+        if (!date) {
+            logger.warn("⚠️ No date selected");
+            return;
+        }
+        
+        logger.debug("📅 Date selected for appointment", { date });
         setSelectedDate(date);
         
         const formatDateResp = formatDate(date);
-        console.log("Formatted date:", formatDateResp);
+        
+        if (!formatDateResp) {
+            logger.error("❌ Failed to format selected date");
+            toastService.error("Invalid date selected");
+            return;
+        }
+        
+        logger.debug("✅ Date formatted successfully", { formattedDate: formatDateResp });
         
         // Clear previous selections when date changes
         setAppointmentData({ 
@@ -612,11 +827,14 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         // Fetch available durations for the selected date
         fetchDocDuration(doctorID, formatDateResp)
             .then((duration) => {
-                console.log("Duration promise resolved : ", duration);
+                logger.debug("✅ Duration fetched successfully", { 
+                    durationsCount: duration?.length || 0 
+                });
                 setDuration(duration || []);
             })
             .catch((err) => {
-                console.error("Error fetching durations:", err);
+                logger.error("❌ Error fetching durations:", err);
+                toastService.error("Failed to load available durations. Please try again.");
                 setDuration([]);
             });
     };
@@ -626,11 +844,14 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
         fetchSelectPackage();
     }, [packageflag]);
 
-    // for fetching time slots
+    /**
+     * useEffect: Fetch time slots when date and duration are selected
+     * Automatically fetches available time slots when both appointment_date and duration are set
+     */
     React.useEffect(() => {
         if (timeslotData.appointment_date && timeslotData.duration) {
-            console.log("Fetching time slots for:", timeslotData);
-        fetch_Time_Slots();
+            logger.debug("⏰ Fetching time slots", timeslotData);
+            fetch_Time_Slots();
         }
     }, [timeslotData]);
 
@@ -672,35 +893,56 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
             // Both development and production use real Braintree tokens
             // Development uses sandbox, production uses live environment
             const environment = isDevelopmentMode() ? "sandbox" : "production";
-            console.log(`Generating Braintree ${environment} token`);
+            logger.debug(`🔑 Generating Braintree ${environment} token`);
             
             const token = await generateClientToken();
-            console.log(`Generated Braintree ${environment} token:`, token);
+            logger.debug(`✅ Generated Braintree ${environment} token`, {
+                hasToken: !!token
+            });
             setValues(prev => ({ ...prev, clientToken: token }));
         } catch (error) {
-            console.error("Error initializing payment token:", error);
+            logger.error("❌ Error initializing payment token:", error);
+            toastService.error("Failed to initialize payment form. Please refresh the page.");
             // Fallback to mock token in case of error
             const fallbackToken = `fallback_token_${Date.now()}`;
             setValues(prev => ({ ...prev, clientToken: fallbackToken }));
         }
     };
 
-    // Refresh payment token for new payment attempts
+    /**
+     * Refresh payment token for new payment attempts
+     * Regenerates Braintree client token
+     */
     const refreshPaymentToken = async () => {
         try {
-            console.log("Refreshing payment token for new payment attempt...");
+            logger.debug("🔄 Refreshing payment token for new payment attempt...");
             await initializePaymentToken();
+            toastService.success("Payment form refreshed successfully");
         } catch (error) {
-            console.error("Error refreshing payment token:", error);
+            logger.error("❌ Error refreshing payment token:", error);
+            toastService.error("Failed to refresh payment form. Please try again.");
         }
     };
 
+    /**
+     * useEffect: Fetch questions when doctor list ID changes
+     * Loads health assessment questions when a package is selected
+     */
     React.useEffect(() => {
-        fetchQuestions();
+        if (doctorListId) {
+            fetchQuestions();
+        }
     }, [doctorListId]);
-
-    console.log("Appointment Data : ", appointmentData);
-    console.log("plan fee : ", planfee);
+    
+    // Debug logging for development (removed console.log - using logger for important info)
+    if (process.env.NODE_ENV === 'development') {
+        logger.debug("📋 Appointment data state", {
+            hasDate: !!appointmentData.appointment_date,
+            hasTime: !!appointmentData.appointment_time,
+            hasPackage: !!appointmentData.doctor_fee_plan_id,
+            planFee: planfee
+        });
+    }
 
     const handleFileInput = async (event) => {
         const file = event.target.files[0]; // Get the file object
@@ -714,15 +956,25 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                 
                 try {
                     // Upload file using the new service
+                    logger.debug("📤 Uploading file to S3", { fileName, fileSize: base64Data.length });
+                    
                     const uploadResponse = await axiosInstance.post(
                         "/sec/reports/uploadAppointmentFileToS3",
                         JSON.stringify({
                             fileName: fileName,
                             file: base64Data
-                        })
+                        }),
+                        {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
                     );
                     
-                    console.log("File upload response:", uploadResponse.data);
+                    logger.debug("✅ File upload response received", {
+                        hasResponse: !!uploadResponse?.data,
+                        fileName: uploadResponse?.data?.fileName
+                    });
                     
                     // Update appointment data with file information
                 setAppointmentData({
@@ -737,9 +989,15 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                     setShowSnackMessage("File uploaded successfully!");
                     
                 } catch (error) {
-                    console.error("File upload error:", error);
+                    logger.error("❌ File upload error:", error);
+                    
+                    const errorMessage = error?.response?.data?.message || 
+                                        error?.response?.data?.error || 
+                                        "Failed to upload file. Please try again.";
+                    
                     setShowSnackError(true);
-                    setShowSnackErrorMessage("Failed to upload file. Please try again.");
+                    setShowSnackErrorMessage(errorMessage);
+                    toastService.error(errorMessage);
                 } finally {
                     setIsUploadingFile(false);
                 }
@@ -1038,7 +1296,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                 items={duration}
                                         activeItem={appointmentData?.duration}
                                                 handleChange={(item) => {
-                                                    console.log("Duration selected:", item);
+                                                    logger.debug("⏱️ Duration selected", { duration: item });
                                             setAppointmentData({
                                                 ...appointmentData,
                                                 duration: item,
@@ -1051,7 +1309,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                 duration: item,
                                                     };
                                                     
-                                                    console.log("Updated timeslot data:", newTimeslotData);
+                                                    logger.debug("✅ Updated timeslot data", newTimeslotData);
                                                     setTimeslotData(newTimeslotData);
                                                     
                                                     // Clear previous time slots
@@ -1092,7 +1350,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                 dropdowncss={{ width: "100%" }}
                                                 activeItem={appointmentData?.appointment_time}
                                                 handleChange={(item) => {
-                                                    console.log("Time slot selected:", item);
+                                                    logger.debug("⏰ Time slot selected", { timeSlot: item });
                                                     
                                                     // Format time to ensure it's in the correct format (09:00 - 10:00)
                                                     const formatTimeSlot = (timeSlot) => {
@@ -1125,7 +1383,10 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                     };
                                                     
                                                     const formattedTime = formatTimeSlot(item);
-                                                    console.log("Formatted time slot:", formattedTime);
+                                                    logger.debug("✅ Formatted time slot", { 
+                                                        original: item, 
+                                                        formatted: formattedTime 
+                                                    });
                                                     
                                                     setAppointmentData({
                                                         ...appointmentData,
@@ -1321,12 +1582,16 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                         label={data?.question}
                                                         items={answers}
                                                         activeItem={appointmentData?.[`answer_${index + 1}`]}
-                                                        handleChange={(item) =>
+                                                        handleChange={(item) => {
+                                                            logger.debug("✅ Question answered", {
+                                                                questionIndex: index + 1,
+                                                                answer: item
+                                                            });
                                                             setAppointmentData({
                                                                 ...appointmentData,
                                                                 [`answer_${index + 1}`]: item,
-                                                            })
-                                                        }
+                                                            });
+                                                        }}
                                                         menuItemValue=""
                                                         required
                                                     />
@@ -1383,14 +1648,16 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                         options={{
                                                             authorization: values?.clientToken,
                                                         }}
-                                                        onInstance={(instance) => {
-                                                            console.log("Braintree Drop-In instance:", instance);
-                                                            setValues(prev => ({
-                                                                ...prev,
-                                                                instance: instance,
-                                                            }));
-                                                            dropinInstanceRef.current = instance;
-                                                        }}
+                                                    onInstance={(instance) => {
+                                                        logger.debug("✅ Braintree Drop-In instance created", {
+                                                            hasInstance: !!instance
+                                                        });
+                                                        setValues(prev => ({
+                                                            ...prev,
+                                                            instance: instance,
+                                                        }));
+                                                        dropinInstanceRef.current = instance;
+                                                    }}
                                                     />
                                             
                                             <Box className="payment-button-container">
@@ -1411,7 +1678,7 @@ export default function HorizontalLinearStepper({ drID, hcfDoc }) {
                                                             ? "#4caf50" 
                                                             : (!values?.instance || isRefreshing || isProcessingPayment) 
                                                                 ? "#adb5bd" 
-                                                                : (isDevelopmentMode() ? "#ff9800" : "#1976d2"),
+                                                                : (isDevelopmentMode() ? "#ff9800" : "#e72b4a"),
                                                         marginBottom: "8px",
                                                         opacity: (!values?.instance || isRefreshing || isProcessingPayment || isAppointmentBooked) ? 0.7 : 1
                                                     }}

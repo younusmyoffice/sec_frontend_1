@@ -15,44 +15,143 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import CustomButton from "../../../components/CustomButton/custom-button";
 import { ReceiveCard, FaildCard, SendCard } from "./TransactionCard";
-import axiosInstance from "../../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance"; // Handles access token automatically
 import NoAppointmentCard from "../../PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { currencysign } from "../../../constants/const";
+import logger from "../../../utils/logger"; // Centralized logging
+import toastService from "../../../services/toastService"; // Toast notifications
 import "./transaction.scss";
 
+/**
+ * Transactions Component
+ * 
+ * Displays patient's transaction history
+ * Features:
+ * - Fetches and displays transaction data
+ * - Shows payment status (Success, Failed)
+ * - Pagination support
+ * - Loading skeletons
+ * - Empty state handling
+ * 
+ * @component
+ */
 const Transactions = () => {
-    const [data, setData] = useState([]); // Transaction data
-    const [loading, setLoading] = useState(true); // Loading state
-    const [page, setPage] = useState(0); // Current page
-    const [rowsPerPage, setRowsPerPage] = useState(5); // Rows per page
-    const patient_id = localStorage.getItem("patient_suid"); // Fetch patient ID from localStorage
-
-    useEffect(() => {
-        // Set active component for navigation
-        localStorage.setItem("activeComponent", "manage");
-        localStorage.setItem("path", "transactions");
-        fetchData(patient_id);
-    }, [patient_id]);
-
-    const fetchData = async (patient_id) => {
-        setLoading(true);
+    logger.debug("🔵 Transactions component rendering");
+    
+    // Transaction data state
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
+    // Pagination states
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    
+    /**
+     * Get patient ID from localStorage with error handling
+     */
+    const getPatientId = () => {
         try {
-            const response = await axiosInstance.get(`/sec/patient/transaction/${patient_id}`);
-            setData(response?.data?.response || []); // Update transaction data
+            const patientId = localStorage.getItem("patient_suid");
+            if (!patientId) {
+                logger.warn("⚠️ Patient ID not found in localStorage");
+                toastService.error("Patient information not available");
+            }
+            return patientId;
         } catch (error) {
-            console.error("Error fetching transaction data:", error);
+            logger.error("❌ Error accessing localStorage:", error);
+            toastService.error("Failed to load patient information");
+            return null;
+        }
+    };
+    
+    const [patient_id, setPatient_id] = useState(getPatientId());
+
+    /**
+     * Fetch transaction data from API
+     * Retrieves all transactions for the patient
+     */
+    const fetchData = async (patient_id) => {
+        logger.debug("📡 Fetching transaction data", { patient_id });
+        setLoading(true);
+        
+        try {
+            // Validate patient ID
+            if (!patient_id) {
+                logger.error("❌ Patient ID is missing");
+                toastService.error("Patient information not available");
+                setData([]);
+                setLoading(false);
+                return;
+            }
+            
+            const response = await axiosInstance.get(`/sec/patient/transaction/${patient_id}`);
+            
+            const transactionData = response?.data?.response || [];
+            logger.debug("✅ Transaction data fetched successfully", { 
+                count: transactionData.length 
+            });
+            
+            setData(transactionData);
+            
+            if (transactionData.length > 0) {
+                toastService.success(`${transactionData.length} transaction(s) loaded`);
+            }
+        } catch (error) {
+            logger.error("❌ Failed to fetch transaction data:", error);
+            toastService.error(
+                error?.response?.data?.message || 
+                "Failed to load transactions. Please try again later."
+            );
+            setData([]);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Initialize component and fetch data
+     * Sets localStorage flags and fetches transaction data
+     */
+    useEffect(() => {
+        logger.debug("🔵 Transactions component mounting");
+        
+        try {
+            localStorage.setItem("activeComponent", "manage");
+            localStorage.setItem("path", "transactions");
+            logger.debug("✅ Set localStorage flags");
+        } catch (error) {
+            logger.error("❌ Error setting localStorage:", error);
+        }
+        
+        // Update patient_id from localStorage if not already set
+        const currentPatientId = getPatientId();
+        if (currentPatientId && currentPatientId !== patient_id) {
+            setPatient_id(currentPatientId);
+        }
+        
+        fetchData(patient_id);
+    }, [patient_id]);
+
+    /**
+     * Handle page change in pagination
+     * @param {Event} event - Change event
+     * @param {number} newPage - New page number (0-based)
+     */
     const handleChangePage = (event, newPage) => {
+        logger.debug("📄 Page changed", { newPage });
         setPage(newPage);
     };
 
+    /**
+     * Handle rows per page change
+     * Resets to first page when rows per page changes
+     * @param {Event} event - Change event
+     */
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        logger.debug("📄 Rows per page changed", { newRowsPerPage });
+        setRowsPerPage(newRowsPerPage);
+        setPage(0); // Reset to first page
     };
 
     return (
@@ -70,16 +169,17 @@ const Transactions = () => {
                     <Box
                         component="div"
                         sx={{
-                            position: "relative",
-                            top: "4em",
+                            flex: 1,
                             width: "100%",
                             display: "flex",
-                            height: "90%",
                             flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "hidden",
+                            marginTop: "4em",
                         }}
                     >
                         {loading ? (
-                            // Display Skeleton Loader while loading
+                            /* Loading skeletons */
                             <Box sx={{ padding: "1rem" }}>
                                 {[...Array(rowsPerPage)].map((_, index) => (
                                     <Skeleton
@@ -91,16 +191,28 @@ const Transactions = () => {
                                 ))}
                             </Box>
                         ) : data.length === 0 ? (
-                            // Display a message when no transactions exist
+                            /* Empty state */
                             <NoAppointmentCard
                                 text_one={"You don't have any transactions"}
                                 ButtonLabel="Explore Appointments"
                                 ButtonPath="/patientDashboard/dashboard/explore"
                             />
                         ) : (
-                            // Display transaction data in a table
-                            <TableContainer component={Paper} sx={{ backgroundColor: "#ffffff" }}>
-                                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                            /* Scrollable table container - enables internal scrolling when table exceeds viewport */
+                            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                                <TableContainer 
+                                    component={Paper} 
+                                    sx={{ 
+                                        backgroundColor: "#ffffff",
+                                        flex: 1,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        minHeight: 0,
+                                        overflow: "auto", // Enable scrolling for table content
+                                        maxHeight: "calc(100vh - 250px)", // Adjusted to account for navbar and spacing
+                                    }}
+                                >
+                                <Table sx={{ minWidth: 650 }} aria-label="transaction table">
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Transaction & ID</TableCell>
@@ -116,37 +228,41 @@ const Transactions = () => {
                                             )
                                             .map((row) => (
                                                 <TableRow
-                                                    key={row.transaction_id}
+                                                    key={row.transaction_id || row.id}
                                                     sx={{
                                                         "&:last-child td, &:last-child th": {
                                                             border: 0,
                                                         },
                                                     }}
                                                 >
+                                                    {/* Transaction status card */}
                                                     <TableCell component="th" scope="row">
                                                         {row?.status === "canceled" ? (
                                                             <ReceiveCard
-                                                                Payment={"Paymemt Faild"}
+                                                                Payment={"Payment Failed"} // Fixed typo: Paymemt → Payment
                                                                 TRXID={row?.transaction_id || "N/A"}
                                                             />
                                                         ) : (
                                                             <SendCard
-                                                                Payment={"Payment Sucessfull"}
+                                                                Payment={"Payment Successful"} // Fixed typo: Sucessfull → Successful
                                                                 TRXID={row?.transaction_id || "N/A"}
                                                             />
                                                         )}
                                                     </TableCell>
+                                                    
+                                                    {/* Date & Time */}
                                                     <TableCell align="center">
                                                         {row?.appointment_date
-                                                            ? row.appointment_date.split("T")[0]
+                                                            ? `${row.appointment_date.split("T")[0]} | ${row?.appointment_time || ""}`
                                                             : "N/A"}
-                                                        |{row?.appointment_time || "N/A"}
                                                     </TableCell>
+                                                    
+                                                    {/* Amount */}
                                                     <TableCell
                                                         align="center"
-                                                        sx={{ color: "#E72B4A" }}
+                                                        sx={{ color: "#E72B4A" }} // Primary brand color
                                                     >
-                                                        {`${currencysign}${row?.amount || "NA"}`}
+                                                        {`${currencysign}${row?.amount || "0"}`}
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -161,7 +277,8 @@ const Transactions = () => {
                                     onRowsPerPageChange={handleChangeRowsPerPage}
                                     rowsPerPageOptions={[5, 10, 25]}
                                 />
-                            </TableContainer>
+                                </TableContainer>
+                            </Box>
                         )}
                     </Box>
                 </Box>

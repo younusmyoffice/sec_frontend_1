@@ -11,7 +11,7 @@ import {
     Typography,
     TablePagination,
 } from "@mui/material";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, useCallback } from "react";
 import { NavLink } from "react-router-dom";
 import CustomButton from "../../../../components/CustomButton";
 import { StaffCards } from "./StaffCards";
@@ -25,7 +25,26 @@ import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAp
 import DoneIcon from "@mui/icons-material/Done";
 import CustomOTPInput from "../../../../components/OTPInput";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
 
+/**
+ * AdminStaff Component
+ * 
+ * Manages diagnostic center staff members
+ * Features:
+ * - View staff list with pagination
+ * - Add new staff members with OTP verification
+ * - Edit existing staff members
+ * - Email and mobile verification via OTP
+ * 
+ * Security:
+ * - Validates HCF admin ID from localStorage
+ * - Uses axiosInstance for automatic token handling
+ * - OTP verification for email and mobile
+ * 
+ * @component
+ */
 const AdminStaff = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -102,22 +121,115 @@ const AdminStaff = () => {
     useEffect(() => {
         checkFields(textFields); // Ensure fields are checked on each textFields update
     }, [textFields]);
+    /**
+     * Create new staff member (Step 5: Final staff creation)
+     * Submits staff creation form with validation
+     * Requires both email and mobile to be verified
+     * API: POST /sec/hcf/addStaff with full staff details
+     */
     const fetchTestData = async () => {
+        logger.debug("📤 Creating new staff member");
         setSnackOpen(false);
+        
+        // Validate that both email and mobile are verified
+        if (!verifiedEmail) {
+            logger.warn("⚠️ Email not verified");
+            toastService.warning("Please verify your email first");
+            return;
+        }
+
+        if (!verifiedMobile) {
+            logger.warn("⚠️ Mobile not verified");
+            toastService.warning("Please verify your mobile number first");
+            return;
+        }
+
+        // Validate required fields before submission
+        if (!textFields.first_name || !textFields.email || !textFields.mobile || 
+            !textFields.password || !textFields.staff_designation || !textFields.lab_department_id) {
+            logger.warn("⚠️ Required fields not filled");
+            toastService.error("Please fill all required fields");
+            return;
+        }
+
+        // Validate password match
+        if (password !== confirmPassword) {
+            logger.warn("⚠️ Passwords do not match");
+            toastService.error("Passwords do not match");
+            return;
+        }
+
+        // Prepare final staff creation payload
+        const staffData = {
+            first_name: textFields.first_name,
+            mobile: textFields.mobile,
+            email: textFields.email,
+            role_id: "4",
+            password: textFields.password,
+            hcf_id: hcf_id || localStorage.getItem("hcfadmin_suid"),
+            staff_designation: textFields.staff_designation,
+            lab_department_id: textFields.lab_department_id
+        };
+
+        logger.debug("📤 Staff creation payload:", {
+            ...staffData,
+            password: "***" // Mask password in logs
+        });
+
         try {
-            await axiosInstance.post(`/sec/hcf/addStaff`, JSON.stringify(textFields), {
-                headers: { Accept: "Application/json" },
+            const response = await axiosInstance.post(
+                `/sec/hcf/addStaff`, 
+                JSON.stringify(staffData),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+            
+            logger.debug("✅ Staff created successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Staff created successfully";
+            setSnackType("success");
+            setSnackMessage(successMessage);
+            setSnackOpen(true);
+            toastService.success(successMessage);
+            
+            // Reset form and verification states
+            setVerifiedEmail(false);
+            setVerifiedMobile(false);
+            setEmail("");
+            setMob("");
+            setPassword("");
+            setConfirmPassword("");
+            setTextFields({
+                first_name: "",
+                email: "",
+                mobile: "",
+                role_id: "4",
+                password: "",
+                staff_designation: "",
+                hcf_id: localStorage.getItem("hcfadmin_suid"),
+                lab_department_id: "",
             });
-            await setSnackType("success");
-            await setSnackMessage("staff Crested Succesfully");
-            setSnackOpen(true);
-            setTimeout(() => setOpenDialog(false), 3000);
+            
+            // Close dialog after 3 seconds and refresh data
+            setTimeout(() => {
+                setOpenDialog(false);
+                fetchData(); // Refresh staff list
+            }, 3000);
         } catch (error) {
-            alert("Fill the details properly");
-            console.error(error.response);
-            await setSnackType("error");
-            await setSnackMessage("some error occured!!!");
+            logger.error("❌ Error creating staff:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to create staff. Please check all fields and try again.";
+            
+            setSnackType("error");
+            setSnackMessage(errorMessage);
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
     const checkFields = (formData) => {
@@ -134,23 +246,95 @@ const AdminStaff = () => {
         setIsFieldsFilled(isFilled);
     };
 
-    //getting staff list
+    // ============================================
+    // Security & Validation Functions
+    // ============================================
 
-    const fetchData = async () => {
+    /**
+     * Validate HCF admin ID from localStorage
+     * SECURITY: Ensures admin ID is present before making API calls
+     * 
+     * @returns {string|null} HCF admin ID or null if invalid
+     */
+    const validateHcfAdminId = useCallback(() => {
+        const adminId = localStorage.getItem("hcfadmin_suid");
+
+        if (!adminId) {
+            logger.warn("⚠️ HCF Admin ID not found in localStorage");
+            toastService.warning("HCF Admin ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ HCF Admin ID validated:", adminId);
+        return adminId;
+    }, []);
+
+    // ============================================
+    // API Fetch Functions
+    // ============================================
+
+    /**
+     * Fetch staff list from API
+     * Loads all staff members for the diagnostic center
+     */
+    const fetchData = useCallback(async () => {
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            setLoading(false);
+            return;
+        }
+
+        logger.debug("📋 Fetching staff list");
         setLoading(true);
+        
         try {
-            const response = await axiosInstance.get(`/sec/hcf/getHcfStaff/${hcf_id}`);
-            setData(response?.data?.response || []);
+            const response = await axiosInstance.get(`/sec/hcf/getHcfStaff/${adminId}`);
+            const staffList = response?.data?.response || [];
+            
+            logger.debug("✅ Staff list received", { count: staffList.length });
+            setData(staffList);
         } catch (error) {
-            console.log("Error fetching staff data:", error.response);
+            logger.error("❌ Error fetching staff data:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to load staff list";
+            toastService.error(errorMessage);
+            setData([]); // Ensure state is an array even on error
         } finally {
             setLoading(false);
         }
-    };
+    }, [validateHcfAdminId]);
 
+    // ============================================
+    // Effects
+    // ============================================
+
+    /**
+     * Initialize component and fetch staff data
+     * Triggers API call when component loads
+     */
     useEffect(() => {
+        logger.debug("🔵 AdminStaff component initializing");
+        
+        // Hide location search container on load
+        const containerElement = document.getElementById("location-search-container");
+        if (containerElement) {
+            containerElement.style.display = "none";
+            logger.debug("✅ Location search container hidden");
+        }
+
+        // Fetch staff data
         fetchData();
-    }, [hcf_id]);
+
+        // Cleanup: restore location search container when component unmounts
+        return () => {
+            if (containerElement) {
+                containerElement.style.display = "";
+                logger.debug("🔄 Location search container restored");
+            }
+        };
+    }, [fetchData]);
 
     // Fetching lab departments
 
@@ -280,22 +464,49 @@ const AdminStaff = () => {
         checkEditFields(editdata); // Ensure fields are checked on each testdata update
     }, [editdata]);
 
+    /**
+     * Update existing staff member
+     * Submits staff update form with validation
+     */
     const UpdateStaff = async () => {
+        logger.debug("📤 Updating staff member");
         setSnackOpen(false);
+        
         try {
-            await axiosInstance.post(`/sec/hcf/updateStaff`, JSON.stringify(editdata), {
-                headers: { Accept: "Application/json" },
-            });
-            await setSnackType("success");
-            await setSnackMessage("Staff Update Succesfully");
+            const response = await axiosInstance.post(
+                `/sec/hcf/updateStaff`, 
+                JSON.stringify(editdata),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+            
+            logger.debug("✅ Staff updated successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Staff updated successfully";
+            setSnackType("success");
+            setSnackMessage(successMessage);
             setSnackOpen(true);
-            setTimeout(() => setOpenEditDialog(false), 3000);
+            toastService.success(successMessage);
+            
+            setTimeout(() => {
+                setOpenEditDialog(false);
+                fetchData(); // Refresh staff list
+            }, 3000);
         } catch (error) {
-            alert("Fill the details properly");
-            console.error(error.response);
-            await setSnackType("error");
-            await setSnackMessage("some error occured!!!");
+            logger.error("❌ Error updating staff:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to update staff. Please check all fields and try again.";
+            
+            setSnackType("error");
+            setSnackMessage(errorMessage);
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
     // Transform the department data for the dropdown
@@ -335,126 +546,339 @@ const AdminStaff = () => {
         }));
     };
 
-    // -----------------------------------------email and mobile otp verfication handler start here-------------------------------------//
+    // ============================================
+    // Email and Mobile OTP Verification Handlers
+    // ============================================
 
-    // triggering otp for email verification
+    /**
+     * Trigger email OTP
+     * Step 1: Send OTP to email address
+     * API: POST /sec/hcf/addStaff with register_with_email: "true"
+     */
     const emailRegister = async () => {
-        setSnackOpen(false); // Close the snackbar before the request
-        try {
-            await axiosInstance.post(`/sec/hcf/addStaff`, JSON.stringify(emailOtp), {
-                headers: { Accept: "Application/json" },
-            });
+        // Validate email before sending OTP
+        if (!email || !email.includes("@")) {
+            logger.warn("⚠️ Invalid email address");
+            toastService.error("Please enter a valid email address");
+            return;
+        }
 
-            // Set success message and type for the snackbar
+        logger.debug("📧 Sending email OTP", { email });
+        setSnackOpen(false);
+
+        // Prepare payload for email OTP request
+        const emailOtpPayload = {
+            email: email,
+            role_id: "4",
+            hcf_id: hcf_id || localStorage.getItem("hcfadmin_suid"),
+            register_with_email: "true"
+        };
+
+        try {
+            const response = await axiosInstance.post(
+                `/sec/hcf/addStaff`, 
+                JSON.stringify(emailOtpPayload),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+
+            logger.debug("✅ Email OTP sent successfully", { response: response?.data });
+            
+            // Update emailOtp state with current email
+            setEmailOtp(emailOtpPayload);
+            setVerifyEmail({ ...verifyEmail, email: email });
+
+            // Set success message
             setSnackMessage("OTP has been sent to your email.");
             setSnackType("success");
             setSnackOpen(true);
+            toastService.success("OTP sent to your email");
+
+            // Open email OTP modal
+            setIsEmailModalOtp(true);
         } catch (error) {
-            // Set error message and type for the snackbar
-            setSnackMessage("Please fill in the details properly.");
+            logger.error("❌ Error sending email OTP:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to send OTP. Please check your email and try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackType("error");
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
 
+    /**
+     * Trigger mobile OTP
+     * Step 3: Send OTP to mobile number (only after email is verified)
+     * API: POST /sec/hcf/addStaff with register_with_email: "false"
+     */
     const mobRegister = async () => {
-        setSnackOpen(false); // Close the snackbar before the request
-        try {
-            await axiosInstance.post(`/sec/hcf/addStaff`, JSON.stringify(mobOtp), {
-                headers: { Accept: "Application/json" },
-            });
-
-            // Set success message and type for the snackbar
-            setSnackMessage("OTP has been sent to your mobile No.");
-            setSnackType("success");
-            setSnackOpen(true);
-        } catch (error) {
-            // Set error message and type for the snackbar
-            setSnackMessage("Please fill in the details properly.");
-            setSnackType("error");
-            setSnackOpen(true);
+        // Validate that email is verified first
+        if (!verifiedEmail) {
+            logger.warn("⚠️ Email must be verified before mobile verification");
+            toastService.warning("Please verify your email first");
+            return;
         }
-    };
 
-    const checkEmailFields = (formData) => {
-        const isFilled = formData.email && formData.mobile && formData.role_id && formData.hcf_id; // Check if hcf_id is set
+        // Validate mobile before sending OTP
+        if (!mob || mob.length < 10) {
+            logger.warn("⚠️ Invalid mobile number");
+            toastService.error("Please enter a valid mobile number");
+            return;
+        }
 
-        setIsFieldsFilled(isFilled);
-    };
-    const veriFyEmailOTPHandler = () => {
-        emailVerify();
-        console.log("handler clicked");
-        setVerifiedEmail(!verifiedEmail);
-    };
-    const veriFyMobOTPHandler = () => {
-        mobileVerify();
-        console.log("handler clicked");
-        setVerifiedMobile(!verifiedMobile);
-    };
-    // Handle email change
-    const handleEmailChange = (e) => {
-        setEmail(e.target.value); // Update email state on input change
-        setEmailOtp({ ...emailOtp, email: e.target.value }); // Sync emailOtp state
-        setMobOtp({...mobOtp, email: e.target.value})
-        setVerifyEmail({ ...verifyEmail, email: e.target.value });
-    };
+        logger.debug("📱 Sending mobile OTP", { mobile: mob, email });
+        setSnackOpen(false);
 
-    const handleMobChange = (e) => {
-        setMob(e.target.value);
-        setEmailOtp({ ...emailOtp, mobile: e.target.value });
-        setMobOtp({ ...mobOtp, mobile: e.target.value}) // Sync emailOtp state
-        setVerifyMob({ ...verifyMob, mobile: e.target.value });
-    };
-    // handler for verifying otp
-    const emailVerify = async () => {
-        setSnackOpen(false); // Close snackbar before making the request
+        // Prepare payload for mobile OTP request
+        const mobOtpPayload = {
+            mobile: mob,
+            email: email, // Include verified email
+            role_id: "4",
+            hcf_id: hcf_id || localStorage.getItem("hcfadmin_suid"),
+            register_with_email: "false"
+        };
+
         try {
-            await axiosInstance.post(
-                `/sec/hcf/verifyHCFDiagnosticStaffEmail`,
-                JSON.stringify(verifyEmail),
+            const response = await axiosInstance.post(
+                `/sec/hcf/addStaff`, 
+                JSON.stringify(mobOtpPayload),
                 {
-                    headers: { Accept: "Application/json" },
-                },
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
             );
 
-            // If OTP is correct
+            logger.debug("✅ Mobile OTP sent successfully", { response: response?.data });
+            
+            // Update mobOtp state with current mobile and email
+            setMobOtp(mobOtpPayload);
+            setVerifyMob({ ...verifyMob, mobile: mob });
+
+            // Set success message
+            setSnackMessage("OTP has been sent to your mobile number.");
+            setSnackType("success");
+            setSnackOpen(true);
+            toastService.success("OTP sent to your mobile number");
+
+            // Open mobile OTP modal
+            setIsMobModalOtp(true);
+        } catch (error) {
+            logger.error("❌ Error sending mobile OTP:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to send OTP. Please check your mobile number and try again.";
+            
+            setSnackMessage(errorMessage);
+            setSnackType("error");
+            setSnackOpen(true);
+            toastService.error(errorMessage);
+        }
+    };
+
+    /**
+     * Verify email OTP
+     * Step 2: Verify email OTP code
+     * API: POST /sec/hcf/verifyHCFDiagnosticStaffEmail
+     */
+    const veriFyEmailOTPHandler = async () => {
+        // Validate OTP is entered
+        if (!verifyEmail.activation_code || verifyEmail.activation_code.length !== 6) {
+            logger.warn("⚠️ Invalid OTP code");
+            toastService.error("Please enter the complete 6-digit OTP code");
+            return;
+        }
+
+        logger.debug("🔐 Verifying email OTP", { email: verifyEmail.email });
+        await emailVerify();
+    };
+
+    /**
+     * Verify mobile OTP
+     * Step 4: Verify mobile OTP code
+     * API: POST /sec/hcf/verifyHCFDiagnosticStaffMobile
+     */
+    const veriFyMobOTPHandler = async () => {
+        // Validate OTP is entered
+        if (!verifyMob.otp_code || verifyMob.otp_code.length !== 6) {
+            logger.warn("⚠️ Invalid OTP code");
+            toastService.error("Please enter the complete 6-digit OTP code");
+            return;
+        }
+
+        logger.debug("🔐 Verifying mobile OTP", { mobile: verifyMob.mobile });
+        await mobileVerify();
+    };
+    /**
+     * Handle email input change
+     * Resets verification status if email is changed after verification
+     * 
+     * @param {Event} e - Input change event
+     */
+    const handleEmailChange = (e) => {
+        const newEmail = e.target.value;
+        const previousEmail = email;
+        
+        setEmail(newEmail); // Update email state on input change
+        setEmailOtp({ ...emailOtp, email: newEmail }); // Sync emailOtp state
+        setMobOtp({...mobOtp, email: newEmail});
+        setVerifyEmail({ ...verifyEmail, email: newEmail, activation_code: "" }); // Reset OTP when email changes
+        
+        // Reset email verification if email changed after verification
+        if (verifiedEmail && newEmail !== previousEmail) {
+            logger.debug("🔄 Email changed, resetting email verification");
+            setVerifiedEmail(false);
+            toastService.info("Email changed. Please verify again");
+        }
+        
+        // Also reset mobile verification if email changes
+        if (verifiedMobile && newEmail !== previousEmail) {
+            logger.debug("🔄 Email changed, resetting mobile verification");
+            setVerifiedMobile(false);
+        }
+    };
+
+    /**
+     * Handle mobile input change
+     * Resets verification status if mobile is changed after verification
+     * 
+     * @param {Event} e - Input change event
+     */
+    const handleMobChange = (e) => {
+        const newMobile = e.target.value;
+        const previousMobile = mob;
+        
+        setMob(newMobile);
+        setEmailOtp({ ...emailOtp, mobile: newMobile });
+        setMobOtp({ ...mobOtp, mobile: newMobile }); // Sync mobOtp state
+        setVerifyMob({ ...verifyMob, mobile: newMobile, otp_code: "" }); // Reset OTP when mobile changes
+        
+        // Reset mobile verification if mobile changed after verification
+        if (verifiedMobile && newMobile !== previousMobile) {
+            logger.debug("🔄 Mobile changed, resetting mobile verification");
+            setVerifiedMobile(false);
+            toastService.info("Mobile number changed. Please verify again");
+        }
+    };
+    /**
+     * Verify email OTP code
+     * Validates the OTP sent to email
+     * 
+     * @returns {Promise<void>}
+     */
+    const emailVerify = async () => {
+        logger.debug("🔐 Verifying email OTP", { 
+            email: verifyEmail.email,
+            activation_code: verifyEmail.activation_code?.substring(0, 2) + "****" // Mask OTP in logs
+        });
+        
+        setSnackOpen(false);
+
+        try {
+            const response = await axiosInstance.post(
+                `/sec/hcf/verifyHCFDiagnosticStaffEmail`,
+                JSON.stringify({
+                    email: verifyEmail.email,
+                    activation_code: verifyEmail.activation_code
+                }),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+
+            logger.debug("✅ Email verified successfully", { response: response?.data });
+
+            // Mark email as verified
+            setVerifiedEmail(true);
+            
+            // Close the OTP modal
+            setIsEmailModalOtp(false);
+
+            // Show success message
             setSnackMessage("Email verified successfully.");
             setSnackType("success");
             setSnackOpen(true);
-
-            // Close the OTP modal
-            setIsEmailModalOtp(false);
+            toastService.success("Email verified successfully");
         } catch (error) {
-            // If OTP is incorrect
-            setSnackMessage("Wrong OTP. Please try again.");
+            logger.error("❌ Email verification failed:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Invalid OTP. Please check and try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackType("error");
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
-    // handler for verifying otp
+
+    /**
+     * Verify mobile OTP code
+     * Validates the OTP sent to mobile number
+     * 
+     * @returns {Promise<void>}
+     */
     const mobileVerify = async () => {
-        setSnackOpen(false); // Close snackbar before making the request
+        logger.debug("🔐 Verifying mobile OTP", { 
+            mobile: verifyMob.mobile,
+            otp_code: verifyMob.otp_code?.substring(0, 2) + "****" // Mask OTP in logs
+        });
+        
+        setSnackOpen(false);
+
         try {
-            await axiosInstance.post(
+            const response = await axiosInstance.post(
                 `/sec/hcf/verifyHCFDiagnosticStaffMobile`,
-                JSON.stringify(verifyMob),
+                JSON.stringify({
+                    mobile: verifyMob.mobile,
+                    otp_code: verifyMob.otp_code
+                }),
                 {
-                    headers: { Accept: "Application/json" },
-                },
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
             );
 
-            // If OTP is correct
+            logger.debug("✅ Mobile verified successfully", { response: response?.data });
+
+            // Mark mobile as verified
+            setVerifiedMobile(true);
+            
+            // Close the OTP modal
+            setIsMobModalOtp(false);
+
+            // Show success message
             setSnackMessage("Mobile verified successfully.");
             setSnackType("success");
             setSnackOpen(true);
-
-            // Close the OTP modal
-            setIsEmailModalOtp(false);
+            toastService.success("Mobile verified successfully");
         } catch (error) {
-            // If OTP is incorrect
-            setSnackMessage("Wrong OTP. Please try again.");
+            logger.error("❌ Mobile verification failed:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Invalid OTP. Please check and try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackType("error");
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
 
@@ -558,10 +982,8 @@ const AdminStaff = () => {
                                 )
                             }
                             onRightIconClick={() => {
-                                // setVerifiedEmail(!verifiedEmail);
-                                setIsEmailModalOtp(true);
+                                // Step 1: Send email OTP (will open modal on success)
                                 emailRegister();
-                                console.log("verify clicked");
                             }}
                             fullWidth
                             helperText={""}
@@ -598,11 +1020,14 @@ const AdminStaff = () => {
                                 )
                             }
                             onRightIconClick={() => {
-                                // setVerifiedEmail(!verifiedEmail);
-                                setIsMobModalOtp(true);
-                                mobRegister()
-                                console.log("verify clicked");
+                                // Step 3: Send mobile OTP (only after email is verified)
+                                if (!verifiedEmail) {
+                                    toastService.warning("Please verify your email first");
+                                    return;
+                                }
+                                mobRegister();
                             }}
+                            disabled={!verifiedEmail} // Disable mobile verification until email is verified
                             helperText={""}
                         />
                         <CustomTextField
@@ -666,7 +1091,7 @@ const AdminStaff = () => {
                 >
                     <div id="otp-box-container">
                         <CustomOTPInput
-                            value={otp}
+                            value={verifyMob?.otp_code || ""}
                             onChange={(value) => {
                                 setVerifyMob({ ...verifyMob, otp_code: value });
                             }}
@@ -790,9 +1215,30 @@ const AdminStaff = () => {
                 </CustomModal>
                 <Box
                     component={"div"}
-                    sx={{ position: "relative", top: "4em", width: "100%", height: "100%" }}
+                    sx={{ 
+                        flex: 1,
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        overflow: "hidden",
+                        marginTop: "4em",
+                    }}
                 >
-                    <TableContainer component={Paper} style={{ background: "white" }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <TableContainer 
+                        component={Paper} 
+                        style={{ 
+                            background: "white",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "auto", // Enable scrolling for table content
+                            maxHeight: "calc(100vh - 250px)", // Adjusted to account for navbar and spacing
+                            border: "1px solid #e72b4a", borderRadius: "10px", padding: "10px"
+                        }}
+                    >
                         <Table sx={{ minWidth: 1 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow style={{ fontWeight: "bold" }}>

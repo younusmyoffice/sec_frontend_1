@@ -115,6 +115,7 @@ module.exports = (env) => {
                                 options: {
                                     sassOptions: {
                                         silenceDeprecations: ['legacy-js-api'], // Line to add
+                                        includePaths: [path.resolve(__dirname, "../src")],
                                     },
                                 },
                             },

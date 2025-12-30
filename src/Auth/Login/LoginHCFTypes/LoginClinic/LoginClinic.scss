@@ -1,0 +1,96 @@
+/**
+ * LoginClinic Component Styles
+ * 
+ * Styles for the clinic login page following split-screen layout pattern.
+ * Features:
+ * - Two-column layout (image left, form right)
+ * - Centered card design for form
+ * - Responsive design
+ * - Brand color scheme (#e72b4a)
+ */
+
+// Legacy spacing class (not currently used)
+.spacing {
+    margin-top: 100px;
+}
+
+// Legacy login header class (not currently used)
+.login-head {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+// Logo container - centered alignment
+.logo1 {
+    text-align: center;
+    margin-top: 4%;
+}
+
+// Legacy field center class (not currently used)
+.field-center {
+    padding: 10px 75px 10px 0px;
+    margin-left: 10%;
+    margin-top: 3%;
+}
+
+// Legacy button block styles (not currently used)
+.register-photo form .btn-block {
+    padding-top: 8px !important;
+    padding-right: 16px !important;
+    padding-bottom: 8px !important;
+    padding-left: 16px !important;
+    color: white;
+    position: relative;
+    right: 30px;
+}
+
+// Legacy "already have account" link (commented out in JSX)
+.already {
+    margin: auto;
+    justify-content: center;
+    display: contents;
+    margin-top: 10px;
+    font-size: medium;
+}
+
+// Whole container class (not currently used)
+.whole {
+    margin-left: 0px;
+}
+
+// Forgot password link styling
+// Uses brand color: #e72b4a (red/pink)
+.forgotpassword {
+    margin: auto;
+    display: contents;
+    margin-top: 10px;
+    font-size: medium;
+    color: #e72b4a; // Brand color
+}
+
+// Page title/heading styling
+.text-center {
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 0px;
+    margin-top: 40px;
+    margin-left: auto;
+    text-align: center;
+}
+
+// Mobile/OTP login link styling
+// Uses brand color: #e72b4a (red/pink)
+.mobile {
+    margin: auto;
+    margin-top: 10px;
+    display: contents;
+    font-size: medium;
+    color: #e72b4a; // Brand color
+}
+
+// Link styling
+// Uses brand color: #e72b4a (red/pink)
+.link {
+    color: #e72b4a; // Brand color
+    margin-top: inherit;
+}

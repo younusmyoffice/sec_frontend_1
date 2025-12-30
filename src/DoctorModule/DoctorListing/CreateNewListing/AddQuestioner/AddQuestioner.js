@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Skeleton } from "@mui/material";
+import { Box, Typography, Skeleton, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 import CustomButton from "../../../../components/CustomButton";
 import "./addquestioner.scss";
 import CustomTextField from "../../../../components/CustomTextField/custom-text-field";
@@ -13,9 +14,60 @@ import EditQuestionModal from "./EditQuestionModal";
 import { useListingMode } from "../../shared/useListingMode";
 import SectionCard from "../../shared/SectionCard";
 import StepHeader from "../../shared/StepHeader";
+import DoctorProfileCard from "../../../../components/DoctorProfileCard/DoctorProfileCard";
+import logger from "../../../../utils/logger";
+import toastService from "../../../../services/toastService";
 
 const AddQuestioner = () => {
     const { mode, listingId, doctorId, setUnifiedListingId } = useListingMode();
+    const navigate = useNavigate();
+    const [typemessage , setTypemessage] = useState("success");
+    const [isopen , setIsopen] = useState(false);
+    const [message , setMessage] = useState("");
+    const [existingQuestions, setExistingQuestions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectedQuestion, setSelectedQuestion] = useState(null);
+    const [data, setData] = useState({
+        questions: []
+    });
+    const [doctorProfile, setDoctorProfile] = useState({
+        name: "",
+        specialty: "",
+        profileImage: null
+    });
+
+    // Fetch doctor profile information
+    useEffect(() => {
+        const fetchDoctorProfile = async () => {
+            try {
+                const doctorIdLocal = localStorage.getItem("doctor_suid");
+                if (doctorIdLocal) {
+                    const response = await axiosInstance.get(
+                        `sec/Doctor/doctorProfileDetailsbyId?doctor_id=${doctorIdLocal}`
+                    );
+                    const profileData = response?.data?.response?.[0];
+                    if (profileData) {
+                        const fullName = `Dr. ${profileData.first_name || ""} ${profileData.middle_name || ""} ${profileData.last_name || ""}`.trim();
+                        setDoctorProfile({
+                            name: fullName || "Dr. Unknown",
+                            specialty: profileData.department_name || profileData.speciality_name || "General Practitioner",
+                            profileImage: profileData.profile_picture || null
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching doctor profile:", error);
+                const doctorName = localStorage.getItem("doctor_name") || localStorage.getItem("userName");
+                setDoctorProfile({
+                    name: doctorName ? `Dr. ${doctorName}` : "Dr. Unknown",
+                    specialty: "General Practitioner",
+                    profileImage: null
+                });
+            }
+        };
+        fetchDoctorProfile();
+    }, []);
 
     useEffect(() => {
         localStorage.setItem("activeComponent", "listing");
@@ -27,23 +79,19 @@ const AddQuestioner = () => {
         // Step guard: require listing_id to proceed
         if (!listingId) {
             console.warn("No listing_id found. Redirecting to listing details.");
-            navigate("/doctordashboard/doctorListing/listingdetails", { replace: true });
+            navigate("/doctorDashboard/doctorListing/listingdetails", { replace: true });
             return;
         }
 
-        // Fetch existing questions
-        fetchExistingQuestions();
-    }, []);
-    const [typemessage , setTypemessage] = useState("success");
-    const [isopen , setIsopen] = useState(false);
-    const [message , setMessage] = useState("");
-    const [existingQuestions, setExistingQuestions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [editModalOpen, setEditModalOpen] = useState(false);
-    const [selectedQuestion, setSelectedQuestion] = useState(null);
-    const [data, setData] = useState({
-        questions: []
-    });
+        // Only fetch existing questions if we're in edit mode
+        if (mode === 'edit' && listingId) {
+            fetchExistingQuestions();
+        } else {
+            // In create mode, set empty array and stop loading
+            setExistingQuestions([]);
+            setLoading(false);
+        }
+    }, [mode, listingId]);
 
     console.log("Questions Data : ", data);
 
@@ -69,7 +117,7 @@ const AddQuestioner = () => {
     };
 
     const fetchData = async () => {
-        console.log("Entered the fetch data");
+        logger.debug("🔵 Submitting questions");
         setIsopen(false);
         try {
             let response = await axiosInstance.post(
@@ -82,23 +130,31 @@ const AddQuestioner = () => {
                     }))
                 }),
             );
-            console.log("Added question response : " , response?.data?.response?.message);
-            setMessage(response?.data?.response?.message);
+            
+            const successMessage = response?.data?.response?.message || "Questions added successfully";
+            logger.info("✅ Questions added:", successMessage);
+            setMessage(successMessage);
             setTypemessage("success");
             setIsopen(true);
+            toastService.success(successMessage);
             setTimeout( () => {
-            navigate("/doctordashboard/doctorListing/termandcondition", { replace: true });
+            navigate("/doctorDashboard/doctorListing/termandcondition", { replace: true });
             } ,2000 )
         } catch (error) {
-            alert("Fill the details properly", error);
-            setMessage("Not able to add the question")
-            setTypemessage("error")
-            console.log(error);
+            logger.error("❌ Error adding questions:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message || 
+                               error?.response?.data?.error ||
+                               error?.message ||
+                               "Failed to add questions. Please fill all fields properly.";
+            
+            toastService.error(errorMessage);
+            setMessage(errorMessage);
+            setTypemessage("error");
             setIsopen(true);
         }
     };
-
-    const navigate = useNavigate();
 
     const handleAddQuestion = () => {
         setData((prevData) => ({
@@ -197,8 +253,43 @@ const AddQuestioner = () => {
                 questionData={selectedQuestion}
                 onQuestionUpdated={handleQuestionUpdated}
             />
-            <div className="main-container" style={{ width: '100%', maxWidth: 960, margin: '0 auto' }}>
+            <div className="listing-details-container">
+                {/* Header Section */}
+                <Box className="listing-header">
+                    <Typography variant="h4" className="listing-title">
+                        Create New Listing
+                    </Typography>
+                    <IconButton
+                        onClick={() => navigate("/doctorDashboard/doctorListing/doctoractiveListing")}
+                        sx={{
+                            width: "40px",
+                            height: "40px",
+                            border: "1px solid #E6E1E5",
+                            color: "#313033",
+                            "&:hover": {
+                                backgroundColor: "#f5f5f5",
+                            }
+                        }}
+                    >
+                        <CloseIcon sx={{ fontSize: "20px" }} />
+                    </IconButton>
+                </Box>
+
+                {/* Step Navigation Tabs */}
                 <StepHeader />
+
+                {/* Doctor Profile Card */}
+                <Box sx={{ mb: 3 }}>
+                    <DoctorProfileCard
+                        name={doctorProfile.name}
+                        specialty={doctorProfile.specialty}
+                        profileImage={doctorProfile.profileImage}
+                        variant="compact"
+                        onEditClick={() => navigate("/doctorDashboard/doctorPersonalInfo")}
+                        showEditButton={true}
+                    />
+                </Box>
+
                 <SectionCard
                   title="Existing Questions"
                   subtitle="Review and manage the preset questions shown to patients"
@@ -359,15 +450,30 @@ const AddQuestioner = () => {
                     </div>
                 </SectionCard>
 
-                <Box sx={{ marginTop: "1%" }}>
+                {/* Action Buttons - Aligned to right */}
+                <Box className="action-buttons">
                     <CustomButton
-                        buttonCss={{ width: "10.625rem", borderRadius: "6.25rem", margin: "0.5%" }}
+                        buttonCss={{ 
+                            width: "10.625rem", 
+                            borderRadius: "6.25rem", 
+                            marginLeft: "0.5rem",
+                            fontFamily: "poppins",
+                            border: "1px solid #E72B4A",
+                            color: "#E72B4A",
+                        }}
                         label="Save As Draft"
                         isTransaprent={true}
                         handleClick={() => fetchData()}
                     />
                     <CustomButton
-                        buttonCss={{ width: "10.625rem", borderRadius: "6.25rem", margin: "0.5%" }}
+                        buttonCss={{ 
+                            width: "10.625rem", 
+                            borderRadius: "6.25rem", 
+                            marginLeft: "0.5rem",
+                            fontFamily: "poppins",
+                            backgroundColor: "#E72B4A",
+                            color: "#ffffff",
+                        }}
                         label="Next"
                         handleClick={() => fetchData()}
                     />

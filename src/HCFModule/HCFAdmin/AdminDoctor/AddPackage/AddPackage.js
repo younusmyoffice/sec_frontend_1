@@ -20,16 +20,16 @@ function createData(name, calories, fat, carbs, protein, action) {
 
 const rows = [
     createData(<AddPackageTable heading={"Messaging Plan"} cost={"$12 | 30min & 60"}/>,
-        <CustomButton label={<div><DeleteIcon style={{marginBottom:"-7px"}}/>Delete</div>} isTransaprent />,
-        <CustomButton label={<div><EditIcon style={{marginBottom:"-7px"}}/>Edit</div>} isTransaprent />,
+        <CustomButton label="Delete" leftIcon={<DeleteIcon />} isTransaprent />,
+        <CustomButton label="Edit" leftIcon={<EditIcon />} isTransaprent />,
     ),
     createData(<AddPackageTable heading={"Voice Plan"} cost={"$20 | 30min & 60"}/>,
-    <CustomButton label={<div><DeleteIcon style={{marginBottom:"-7px"}}/>Delete</div>} isTransaprent />,
-        <CustomButton label={<div><EditIcon style={{marginBottom:"-7px"}}/>Edit</div>} isTransaprent />,
+        <CustomButton label="Delete" leftIcon={<DeleteIcon />} isTransaprent />,
+        <CustomButton label="Edit" leftIcon={<EditIcon />} isTransaprent />,
     ), 
     createData(<AddPackageTable heading={"Video Plan"} cost={"$25 | 30min & 60"}/>,
-    <CustomButton label={<div><DeleteIcon style={{marginBottom:"-7px"}}/>Delete</div>} isTransaprent />,
-        <CustomButton label={<div><EditIcon style={{marginBottom:"-7px"}}/>Edit</div>} isTransaprent />,
+        <CustomButton label="Delete" leftIcon={<DeleteIcon />} isTransaprent />,
+        <CustomButton label="Edit" leftIcon={<EditIcon />} isTransaprent />,
     ), 
 
 ];

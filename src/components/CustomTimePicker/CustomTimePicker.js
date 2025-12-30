@@ -111,7 +111,7 @@ const CustomTimePicker = ({
                                     color: error ? "#d32f2f" : "#787579",
                                     
                                     "&.Mui-focused": {
-                                        color: error ? "#d32f2f" : "#1976d2",
+                                        color: error ? "#d32f2f" : "#d32f2f",
                                     },
                                 },
                                 
@@ -121,11 +121,11 @@ const CustomTimePicker = ({
                                     },
                                     
                                     "&:hover:not(.Mui-disabled):before": {
-                                        borderBottomColor: error ? "#d32f2f" : "#1976d2",
+                                        borderBottomColor: error ? "#d32f2f" : "#d32f2f",
                                     },
                                     
                                     "&:after": {
-                                        borderBottomColor: error ? "#d32f2f" : "#1976d2",
+                                        borderBottomColor: error ? "#d32f2f" : "#d32f2f",
                                     },
                                 },
                                 
@@ -150,7 +150,7 @@ const CustomTimePicker = ({
                                 },
                                 
                                 "& .MuiInputAdornment-root": {
-                                    color: error ? "#d32f2f" : "#1976d2",
+                                    color: error ? "#d32f2f" : "#d32f2f",
                                     
                                     "&:hover": {
                                         color: error ? "#d32f2f" : "#1565c0",
@@ -158,7 +158,7 @@ const CustomTimePicker = ({
                                 },
                                 
                                 "& .MuiSvgIcon-root": {
-                                    color: error ? "#d32f2f" : "#1976d2",
+                                    color: error ? "#d32f2f" : "#d32f2f",
                                     transition: "color 0.3s ease",
                                     
                                     "&:hover": {
@@ -174,12 +174,12 @@ const CustomTimePicker = ({
                                     border: `1px solid ${error ? "#d32f2f" : "#e0e0e0"}`,
                                     
                                     "&:hover": {
-                                        borderColor: error ? "#d32f2f" : "#1976d2",
+                                        borderColor: error ? "#d32f2f" : "#d32f2f",
                                         boxShadow: `0 0 0 2px ${error ? "rgba(211, 47, 47, 0.1)" : "rgba(25, 118, 210, 0.1)"}`,
                                     },
                                     
                                     "&.Mui-focused": {
-                                        borderColor: error ? "#d32f2f" : "#1976d2",
+                                        borderColor: error ? "#d32f2f" : "#d32f2f",
                                         boxShadow: `0 0 0 2px ${error ? "rgba(211, 47, 47, 0.2)" : "rgba(25, 118, 210, 0.2)"}`,
                                     },
                                     

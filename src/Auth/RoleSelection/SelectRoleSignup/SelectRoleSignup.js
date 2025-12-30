@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./SelectRoleSignup.scss";
 import { Box, Alert, Snackbar, useMediaQuery, useTheme } from "@mui/material";
@@ -95,6 +95,28 @@ const SelectRoleSignup = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+
+    // Enable scrolling on this page - override body height constraint
+    useEffect(() => {
+        const originalBodyHeight = document.body.style.height;
+        const originalBodyMinHeight = document.body.style.minHeight;
+        const originalBodyOverflow = document.body.style.overflowY;
+        const originalHtmlOverflow = document.documentElement.style.overflowY;
+        
+        // Enable scrolling
+        document.body.style.height = 'auto';
+        document.body.style.minHeight = '100vh';
+        document.body.style.overflowY = 'auto';
+        document.documentElement.style.overflowY = 'auto';
+        
+        return () => {
+            // Restore original styles on unmount
+            document.body.style.height = originalBodyHeight;
+            document.body.style.minHeight = originalBodyMinHeight;
+            document.body.style.overflowY = originalBodyOverflow;
+            document.documentElement.style.overflowY = originalHtmlOverflow;
+        };
+    }, []);
     
     const {
         selectedType,
@@ -153,7 +175,7 @@ const SelectRoleSignup = () => {
                         sx={{
                             display: "flex", 
                             flexDirection: "column",
-                            justifyContent: "center", 
+                            justifyContent: "flex-start", 
                             alignItems: "center",
                             width: "auto",
                             maxWidth: "600px",
@@ -180,8 +202,10 @@ const SelectRoleSignup = () => {
                         maxWidth: "600px", 
                         margin: "0 auto",
                         flexDirection: "column",
-                        justifyContent: "center", 
-                        alignItems: "center"
+                        justifyContent: "flex-start", 
+                        alignItems: "center",
+                        marginTop: "0.2rem",
+                        marginBottom: "2rem"
                     }}>
                         <p style={responsiveStyles.label}>
                         Select your account type
@@ -202,8 +226,9 @@ const SelectRoleSignup = () => {
                         maxWidth: "600px", 
                         margin: "0 auto",
                         flexDirection: "column",
-                        justifyContent: "center", 
-                        alignItems: "center"
+                        justifyContent: "flex-start", 
+                        alignItems: "center",
+                        marginBottom: "2rem"
                     }}>
                         <CustomButton
                             label="Continue"

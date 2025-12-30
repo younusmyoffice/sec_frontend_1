@@ -1,24 +1,81 @@
+/**
+ * BodyDashboard Component Styles
+ *
+ * Styles for the patient dashboard master layout.
+ * Features:
+ * - Full-width responsive design
+ * - Proper spacing and alignment
+ * - No width constraints - allows full content area
+ *
+ * Layout Structure:
+ * .usage (main container)
+ *   └── .component-library (content wrapper)
+ *       └── .items (menu drawer container)
+ */
+
+// Main container - Full-width layout
+// Provides the outer structure for the patient dashboard
+// FIXED: Removed margin constraints to allow full width
+// Using body prefix for maximum specificity
+body .usage,
 .usage {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-top: 0;
-    padding-top: 0;
+    display: flex;                      // Flexbox layout
+    width: 100% !important;             // Full width of parent (force with !important)
+    flex-direction: row;                 // Horizontal layout (side-by-side)
+    flex-wrap: nowrap !important;      // Fixed: Prevent wrapping that creates extra space
+    margin: 0 !important;               // No margins (force)
+    padding: 0 !important;              // No padding (force)
+    max-width: 100% !important;         // Fixed: Prevent any max-width constraints
+    overflow: hidden !important;        // Prevent horizontal scrolling
+    box-sizing: border-box !important; // Include padding and border in width
+}
 
-    .component-library {
-        margin: 0 20px;
-        text-align: center;
-        margin-top: 0;
-        padding-top: 0;
+// Component library wrapper - Content area container
+// FIXED: Removed margin constraints, allow full width
+// Houses the CustomMenuDrawer and its child components
+// Using very specific selector to override auth page styles
+body .usage .component-library,
+div.usage div.component-library,
+.usage > .component-library {
+    width: 100% !important;     // Full width (force with !important)
+    margin: 0 !important;       // No margin constraints (force)
+    padding: 0 !important;      // No padding (force)
+    text-align: left !important; // Left align content (not center, force)
+    max-width: 100% !important; // Fixed: Prevent any max-width constraints
+    
+    // Override media query widths
+    @media (min-width: 768px) {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    @media (min-width: 992px) {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    @media (min-width: 1200px) {
+        width: 100% !important;
+        padding: 0 !important;
+    }
 
-        .items {
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-start;
-            flex-direction: row;
-            gap: 10px;
-            margin-top: 30px;
-            padding-top: 8px;
-        }
+    // Items container - Menu drawer and content area
+    // Contains the CustomMenuDrawer and active component
+    // FIXED: Allow full width for main content area
+    div.items,
+    .items {
+        display: flex;                          // Flexbox for layout control
+        width: 100% !important;                 // Full width (force)
+        align-items: flex-start;                // Align items to top
+        justify-content: flex-start;            // Align items to left
+        flex-direction: row;                    // Horizontal layout
+        flex-wrap: nowrap !important;            // Fixed: Prevent wrapping
+        gap: 0;                                 // No gap - drawer handles spacing
+        margin: 0 !important;                   // No margin (force)
+        padding: 0 !important;                  // No padding (force)
+        max-width: 100% !important;              // Fixed: Prevent max-width
+        overflow: hidden !important;            // Prevent content overflow
+        box-sizing: border-box !important;      // Include padding and border in width
+        min-width: 0 !important;                  // Allow flex items to shrink below content size
     }
 }

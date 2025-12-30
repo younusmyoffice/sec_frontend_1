@@ -111,9 +111,10 @@ const Payout = () => {
 
     return (
         <>
-            <Box sx={{ display: "flex", width: "98%", height: "100%", height: "90%" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", width: "98%", height: "100%", overflow: "hidden" }}>
                 <DoctorStatisticsNavbar />
-                <Box className="payout-main-container">
+                <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden", paddingTop: "50px" }}>
+                <Box className="payout-main-container" sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden", border: "2px solid #E72B4A", borderRadius: "10px" }}>
                     <div className="Cash-out">
                         <Typography
                             style={{
@@ -209,8 +210,20 @@ const Payout = () => {
                         </Box>
                     </div>
 
-                    <div className="Table-t">
-                        <TableContainer component={Paper} style={{ background: "white" }}>
+                    <div className="Table-t" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                        {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                        <TableContainer 
+                            component={Paper} 
+                            style={{ 
+                                background: "white",
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                minHeight: 0,
+                                overflow: "auto", // Enable scrolling for table content
+                                maxHeight: "calc(100vh - 450px)", // Adjusted to account for navbar, cashout section, and spacing
+                            }}
+                        >
                             <Table sx={{ minWidth: 650 }} size="large">
                                 <TableHead
                                     sx={{
@@ -284,6 +297,9 @@ const Payout = () => {
                         </TableContainer>
                     </div>
                 </Box>
+
+                </Box>
+
             </Box>
             <CustomSnackBar isOpen={snackOpen} message={snackMsg} type={snackType} />
         </>

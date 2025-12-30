@@ -20,10 +20,10 @@
   // Enhanced focus states - using consistent blue theme
   &:focus-within {
     .time-picker-label {
-      color: #1976d2;
+      color: #e72b4a;
       
       svg {
-        color: #1976d2;
+        color: #e72b4a;
       }
     }
   }
@@ -59,7 +59,7 @@
       overflow: hidden;
       
       .MuiPickersTimePickerToolbar-root {
-        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        background: linear-gradient(135deg, #e72b4a 0%, #1565c0 100%);
         color: white;
         padding: 16px;
         
@@ -72,16 +72,16 @@
       
       .MuiClock-root {
         .MuiClock-pin {
-          background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+          background: linear-gradient(135deg, #e72b4a 0%, #1565c0 100%);
         }
         
         .MuiClockPointer-root {
-          background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+          background: linear-gradient(135deg, #e72b4a 0%, #1565c0 100%);
         }
         
         .MuiClockPointer-thumb {
           background: white;
-          border: 3px solid #1976d2;
+          border: 3px solid #e72b4a;
         }
       }
       
@@ -97,7 +97,7 @@
   
   // Time picker toolbar styling - consistent blue theme
   .MuiPickersTimePickerToolbar-root {
-    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    background: linear-gradient(135deg, #e72b4a 0%, #1565c0 100%);
     color: white;
     border-radius: 16px 16px 0 0;
     
@@ -111,21 +111,21 @@
   // Clock styling - consistent blue theme
   .MuiClock-root {
     .MuiClock-pin {
-      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+      background: linear-gradient(135deg, #e72b4a 0%, #1565c0 100%);
     }
     
     .MuiClockPointer-root {
-      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+      background: linear-gradient(135deg, #e72b4a 0%, #1565c0 100%);
     }
     
     .MuiClockPointer-thumb {
       background: white;
-      border: 3px solid #1976d2;
+      border: 3px solid #e72b4a;
     }
     
     .MuiClockPointer-finger {
       background: white;
-      border: 2px solid #1976d2;
+      border: 2px solid #e72b4a;
     }
   }
   
@@ -141,7 +141,7 @@
       border-radius: 8px;
       
       &.MuiButton-textPrimary {
-        color: #1976d2;
+        color: #e72b4a;
         
         &:hover {
           background: rgba(25, 118, 210, 0.1);
@@ -149,7 +149,7 @@
       }
       
       &.MuiButton-containedPrimary {
-        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        background: linear-gradient(135deg, #e72b4a 0%, #1565c0 100%);
         
         &:hover {
           background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);

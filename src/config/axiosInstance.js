@@ -6,17 +6,45 @@ const axiosInstance = axios.create({
 });
 
 // Request interceptor
+// FIXED: Added refresh guard to prevent infinite refresh loops
+let isRefreshing = false;
+let refreshPromise = null;
+
 axiosInstance.interceptors.request.use(
     async (config) => {
+        // Skip refresh check for refresh endpoint to avoid infinite loop
+        if (config.url && config.url.includes('/sec/auth/refresh')) {
+            const accessToken = localStorage.getItem("access_token");
+            if (accessToken) {
+                config.headers.Authorization = `Bearer ${accessToken}`;
+            }
+            return config;
+        }
+
         // Check if token needs refresh before making the request
-        if (needsTokenRefresh()) {
+        if (needsTokenRefresh() && !isRefreshing) {
+            isRefreshing = true;
             console.log("Token needs refresh, attempting to refresh...");
-            const refreshSuccess = await refreshToken();
+            
+            // Create a single refresh promise to avoid multiple simultaneous refreshes
+            if (!refreshPromise) {
+                refreshPromise = refreshToken().then((success) => {
+                    isRefreshing = false;
+                    refreshPromise = null;
+                    return success;
+                }).catch((error) => {
+                    isRefreshing = false;
+                    refreshPromise = null;
+                    return false;
+                });
+            }
+            
+            const refreshSuccess = await refreshPromise;
             if (!refreshSuccess) {
                 console.error("Token refresh failed, clearing auth data");
                 clearAuthData();
                 // Redirect to login if not already there
-                if (window.location.pathname !== "/login") {
+                if (window.location.pathname !== "/login" && window.location.pathname !== "/patientLogin") {
                     window.location.href = "/login";
                 }
                 return Promise.reject(new Error("Token refresh failed"));
@@ -38,6 +66,8 @@ axiosInstance.interceptors.request.use(
     },
     (error) => {
         console.error("Request interceptor error:", error);
+        isRefreshing = false;
+        refreshPromise = null;
         return Promise.reject(error);
     },
 );

@@ -16,10 +16,12 @@ import CustomModal from "../../../../components/CustomModal";
 import GroupIcon from "../../../../static/images/DrImages/GroupIcon.svg";
 import CustomButton from "../../../../components/CustomButton/custom-button";
 import { baseURL } from "../../../../constants/const";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import { Schedule } from "@mui/icons-material";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import { formatDate } from "../../../../constants/const";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
 
 const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accAndRejClicked }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -68,7 +70,6 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
         status: "in_progress",
         option: "reject",
     });
-    console.log("Reject appointment data : ", rejectAppointment);
     const [rejectClicked, setRejectClicked] = useState(false);
     const [appointmentRequestData, setAppointmentRequestData] = useState({
         appointment_id: null,
@@ -80,6 +81,9 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
     });
 
     useEffect(() => {
+        logger.debug("🔵 ClinicCardRequest component initialized", {
+            appointment_id: data?.appointment_id
+        });
         setAppointmentRequestData({
             appointment_id: data?.appointment_id,
             patient_id: data?.patient_id,
@@ -89,37 +93,60 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
         });
     }, []);
 
+    /**
+     * Accept appointment request
+     * Updates appointment status to accepted
+     */
     const AcceptAppointment = async () => {
         setClicked(!clicked);
-        console.log("🔍 Accepting appointment with data:", appointmentRequestData);
+        logger.debug("✅ Accepting appointment", {
+            appointment_id: appointmentRequestData?.appointment_id
+        });
+        
         try {
             const response = await axiosInstance.post(
                 "/sec/hcf/clinicAppointmentAccept",
                 JSON.stringify(appointmentRequestData),
-                { 
+                {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     }
                 },
             );
-            setSnackMessage("Appointment Confirmed");
+            logger.debug("✅ Appointment accepted successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Appointment Confirmed";
+            setSnackMessage(successMessage);
             setSnackType("success");
             setSnackOpen(true);
-            console.log("✅ Accept RESPONSE : ", response?.data);
-            // acceptButtonClicked("child")
+            toastService.success(successMessage);
+            
             AcceptOrRejectButtonClicked(!accAndRejClicked);
         } catch (error) {
-            console.log("❌ Accept ERROR:", error.response);
-            setSnackMessage("error during booking appointment");
+            logger.error("❌ Error accepting appointment:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to accept appointment. Please try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackType("error");
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
 
+    /**
+     * Reject appointment request
+     * Updates appointment status to rejected with reason
+     */
     const RejectAppointment = async () => {
-        // setRejectClicked(true);
-        console.log("🔍 Rejecting appointment with data:", rejectAppointment);
+        logger.debug("❌ Rejecting appointment", {
+            appointment_id: rejectAppointment?.appointment_id,
+            reason: rejectAppointment?.reason
+        });
+        
         try {
             const response = await axiosInstance.post(
                 "/sec/hcf/clinicAppointmentReject",
@@ -131,19 +158,31 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                     }
                 }
             );
-            setSnackMessage("Appointment Booking Rejected");
+            
+            logger.debug("✅ Appointment rejected successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Appointment Booking Rejected";
+            setSnackMessage(successMessage);
             setSnackType("success");
-            setSnackOpen(true); // alert(response?.data.response.status);
-            console.log("✅ Reject RESPONSE : ", response?.data);
+            setSnackOpen(true);
+            toastService.success(successMessage);
+            
             AcceptOrRejectButtonClicked(!accAndRejClicked);
             setRejectAppointmentFlag(false);
             setOpenDialog(false);
         } catch (error) {
-            console.log("❌ Reject ERROR:", error.response);
+            logger.error("❌ Error rejecting appointment:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
             setRejectAppointmentFlag(false);
-            setSnackMessage("error during rejecting  appointment says ", error.response);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to reject appointment. Please try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackType("error");
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
 
@@ -159,18 +198,32 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
     //----------------------------------------------------modal code--------------------------------------------
     const patient_id = data?.patient_id;
     const appointment_id = data?.appointment_id;
+    /**
+     * Fetch clinic appointment patient details
+     * Loads patient information for the specific appointment
+     * 
+     * @param {string} patient_id - Patient ID
+     * @param {string} appointment_id - Appointment ID
+     */
     const clinicAppointmentRequestsList = async (patient_id, appointment_id) => {
-        setLoading(true); // Set loading to true
+        logger.debug("📋 Fetching clinic appointment patient details", { patient_id, appointment_id });
+        setLoading(true);
+        
         try {
             const response = await axiosInstance.get(
-                `sec/hcf/${patient_id}/${appointment_id}/ClinicAppointmentPatient`,
+                `/sec/hcf/${patient_id}/${appointment_id}/ClinicAppointmentPatient`,
             );
-            const Count = response?.data?.response || [];
-            setClinicAppointmentPatient(Count);
+            const patientData = response?.data?.response || [];
+            
+            logger.debug("✅ Patient details received", { count: patientData.length });
+            setClinicAppointmentPatient(patientData);
         } catch (error) {
-            console.error("Error fetching request data:", error.response);
+            logger.error("❌ Error fetching patient details:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load patient details");
+            setClinicAppointmentPatient([]);
         } finally {
-            setLoading(false); // Set loading to false
+            setLoading(false);
         }
     };
 
@@ -187,7 +240,7 @@ const ClinicCardRequest = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
     const filename =
         Array.isArray(clinicAppointmentPatient) && clinicAppointmentPatient[0]?.report_name;
 
-    console.log("filepath", filepath);
+    logger.debug("📄 File path:", filepath);
 
     const handleDownloadReport = () => {
         // Direct download link for Google Drive

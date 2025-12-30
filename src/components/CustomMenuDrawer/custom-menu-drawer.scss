@@ -17,14 +17,14 @@
 }
 
 // Sidebar Expand/Shrink Animations
+// CRITICAL: Don't override width or transition here
+// The styled Drawer component (in .js file) handles width transitions via openedMixin/closedMixin
+// Width is controlled by the 'open' prop on the Drawer component
+
+// Additional layout styles for drawer paper
 .MuiDrawer-paper {
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    // Only essential layout properties
     overflow-x: hidden;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    height: 100vh !important;
-    z-index: 1200 !important;
     
     // Smooth logo transition
     .MuiDrawerHeader-root {
@@ -95,8 +95,9 @@
 
 // Mobile-specific styles
 @media (max-width: 768px) {
+    // REMOVED: width override for mobile - drawer is temporary on mobile, width managed by component
     .MuiDrawer-paper {
-        width: 280px !important;
+        // Width controlled by SwipeableDrawer width prop in JS
     }
     
     .MuiAppBar-root {
@@ -110,16 +111,20 @@
 }
 
 // Tablet-specific styles
+// REMOVED: width override - let styled component handle it based on 'open' prop
 @media (min-width: 769px) and (max-width: 1024px) {
     .MuiDrawer-paper {
-        width: 270px !important;
+        // Width is controlled by styled component (openedMixin/closedMixin)
+        // Don't override here
     }
 }
 
 // Desktop-specific styles
+// REMOVED: width override - let styled component handle it based on 'open' prop
 @media (min-width: 1025px) {
     .MuiDrawer-paper {
-        width: 270px !important;
+        // Width is controlled by styled component (openedMixin/closedMixin)
+        // Don't override here
     }
 }
 

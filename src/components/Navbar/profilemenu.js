@@ -25,13 +25,28 @@ import { useAuthentication } from "../../loginComponent/UserProvider";
 import { useAuth } from "../../hooks/useAuth";
 import axiosInstance from "../../config/axiosInstance";
 import { processProfileImage } from "../../utils/imageUtils";
+import logger from "../../utils/logger";
+import toastService from "../../services/toastService";
+import Loading from "../Loading/Loading";
 import "./profilemenu.scss";
 // import DocImg from "../../static/images/DrImages/doctor_alter.jpeg";
 import DocImg from "../../static/images/DrImages/doctor_alter.jpeg";
 
+/**
+ * Profile Menu Component
+ * 
+ * Displays a profile menu dropdown in the top navigation bar with:
+ * - User profile information (avatar, name, email)
+ * - Navigation to profile pages
+ * - Logout functionality
+ * - Role-based navigation (patient, doctor, clinic, diagnostic, hcfadmin)
+ * 
+ * @param {string} profilepath - User role type (patient, doctor, clinic, diagnostic, hcfadmin)
+ * @returns {JSX.Element} Profile menu dropdown component
+ */
 const profilemenu = ({ profilepath }) => {
     const navigate = useNavigate();
-    console.log("Profile path inner : ", profilepath);
+    logger.debug("Profile menu - profilepath:", profilepath);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -69,31 +84,31 @@ const profilemenu = ({ profilepath }) => {
             if (profilepath === "doctor") {
                 const doctor_id = localStorage.getItem("doctor_suid");
                 if (!doctor_id) {
-                    console.log("No doctor SUID found, skipping profile fetch");
+                    logger.warn("No doctor SUID found, skipping profile fetch");
                     return;
                 }
                 response = await axiosInstance.get(`/sec/Doctor/doctorProfileDetailsbyId?doctor_id=${doctor_id}`);
-                console.log("Doctor profile image fetch response:", response?.data);
+                logger.debug("Doctor profile image fetch response:", response?.data);
             } else if (profilepath === "hcfadmin") {
                 const hcf_id = localStorage.getItem("hcfadmin_suid");
                 if (!hcf_id) {
-                    console.log("No HCF admin SUID found, skipping profile fetch");
+                    logger.warn("No HCF admin SUID found, skipping profile fetch");
                     return;
                 }
                 response = await axiosInstance.get(`/sec/hcf/getHcfprofile/${hcf_id}`);
-                console.log("HCF admin profile image fetch response:", response?.data);
+                logger.debug("HCF admin profile image fetch response:", response?.data);
             } else if (profilepath === "clinic") {
                 const clinic_id = localStorage.getItem("clinic_suid");
                 if (!clinic_id) {
-                    console.log("No clinic SUID found, skipping profile fetch");
+                    logger.warn("No clinic SUID found, skipping profile fetch");
                     return;
                 }
                 response = await axiosInstance.get(`/sec/hcf/getClinicProfile/${clinic_id}`);
-                console.log("Clinic profile image fetch response:", response?.data);
+                logger.debug("Clinic profile image fetch response:", response?.data);
             } else {
                 // Default to patient/user API
                 response = await axiosInstance.get("/sec/auth/getUserDetails/");
-                console.log("User profile image fetch response:", response?.data);
+                logger.debug("User profile image fetch response:", response?.data);
             }
             
             // Extract profile picture based on response structure
@@ -111,7 +126,7 @@ const profilemenu = ({ profilepath }) => {
             }
             
             if (profilePicture) {
-                console.log("Raw profile picture data:", profilePicture);
+                logger.debug("Raw profile picture data:", profilePicture);
                 
                 // Use utility function to process and convert to base64
                 const processedImage = await processProfileImage(profilePicture, DocImg);
@@ -119,15 +134,17 @@ const profilemenu = ({ profilepath }) => {
                 if (processedImage && processedImage !== DocImg) {
                     setProfileImage(processedImage);
                     localStorage.setItem("profile", processedImage);
-                    console.log("✅ Profile image processed and set successfully");
+                    logger.info("✅ Profile image processed and set successfully");
+                    toastService.success("Profile loaded successfully");
                 } else {
-                    console.log("⚠️ Using fallback image");
+                    logger.warn("⚠️ Using fallback image");
                 }
             } else {
-                console.log("❌ No profile picture found in response");
+                logger.warn("❌ No profile picture found in response");
             }
         } catch (error) {
-            console.error("Error fetching profile image:", error);
+            logger.error("Error fetching profile image:", error);
+            toastService.error("Failed to load profile image");
         } finally {
             setIsLoadingProfile(false);
         }
@@ -165,13 +182,13 @@ const profilemenu = ({ profilepath }) => {
 
     const HandleLogout = async () => {
         try {
-            console.log("Starting logout process from profile menu...");
+            logger.info("Starting logout process from profile menu...");
             setIsLoggingOut(true);
             
             // Show confirmation dialog
             const confirmed = window.confirm('Are you sure you want to logout?');
             if (!confirmed) {
-                console.log("Logout cancelled by user");
+                logger.info("Logout cancelled by user");
                 setIsLoggingOut(false);
                 return;
             }
@@ -183,7 +200,7 @@ const profilemenu = ({ profilepath }) => {
             });
             
             if (result.success) {
-                console.log("Logout successful from profile menu:", result.message);
+                logger.info("Logout successful from profile menu:", result.message);
                 
                 // Call the existing authentication logout methods for compatibility
                 if (Authentication.LogoutPatient) {
@@ -205,9 +222,11 @@ const profilemenu = ({ profilepath }) => {
                 navigate("/");
                 
                 // Show success message
-                console.log("Logout completed successfully!");
+                logger.info("Logout completed successfully!");
+                toastService.success("Logged out successfully");
             } else {
-                console.error("Logout failed from profile menu:", result.message);
+                logger.error("Logout failed from profile menu:", result.message);
+                toastService.error("Logout failed. Please try again.");
                 
                 // Even if server logout fails, clear local data for security
                 localStorage.clear();
@@ -227,10 +246,11 @@ const profilemenu = ({ profilepath }) => {
                 }
                 
                 navigate("/");
-                console.log("Local logout completed due to server error");
+                logger.warn("Local logout completed due to server error");
             }
         } catch (error) {
-            console.error("Logout error from profile menu:", error);
+            logger.error("Logout error from profile menu:", error);
+            toastService.error("An error occurred during logout");
             
             // Fallback to local logout
             localStorage.clear();
@@ -249,7 +269,7 @@ const profilemenu = ({ profilepath }) => {
             }
             
             navigate("/");
-            console.log("Fallback logout completed");
+            logger.info("Fallback logout completed");
         } finally {
             setIsLoggingOut(false);
         }
@@ -371,7 +391,7 @@ const profilemenu = ({ profilepath }) => {
                             ? navigate("/diagnostCenterDashboard/diagnostcenterprofile/diagnostcenterprofileinfo")
                             : profilepath === "hcfadmin"
                             ? navigate("adminprofile")
-                            : console.log("this is null");
+                            : logger.warn("Unsupported profile path:", profilepath);
                     }}
                     sx={{
                         display: "flex",
@@ -460,7 +480,7 @@ const profilemenu = ({ profilepath }) => {
                                     fontSize: "10px",
                                     height: "20px",
                                     backgroundColor: "#e3f2fd",
-                                    color: "#1976d2",
+                                    color: "#e72b4a",
                                     cursor: "pointer",
                                     "&:hover": {
                                         backgroundColor: "#bbdefb"

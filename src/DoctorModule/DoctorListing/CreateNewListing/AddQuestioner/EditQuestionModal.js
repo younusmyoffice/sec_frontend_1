@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress, TextField, Typography } from "@mui/material";
 import CustomButton from "../../../../components/CustomButton";
 import CustomModal from "../../../../components/CustomModal";
 import CustomTextField from "../../../../components/CustomTextField";
@@ -218,33 +218,23 @@ const EditQuestionModal = ({
                     ) : (
                         <div>
                             <div style={{ marginBottom: "20px" }}>
-                                <CustomTextField
+                                <TextField
                                     label="Question"
-                                    CustomValue={formData.question || ""}
+                                    value={formData.question || ""}
+                                    placeholder="Question"
+                                    variant="standard"
                                     onChange={(e) => handleInputChange('question', e.target.value)}
-                                    textcss={{
-                                        width: "100%",
-                                        fontFamily: "poppins",
-                                        fontSize: "16px"
-                                    }}
-                                    multiline
-                                    rows={3}
-                                    required
                                 />
                             </div>
 
                             {[1, 2, 3, 4].map((ansNum) => (
                                 <div key={ansNum} style={{ marginBottom: "16px" }}>
-                                    <CustomTextField
+                                    <TextField
                                         label={`Answer ${ansNum}`}
-                                        CustomValue={formData[`ans_${ansNum}`] || ""}
+                                        value={formData[`ans_${ansNum}`] || ""}
+                                        placeholder={`Answer ${ansNum}`}
+                                        variant="standard"
                                         onChange={(e) => handleInputChange(`ans_${ansNum}`, e.target.value)}
-                                        textcss={{
-                                            width: "100%",
-                                            fontFamily: "poppins",
-                                            fontSize: "16px"
-                                        }}
-                                        required={ansNum <= 2}
                                     />
                                 </div>
                             ))}

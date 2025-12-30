@@ -1130,7 +1130,15 @@ const ProfessionalDetails = () => {
                             </Box>
                         ))
                     ) : Array.isArray(experience) && experience.length > 0 ? (
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                        <Box sx={{ 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            gap: "20px",
+                            maxHeight: "600px", // Maximum height before scrolling
+                            overflowY: "auto", // Enable vertical scrolling when content exceeds maxHeight
+                            overflowX: "hidden", // Prevent horizontal scrolling
+                            paddingRight: "8px", // Add padding for scrollbar
+                        }}>
                             {experience.map((exp, index) => (
                                 <Box
                                     key={index}
@@ -1153,7 +1161,7 @@ const ProfessionalDetails = () => {
                                 >
                                     <Avatar sx={{
                                         backgroundColor: "#E3F2FD",
-                                        color: "#1976D2",
+                                        color: "#e72b4a",
                                         width: 56,
                                         height: 56,
                                         fontSize: "24px"
@@ -1293,7 +1301,15 @@ const ProfessionalDetails = () => {
                             </Box>
                         ))
                     ) : Array.isArray(award) && award.length > 0 ? (
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                        <Box sx={{ 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            gap: "20px",
+                            maxHeight: "600px", // Maximum height before scrolling
+                            overflowY: "auto", // Enable vertical scrolling when content exceeds maxHeight
+                            overflowX: "hidden", // Prevent horizontal scrolling
+                            paddingRight: "8px", // Add padding for scrollbar
+                        }}>
                             {award.map((awa, index) => (
                                 <Box
                                     key={index}
@@ -1459,7 +1475,15 @@ const ProfessionalDetails = () => {
                             </Box>
                         ))
                     ) : Array.isArray(licenses) && licenses.length > 0 ? (
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                        <Box sx={{ 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            gap: "20px",
+                            maxHeight: "600px", // Maximum height before scrolling
+                            overflowY: "auto", // Enable vertical scrolling when content exceeds maxHeight
+                            overflowX: "hidden", // Prevent horizontal scrolling
+                            paddingRight: "8px", // Add padding for scrollbar
+                        }}>
                             {licenses.map((lic, index) => (
                                 <Box
                                     key={index}

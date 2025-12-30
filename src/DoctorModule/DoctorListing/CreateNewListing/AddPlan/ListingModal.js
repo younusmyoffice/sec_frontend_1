@@ -5,8 +5,9 @@ import CustomModal from "../../../../components/CustomModal";
 import CustomTextField from "../../../../components/CustomTextField";
 import CustomDropdown from "../../../../components/CustomDropdown";
 import CustomCheckBox from "../../../../components/CustomCheckBox";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import CustomSnackBar from "../../../../components/CustomSnackBar/custom-sack-bar";
+import logger from "../../../../utils/logger"; // Centralized logging
 import "./addplan.scss";
 
 const ListingModal = ({
@@ -16,6 +17,8 @@ const ListingModal = ({
     onAdditionalButtonClick,
     disableBackdropClick,
     saveButtonEnable = true,
+    doctor_id = null, // Optional: doctor_id from parent (for HCF Admin flow)
+    doctor_list_id = null, // Optional: doctor_list_id from parent (for HCF Admin flow)
 }) => {
     const [openDialog, setOpenDialog] = useState(false);
     const [listingPayload, setListingPayload] = useState({ plan: [] });
@@ -33,21 +36,98 @@ const ListingModal = ({
         plan_description: `${planType.charAt(0).toUpperCase() + planType.slice(1)} plan for ${planType}ing`,
     });
 
-    const plansTemplateForClinic = (planType, fee = null, duration = null) => ({
-        plan_name: planType,
-        plan_fee: fee,
-        plan_duration: duration,
-        plan_description: `${planType.charAt(0).toUpperCase() + planType.slice(1)} plan for ${planType}ing`,
-    });
+    /**
+     * Template for creating clinic/HCF plan objects
+     * FIXED: Now includes doctor_id and doctor_list_id if provided
+     * 
+     * @param {string} planType - Plan type ("message" or "video")
+     * @param {number|null} fee - Plan fee
+     * @param {string|null} duration - Plan duration
+     * @param {number|null} docId - Optional doctor_id (from props or localStorage)
+     * @param {number|null} docListId - Optional doctor_list_id (from props or localStorage)
+     * @returns {Object} Plan object with all required fields
+     */
+    const plansTemplateForClinic = (planType, fee = null, duration = null, docId = null, docListId = null) => {
+        // Get doctor_id and doctor_list_id from props, or fallback to localStorage
+        const finalDoctorId = docId || doctor_id || localStorage.getItem("doctor_suid");
+        const finalDoctorListId = docListId || doctor_list_id || localStorage.getItem("listing_id");
+        
+        const planObj = {
+            plan_name: planType,
+            plan_fee: fee,
+            plan_duration: duration,
+            plan_description: `${planType.charAt(0).toUpperCase() + planType.slice(1)} plan for ${planType}ing`,
+        };
+        
+        // Only add doctor_id and doctor_list_id if they exist (for plan creation endpoint)
+        if (finalDoctorId) {
+            planObj.doctor_id = Number(finalDoctorId);
+        }
+        if (finalDoctorListId) {
+            planObj.doctor_list_id = Number(finalDoctorListId);
+        }
+        
+        return planObj;
+    };
 
 
+    /**
+     * Toggle plan checkbox state
+     * Updates checkbox checked state and adds/removes plan from listingPayload
+     * FIXED: Properly synchronizes checkbox state with plan payload
+     * 
+     * @param {string} planType - Plan type ("message" or "video")
+     */
     const togglePlanCheckBox = (planType) => {
+        logger.debug("📋 Toggling plan checkbox", { planType });
+        
         setCheckBoxIsDisable((prev) => {
-            const newState = { ...prev, [planType]: !prev[planType] };
-            const updatedPlans = newState[planType]
-                ? [...listingPayload.plan, { ...plansTemplate(planType), plan_duration: null, plan_fee: null, is_trial: 1 }]
-                : listingPayload.plan.filter(plan => plan.plan_name !== planType);
-            setListingPayload({ plan: updatedPlans });
+            const currentChecked = prev[planType];
+            const newCheckedState = !currentChecked;
+            const newState = { ...prev, [planType]: newCheckedState };
+            
+            logger.debug("📋 Checkbox state change", { 
+                planType, 
+                previousState: currentChecked, 
+                newState: newCheckedState 
+            });
+            
+            // Update listingPayload based on checkbox state using functional update
+            setListingPayload((prevPayload) => {
+                if (newCheckedState) {
+                    // Checkbox is now checked - add plan if not already present
+                    const planExists = prevPayload.plan.some(plan => plan.plan_name === planType);
+                    if (!planExists) {
+                        // Get doctor_id and doctor_list_id for new plan
+                        const planDoctorId = doctor_id || localStorage.getItem("doctor_suid");
+                        const planDoctorListId = doctor_list_id || localStorage.getItem("listing_id");
+                        
+                        const newPlan = {
+                            ...plansTemplateForClinic(planType, null, null, planDoctorId, planDoctorListId),
+                            plan_duration: null,
+                            plan_fee: null,
+                            is_trial: 1
+                        };
+                        logger.debug("✅ Adding plan to payload", { plan: newPlan });
+                        return {
+                            plan: [...prevPayload.plan, newPlan]
+                        };
+                    }
+                    logger.debug("⚠️ Plan already exists in payload", { planType });
+                    return prevPayload;
+                } else {
+                    // Checkbox is now unchecked - remove plan
+                    const filteredPlans = prevPayload.plan.filter(plan => plan.plan_name !== planType);
+                    logger.debug("🗑️ Removing plan from payload", { 
+                        planType, 
+                        remainingPlans: filteredPlans.length 
+                    });
+                    return {
+                        plan: filteredPlans
+                    };
+                }
+            });
+            
             return newState;
         });
     };
@@ -98,7 +178,8 @@ const ListingModal = ({
             setIsOpen(true);
             RenderDataAfterAddingPlan(true);
         } catch (error) {
-            console.error("Listing not Added:", error);
+            logger.error("❌ Listing not Added:", error);
+            logger.error("❌ Error response:", error?.response?.data);
             setIsOpen(false);
             RenderDataAfterAddingPlan(false);
         } finally {
@@ -111,6 +192,20 @@ const ListingModal = ({
         localStorage.setItem("activeComponent", "listing");
         localStorage.setItem("path", "addplans");
     }, []);
+
+    /**
+     * Reset modal state when dialog closes
+     * FIXED: Clears checkbox state and plan data when modal is closed to prevent stale data
+     */
+    useEffect(() => {
+        if (!openDialog) {
+            // Reset state when modal closes
+            logger.debug("🔄 Modal closed, resetting state");
+            setCheckBoxIsDisable({ message: false, video: false });
+            setListingPayload({ plan: [] });
+            setValidation({});
+        }
+    }, [openDialog]);
 
     return (
         <>
@@ -130,25 +225,74 @@ const ListingModal = ({
                 footer={enableAdditionalButton && (
                     <CustomButton
                         label={additionalButtonName}
-                        handleClick={() => onAdditionalButtonClick({
-                            plan: Object.keys(checkBoxIsDisable)
-                                .filter(plan => checkBoxIsDisable[plan])
+                        isDisabled={
+                            listingPayload.plan.length === 0 || 
+                            Object.values(validation).some(v => v.fee || v.duration) ||
+                            listingPayload.plan.some(p => !checkBoxIsDisable[p.plan_name])
+                        }
+                        handleClick={() => {
+                            logger.debug("📤 Add plan button clicked", {
+                                checkBoxState: checkBoxIsDisable,
+                                listingPayloadPlans: listingPayload.plan,
+                                validation
+                            });
+                            
+                            // FIXED: Get plans directly from listingPayload that are checked
+                            // This ensures we get plans with fee and duration that are actually checked
+                            // FIXED: Include doctor_id and doctor_list_id in plans
+                            const selectedPlans = listingPayload.plan
+                                .filter(plan => checkBoxIsDisable[plan.plan_name]) // Only checked plans
                                 .map(plan => {
-                                    const planDetails = listingPayload.plan.find(p => p.plan_name === plan) || {};
-                                    return plansTemplateForClinic(
-                                        plan,
-                                        planDetails.plan_fee || null,
-                                        planDetails.plan_duration || null
+                                    // Use doctor_id and doctor_list_id from plan if present, otherwise from props/localStorage
+                                    const planDoctorId = plan.doctor_id || doctor_id || localStorage.getItem("doctor_suid");
+                                    const planDoctorListId = plan.doctor_list_id || doctor_list_id || localStorage.getItem("listing_id");
+                                    
+                                    const formattedPlan = plansTemplateForClinic(
+                                        plan.plan_name,
+                                        plan.plan_fee || null,
+                                        plan.plan_duration || null,
+                                        planDoctorId,
+                                        planDoctorListId
                                     );
-                                }),
-                        })}
+                                    logger.debug("✅ Plan formatted for submission", { plan: formattedPlan });
+                                    return formattedPlan;
+                                });
+                            
+                            logger.debug("📋 Selected plans to submit", { 
+                                count: selectedPlans.length,
+                                plans: selectedPlans 
+                            });
+                            
+                            if (selectedPlans.length > 0 && onAdditionalButtonClick) {
+                                onAdditionalButtonClick({ plan: selectedPlans });
+                                // Close modal after adding plans
+                                setOpenDialog(false);
+                                logger.debug("✅ Plans submitted, modal closed");
+                            } else {
+                                logger.warn("⚠️ No valid plans to submit", {
+                                    selectedPlansCount: selectedPlans.length,
+                                    hasCallback: !!onAdditionalButtonClick
+                                });
+                            }
+                        }}
                     />
                 )}
             >
                 {["message", "video"].map((planType) => (
                     <div key={planType}>
                         <div className={`${planType}-plan`}>
-                            <CustomCheckBox checked={checkBoxIsDisable[planType]} onChange={() => togglePlanCheckBox(planType)} />
+                            <CustomCheckBox 
+                                checked={checkBoxIsDisable[planType] || false}
+                                onChange={(event) => {
+                                    // FIXED: Properly handle checkbox change event
+                                    logger.debug("📋 Checkbox onChange triggered", { 
+                                        planType, 
+                                        eventChecked: event?.target?.checked,
+                                        currentState: checkBoxIsDisable[planType]
+                                    });
+                                    togglePlanCheckBox(planType);
+                                }}
+                            />
                             <Typography style={{ fontFamily: "poppins", fontSize: "14px", fontWeight: "500" }}>
                                 {plansTemplate(planType).plan_description.split(" ")[0]} Plan
                             </Typography>

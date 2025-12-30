@@ -1,258 +1,217 @@
-.doctor-listing-details {
+/**
+ * DoctorListingDetails Styles
+ * Modern design matching the reference image with clean sections and underline inputs
+ */
+
+// Main container
+.listing-details-container {
   width: 100%;
-  min-height: 100vh;
-  background-color: #f8f9fa;
+  max-width: 960px;
+  margin: 0 auto;
   padding: 24px;
-
-  // Header Section
-  .listing-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-    .page-title {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 28px;
-      color: #1a1a1a;
-      margin: 0;
-    }
-
-    .close-button {
-      color: #666;
-      padding: 8px;
-      
-      &:hover {
-        background-color: #f5f5f5;
-        color: #e72b49;
-      }
-    }
-  }
-
-  // Form Section
-  .form-section {
-    background: white;
-    padding: 32px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 24px;
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      margin-bottom: 32px;
-
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-
-      .form-group {
-        .form-label {
-          font-family: 'Poppins', sans-serif;
-          font-weight: 500;
-          font-size: 16px;
-          color: #1a1a1a;
-          margin-bottom: 16px;
-          display: block;
-        }
-
-        .date-range-container,
-        .time-range-container {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 16px;
-
-          @media (max-width: 480px) {
-            grid-template-columns: 1fr;
-          }
-        }
-      }
-    }
-
-    // About Section
-    .about-section {
-      margin-bottom: 32px;
-
-      .form-label {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 500;
-        font-size: 16px;
-        color: #1a1a1a;
-        margin-bottom: 16px;
-        display: block;
-      }
-
-      .about-textarea {
-        width: 100%;
-        min-height: 120px;
-        padding: 16px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        line-height: 1.5;
-        resize: vertical;
-        transition: all 0.3s ease;
-        background-color: #fafafa;
-
-        &:focus {
-          outline: none;
-          border-color: #e72b49;
-          box-shadow: 0 0 0 3px rgba(231, 43, 73, 0.1);
-          background-color: white;
-        }
-
-        &.typing {
-          border-color: #4caf50;
-          box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-          background-color: white;
-        }
-
-        &::placeholder {
-          color: #999;
-          font-style: italic;
-        }
-      }
-    }
-
-    // Action Buttons
-    .action-buttons {
-      display: flex;
-      gap: 16px;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-
-      @media (max-width: 480px) {
-        flex-direction: column;
-        align-items: stretch;
-
-        .custom-button {
-          width: 100% !important;
-          margin-right: 0 !important;
-        }
-      }
-    }
-  }
-
-  // Responsive Design
-  @media (max-width: 1024px) {
-    padding: 16px;
-
-    .listing-header {
-      padding: 20px;
-      margin-bottom: 24px;
-
-      .page-title {
-        font-size: 24px;
-      }
-    }
-
-    .form-section {
-      padding: 24px;
-    }
-  }
+  box-sizing: border-box;
+  background-color: #ffffff;
 
   @media (max-width: 768px) {
-    padding: 12px;
-
-    .listing-header {
-      padding: 16px;
-      margin-bottom: 20px;
-
-      .page-title {
-        font-size: 20px;
-      }
-    }
-
-    .form-section {
-      padding: 20px;
-
-      .form-grid {
-        gap: 20px;
-      }
-    }
+    padding: 16px;
   }
 
   @media (max-width: 480px) {
-    padding: 8px;
+    padding: 12px;
+  }
+}
 
-    .listing-header {
-      padding: 12px;
-      margin-bottom: 16px;
+// Header Section
+.listing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #E6E1E5;
 
-      .page-title {
-        font-size: 18px;
-      }
+  .listing-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #313033;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+}
+
+// Form Section
+.listing-form {
+  display: flex;
+  flex-direction: column;
+  // gap: 32px;
+  margin-bottom: 32px;
+  border: 1px solid #E72B4A;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .section-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: #313033;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.01em;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    // gap: 8px;
+
+    .field-label {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 0.875rem;
+      color: #313033;
+      margin: 0;
     }
 
-    .form-section {
-      padding: 16px;
+    &.half-width {
+      flex: 1;
+      min-width: 0;
+    }
+  }
 
-      .form-grid {
-        gap: 16px;
+  .date-time-row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+}
+
+// About Textarea
+.about-textarea {
+  width: 100%;
+  min-height: 200px;
+  max-height: 200px;
+  padding: 16px;
+  border: 1px solid #E6E1E5;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  color: #313033;
+
+  &:focus {
+    outline: none;
+    border-color: #E72B4A;
+    box-shadow: 0 0 0 3px rgba(231, 43, 74, 0.1);
+  }
+
+  &.typing {
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  }
+
+  &::placeholder {
+    color: #787579;
+    font-style: italic;
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #E6E1E5;
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    width: 100%;
+
+    .custom-button {
+      width: 100% !important;
+    }
+  }
+}
+
+
+// Material-UI TextField styling - Underline style (standard variant)
+.listing-details-container {
+  .MuiTextField-root {
+    font-family: 'Poppins', sans-serif;
+
+    .MuiInput-root {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      color: #313033;
+
+      &::before {
+        border-bottom: 1px solid #e0e0e0;
       }
 
-      .about-section {
-        margin-bottom: 24px;
+      &:hover:not(.Mui-disabled):not(.Mui-error):before {
+        border-bottom: 2px solid #E72B4A;
+      }
 
-        .about-textarea {
-          min-height: 100px;
-          padding: 12px;
-          font-size: 13px;
+      &.Mui-focused:after {
+        border-bottom: 2px solid #E72B4A;
+      }
+
+      &.Mui-error:after {
+        border-bottom-color: #d32f2f;
+      }
+
+      input {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        padding: 8px 0;
+        color: #313033;
+
+        &::placeholder {
+          color: #787579;
+          opacity: 1;
         }
       }
     }
-  }
-}
 
-// Custom Button Overrides
-.custom-button {
-  transition: all 0.3s ease;
+    .MuiInputLabel-root {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      color: #787579;
+      transform: translateY(0);
 
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
+      &.Mui-focused {
+        color: #E72B4A;
+      }
 
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-// Form Field Styling
-.MuiTextField-root {
-  .MuiInput-root {
-    &::before {
-      border-bottom: 1px solid #e0e0e0;
+      &.Mui-error {
+        color: #d32f2f;
+      }
     }
 
-    &:hover:not(.Mui-disabled):before {
-      border-bottom: 2px solid #e72b49;
-    }
-
-    &.Mui-focused:after {
-      border-bottom: 2px solid #e72b49;
-    }
-  }
-
-  .MuiInputLabel-root {
-    color: #666;
-    font-family: 'Poppins', sans-serif;
-
-    &.Mui-focused {
-      color: #e72b49;
+    .MuiFormHelperText-root {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      margin-left: 0;
     }
   }
 }

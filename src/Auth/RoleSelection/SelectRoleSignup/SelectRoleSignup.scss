@@ -1,29 +1,31 @@
 // @import "../../../static/scss/base/variables";
 // @import "../../../static/scss/main.scss";
+@use "static/scss/common/logo" as *;
 
 // Mobile-first responsive design
 .register-photo {
     background: #f1f7fc;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
     min-height: 100vh;
     flex-direction: column;
     padding: 1rem;
     box-sizing: border-box;
+    position: relative;
 }
 
 .form-container {
     display: flex;
     width: 100%;
     max-width: 1200px;
-    min-height: 80vh;
+    min-height: auto;
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
     margin: 0 auto;
+    flex-shrink: 0;
 }
 
 .image-holder {
@@ -43,22 +45,25 @@
 .component-library {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
     padding: 2rem;
     box-sizing: border-box;
-    min-height: 80vh;
+    min-height: auto;
+    flex-shrink: 0;
+    overflow: visible;
 }
 
+// Logo styles moved to common/_logo.scss
+// Using .logo-with-margin variant for this component
 .logo {
-    text-align: center;
+    @include logo-base;
+    margin-top: 50px;
     margin-bottom: 2rem;
     
     img {
-        max-width: 100%;
-        height: auto;
-        max-height: 80px;
+        max-height: 80px; // Override max-height for this specific component
     }
 }
 
@@ -110,6 +115,9 @@
     
     .component-library {
         padding: 3rem;
+        max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
     
     .signup-title {
@@ -129,7 +137,7 @@
     }
     
     .form-container {
-        min-height: 70vh;
+        min-height: auto;
     }
     
     .image-holder {
@@ -139,6 +147,9 @@
     .component-library {
         width: 50%;
         padding: 4rem;
+        max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
     
     .signup-title {
@@ -159,6 +170,9 @@
     
     .component-library {
         padding: 5rem;
+        max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
     
     .signup-title {
@@ -174,11 +188,14 @@
     
     .form-container {
         border-radius: 8px;
-        min-height: 90vh;
+        min-height: auto;
     }
     
     .component-library {
         padding: 1rem;
+        max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
     
     .signup-title {
@@ -199,6 +216,9 @@
     
     .component-library {
         padding: 1.5rem;
+        max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
     
     .signup-title {
@@ -212,15 +232,18 @@
     .register-photo {
         min-height: 100vh;
         padding: 0.5rem;
+        overflow-y: auto;
     }
     
     .form-container {
-        min-height: 95vh;
+        min-height: auto;
+        max-height: 95vh;
+        overflow-y: auto;
     }
     
     .component-library {
         padding: 1rem;
-        min-height: 90vh;
+        min-height: auto;
     }
     
     .signup-title {

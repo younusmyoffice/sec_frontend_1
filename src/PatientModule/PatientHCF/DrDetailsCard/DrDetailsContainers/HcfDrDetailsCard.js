@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import "./drdetailscard.scss";
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,47 +8,140 @@ import ContainerTwo from "./HCFDoctorDetailContainerTwo";
 import ContainerThree from "./HCFDoctorDetailContainerThree";
 import ContainerFour from "./HCFDoctorDetailContainerFour";
 import DrImage from "../../../../static/images/DrImages/doctor_alter.jpeg";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Handles access token automatically
 import { formatDateDay, formatTime } from "../../../../constants/const";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications
+import Loading from "../../../../components/Loading/Loading"; // Reusable loader component
 
+/**
+ * HcfDrDetailsCard Component
+ * 
+ * Displays detailed information about a doctor within an HCF context
+ * Features:
+ * - Fetch and display doctor details by ID
+ * - Doctor profile information
+ * - Ratings and reviews
+ * - Qualifications and experience
+ * - Licenses and awards
+ * 
+ * API Endpoints:
+ * - POST /sec/patient/DashboardDoctordetailsbyId (fetch doctor details)
+ * 
+ * Security:
+ * - Uses axiosInstance (automatic JWT token injection) ✅
+ * - Validates doctor ID and HCF ID before API calls
+ * 
+ * Error Handling:
+ * - Loading states with reusable loader ✅
+ * - Error states with user-friendly messages ✅
+ * - Toast notifications for errors ✅
+ * 
+ * @component
+ */
 const HcfDrDetailsCard = () => {
+    logger.debug("🔵 HcfDrDetailsCard component rendering");
+    
     const params = useParams();
-    console.log("🔍 HCF Doctor Details Params:", params);
     const doctorID = params.hcddocid;
     const hcfID = params.reshcfID;
-    console.log("🔍 HCF Doctor Details - Doctor ID:", doctorID, "HCF ID:", hcfID);
+    
+    logger.debug("🔍 HCF Doctor Details Params extracted", {
+        doctorID,
+        hcfID,
+        allParams: params
+    });
+    
+    /**
+     * Validate doctor ID and HCF ID from URL parameters
+     * Ensures IDs are present and valid before making API calls
+     */
+    const validateIds = () => {
+        if (!doctorID) {
+            logger.warn("⚠️ Doctor ID not found in URL parameters");
+            toastService.warning("Doctor ID is missing");
+            return false;
+        }
+        
+        if (!hcfID) {
+            logger.warn("⚠️ HCF ID not found in URL parameters");
+            toastService.warning("HCF ID is missing");
+            return false;
+        }
+        
+        // Validate ID types
+        if (typeof doctorID !== 'string' && typeof doctorID !== 'number') {
+            logger.error("❌ Invalid doctor ID type:", typeof doctorID);
+            return false;
+        }
+        
+        logger.debug("✅ IDs validated successfully", { doctorID, hcfID });
+        return true;
+    };
 
-    const [drCardData, setDrCardData] = useState();
-    const [review, setReview] = useState();
+    // State management
+    const [drCardData, setDrCardData] = useState(null);
+    const [review, setReview] = useState([]);
     const [loading, setloading] = useState(false);
+    const [isError, setIsError] = useState(false); // Track error state
     const [doctorLicense, setDoctorLicense] = useState([]);
     const [doctorAward, setDoctorAward] = useState([]);
     const [doctorExperience, setDoctorExperience] = useState([]);
-    const [doctorTotalconsultations, setDoctorTotalconsultations] = useState();
-    const [doctorAverageRating, setDoctorAverageRating] = useState();
-    const [doctorTotalReviews, setDoctorTotalReviews] = useState();
-    const [doctorTotalExperience, setDoctorTotalExperience] = useState();
+    const [doctorTotalconsultations, setDoctorTotalconsultations] = useState(0);
+    const [doctorAverageRating, setDoctorAverageRating] = useState(0);
+    const [doctorTotalReviews, setDoctorTotalReviews] = useState(0);
+    const [doctorTotalExperience, setDoctorTotalExperience] = useState(0);
 
-    
+    /**
+     * Fetch doctor details from API
+     * Loads comprehensive doctor information including profile, ratings, licenses, etc.
+     */
     const fetchDataNew = async () => {
+        // Validate IDs before fetching
+        if (!validateIds()) {
+            setIsError(true);
+            setloading(false);
+            return;
+        }
+        
+        logger.debug("📡 Fetching HCF doctor details", { doctorID, hcfID });
         setloading(true);
+        setIsError(false);
+        
         try {
-            console.log("doctorID in fetchDataNew", doctorID);
             const response = await axiosInstance.post(
                 `/sec/patient/DashboardDoctordetailsbyId`,
                 { suid: Number(doctorID) },
-                { headers: { 'Content-Type': 'application/json' } }
+                { 
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    } 
+                }
             );
-            console.log("✅ HCF Doctor Response:", response?.data?.response);
-            console.log("✅ Full HCF Doctor API Response:", response?.data);
+            
+            logger.debug("✅ Doctor details API response received", {
+                hasResponse: !!response?.data?.response,
+                hasLicense: !!response?.data?.doctorLicense,
+                hasAwards: !!response?.data?.doctorAwards,
+                hasExperience: !!response?.data?.doctorExperience,
+            });
             
             // Handle both array and object response structures
             const responseData = response?.data?.response;
-            if (Array.isArray(responseData)) {
+            if (Array.isArray(responseData) && responseData.length > 0) {
                 setDrCardData(responseData);
-            } else {
+                logger.debug("✅ Doctor data set as array", { length: responseData.length });
+            } else if (responseData && typeof responseData === 'object') {
                 setDrCardData([responseData]); // Wrap single object in array
+                logger.debug("✅ Doctor data set as object (wrapped in array)");
+            } else {
+                logger.warn("⚠️ Invalid doctor data structure");
+                setIsError(true);
+                toastService.warning("Invalid doctor data received");
+                return;
             }
+            
+            // Set additional doctor information
             setDoctorLicense(response?.data?.doctorLicense || []);
             setDoctorAward(response?.data?.doctorAwards || []);
             setDoctorExperience(response?.data?.doctorExperience || []);
@@ -57,81 +150,136 @@ const HcfDrDetailsCard = () => {
             setDoctorAverageRating(response?.data?.doctorAverageRating || 0);
             setDoctorTotalReviews(response?.data?.doctorTotalReviews || 0);
             setDoctorTotalExperience(response?.data?.doctorTotalExperience || 0);
-
+            
+            logger.debug("✅ Doctor details extracted successfully", {
+                hasLicense: doctorLicense.length > 0,
+                hasAwards: doctorAward.length > 0,
+                hasExperience: doctorExperience.length > 0,
+                reviewsCount: review.length,
+                consultations: doctorTotalconsultations,
+                rating: doctorAverageRating
+            });
+            
+            toastService.success("Doctor details loaded successfully");
         } catch (error) {
-            console.log("Dr detauils error", error.response);
+            logger.error("❌ Failed to fetch doctor details:", error);
+            
+            // Extract error message from response
+            const errorMessage = error?.response?.data?.message || 
+                                error?.response?.data?.error || 
+                                "Failed to load doctor details. Please try again later.";
+            
+            setIsError(true);
+            toastService.error(errorMessage);
         } finally {
             setloading(false);
         }
     };
-console.log("doctorID in useEffect", doctorID);
+    
+    /**
+     * Fetch doctor data on component mount when doctorID is available
+     */
     useEffect(() => {
-        
         if (doctorID) {
             fetchDataNew();
+        } else {
+            logger.warn("⚠️ Doctor ID not available, skipping data fetch");
+            setIsError(true);
+            setloading(false);
         }
     }, [doctorID]);
 
-    // Debug logging
-    console.log("🔍 DrDetailsCard Debug:");
-    console.log("  - doctorID:", doctorID);
-    console.log("  - drCardData:", drCardData);
-    console.log("  - doctorLicense:", doctorLicense);
-    console.log("  - doctorAward:", doctorAward);
-    console.log("  - doctorExperience:", doctorExperience);
-    console.log("  - loading:", loading);
-
     const classes = useStyles();
     const navigate = useNavigate();
-    const handleOpen = (condition) => {
-        setOpenDialog(condition);
-    };
     const drimg = DrImage;
 
-    const [openDialog, setOpenDialog] = useState(false);
+    // Extract doctor data with fallback handling
+    const doctorData = drCardData?.[0] || drCardData || {};
+    
+    logger.debug("🔍 Doctor data extracted for rendering", {
+        hasFirstName: !!doctorData.first_name,
+        hasProfilePicture: !!doctorData.profile_picture,
+        licensesCount: doctorLicense.length,
+        awardsCount: doctorAward.length,
+    });
+
     return (
         <>
             <Box sx={{ width: "100%", height: "100%" }}>
-                {/* 1st Container */}
-                <ContainerOne
-                    isLoading={loading}
-                    Fname={drCardData?.[0]?.first_name || drCardData?.first_name}
-                    Mname={drCardData?.[0]?.middle_name || drCardData?.middle_name}
-                    Lname={drCardData?.[0]?.last_name || drCardData?.last_name}
-                    Qualification={drCardData?.[0]?.department_name || drCardData?.department_name}
-                    DrImage={drCardData?.[0]?.profile_picture || drCardData?.profile_picture || drimg}
-                    DrId={drCardData?.[0]?.suid || drCardData?.suid}
-                    hospital={drCardData?.[0]?.hospital_org || drCardData?.hospital_org}
-                    worktime={`${formatDateDay(drCardData?.[0]?.working_days_start || drCardData?.working_days_start)} - ${formatDateDay(drCardData?.[0]?.working_days_end || drCardData?.working_days_end)} | ${formatTime(drCardData?.[0]?.working_time_start || drCardData?.working_time_start)} to ${formatTime(drCardData?.[0]?.working_time_end || drCardData?.working_time_end)}`}
-                    hcfDoc={true} // ✅ Add hcfDoc prop for HCF doctor appointments
-                />
-                {/* 2nd container  */}
-                <ContainerTwo
-                doctorAverageRating={doctorAverageRating}
-                doctorTotalconsultations={doctorTotalconsultations}
-                doctorTotalReviews={doctorTotalReviews}
-                doctorTotalExperience={doctorTotalExperience}
-                    isLoading={loading} // Pass isLoading prop to Container1
-                />
+                {/* Loading State - Shows reusable loader component */}
+                {loading && !isError ? (
+                    <Loading
+                        variant="overlay"
+                        size="large"
+                        message="Loading Doctor Details"
+                        subMessage="Please wait while we fetch the doctor information..."
+                        fullScreen={false}
+                    />
+                ) : isError ? (
+                    /* Error State - User-friendly error message */
+                    <Box sx={{ 
+                        padding: 4, 
+                        display: "flex", 
+                        flexDirection: "column", 
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minHeight: "300px"
+                    }}>
+                        <Typography variant="h6" color="error.main" gutterBottom>
+                            Unable to Load Doctor Details
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            We encountered an error while fetching the doctor information.
+                            Please try again later or contact support if the problem persists.
+                        </Typography>
+                    </Box>
+                ) : (
+                    /* Main Content - Doctor Details Display */
+                    <>
+                        {/* Container 1: Doctor Profile Information */}
+                        <ContainerOne
+                            isLoading={loading}
+                            Fname={doctorData.first_name}
+                            Mname={doctorData.middle_name}
+                            Lname={doctorData.last_name}
+                            Qualification={doctorData.department_name}
+                            DrImage={doctorData.profile_picture || drimg}
+                            DrId={doctorData.suid}
+                            hospital={doctorData.hospital_org}
+                            worktime={`${formatDateDay(doctorData.working_days_start)} - ${formatDateDay(doctorData.working_days_end)} | ${formatTime(doctorData.working_time_start)} to ${formatTime(doctorData.working_time_end)}`}
+                            hcfDoc={true} // ✅ Add hcfDoc prop for HCF doctor appointments
+                        />
+                        
+                        {/* Container 2: Doctor Statistics (Ratings, Consultations, etc.) */}
+                        <ContainerTwo
+                            doctorAverageRating={doctorAverageRating}
+                            doctorTotalconsultations={doctorTotalconsultations}
+                            doctorTotalReviews={doctorTotalReviews}
+                            doctorTotalExperience={doctorTotalExperience}
+                            isLoading={loading}
+                        />
 
-                {/* 3rd container */}
-                <ContainerThree 
-                    review={review}
-                    description={drCardData?.[0]?.description || drCardData?.description}
-                    isLoading={loading}
-                />
-                {/* 4th container 1st card */}
-                <ContainerFour
-                    Qualification={drCardData?.[0]?.qualification || drCardData?.qualification}
-                    YearOfQualification={drCardData?.[0]?.qualified_year || drCardData?.qualified_year}
-                    RegDate={drCardData?.[0]?.reg_date || drCardData?.reg_date}
-                    StateReg={drCardData?.[0]?.state_reg_number || drCardData?.state_reg_number}
-                    CountryReg={drCardData?.[0]?.country_reg_number || drCardData?.country_reg_number}
-                    University={drCardData?.[0]?.university_name || drCardData?.university_name}
-                    doctorLicense={doctorLicense}
-                    doctorAward={doctorAward}
-                    doctorExperience={doctorExperience}
-                />
+                        {/* Container 3: Doctor Reviews and Description */}
+                        <ContainerThree 
+                            review={review}
+                            description={doctorData.description}
+                            isLoading={loading}
+                        />
+                        
+                        {/* Container 4: Doctor Qualifications, Licenses, Awards, and Experience */}
+                        <ContainerFour
+                            Qualification={doctorData.qualification}
+                            YearOfQualification={doctorData.qualified_year}
+                            RegDate={doctorData.reg_date}
+                            StateReg={doctorData.state_reg_number}
+                            CountryReg={doctorData.country_reg_number}
+                            University={doctorData.university_name}
+                            doctorLicense={doctorLicense}
+                            doctorAward={doctorAward}
+                            doctorExperience={doctorExperience}
+                        />
+                    </>
+                )}
             </Box>
         </>
     );

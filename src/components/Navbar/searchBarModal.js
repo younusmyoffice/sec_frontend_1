@@ -15,6 +15,9 @@ import { Link } from "react-router-dom";
 import CustomDropdown from "../CustomDropdown/custom-dropdown";
 import SearchBarModalCard from "../../constants/SearchBarModalCard/SearchBarModalCard";
 import axiosInstance from "../../config/axiosInstance";
+import logger from "../../utils/logger";
+import toastService from "../../services/toastService";
+import Loading from "../Loading/Loading";
 import { front_end_url } from "../../constants/const";
 import frontimg from "../../static/images/DrImages/searchIcon.png";
 import PropTypes from "prop-types";
@@ -28,6 +31,17 @@ const debounce = (func, delay = 350) => {
   };
 };
 
+/**
+ * Search Bar Modal Component
+ * 
+ * Provides a search interface for finding doctors and healthcare providers
+ * - Debounced search input (350ms delay to reduce API calls)
+ * - Real-time search results with doctor cards
+ * - Navigation to doctor detail pages
+ * - Loading states and error handling
+ * 
+ * @returns {JSX.Element} Search bar modal component
+ */
 const SearchBarModal = () => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -57,9 +71,10 @@ const SearchBarModal = () => {
       const data = resp?.data?.response;
       setCardData(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Search API error:", err);
+      logger.error("Search API error:", err);
       setError("Failed to fetch search results. Please try again.");
       setCardData([]);
+      toastService.error("Search failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -187,8 +202,7 @@ const SearchBarModal = () => {
           <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center">
             {loading ? (
               <Stack alignItems="center" spacing={2}>
-                <CircularProgress size={24} />
-                <Typography>Searching...</Typography>
+                <Loading variant="standalone" size="small" message="Searching..." />
               </Stack>
             ) : error ? (
               <Typography color="error">{error}</Typography>

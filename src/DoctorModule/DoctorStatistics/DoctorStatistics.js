@@ -26,7 +26,9 @@ const DoctorStatistics = () => {
     localStorage.setItem("path", location.pathname);
     return (
         <>
-            <Box sx={{ width: "100%", height: "95vh" }}>
+            {/* Main container with fixed height for consistent layout */}
+            <Box sx={{ width: "100%", height: "95vh", overflow: "hidden" }}>
+                {/* Outlet renders child routes: DoctorBookingHistory, DoctorOverview, DoctorPayout, DoctorTransaction */}
                 <Outlet />
             </Box>
         </>

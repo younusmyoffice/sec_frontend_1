@@ -251,6 +251,34 @@ html {
     }
 }
 
+// Patient Details Modal specific overrides
+// Target the modal directly via class on Dialog component
+.patient-details-dialog.MuiDialog-root.MuiModal-root,
+.patient-details-modal-wrapper ~ .MuiDialog-root.MuiModal-root {
+    .MuiDialog-container {
+        .patient-details-modal-paper,
+        .MuiPaper-root.patient-details-modal-paper {
+            max-width: 800px !important;
+            width: 90vw !important;
+            min-width: 600px !important;
+            border-radius: 16px !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15) !important;
+            
+            .patient-details-content,
+            .MuiDialogContent-root.patient-details-content {
+                padding: 0 !important;
+                background-color: #ffffff !important;
+            }
+            
+            .MuiDialogTitle-root {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+    }
+}
+
 // Material-UI Snackbar styling
 .MuiSnackbar-root {
     .MuiPaper-root.MuiSnackbarContent-root {
@@ -260,22 +288,23 @@ html {
     }
 }
 // Fix for drawer layout issues
-.MuiBox-root {
-    // Ensure main content doesn't get pushed by drawer
-    &.drawer-open {
-        margin-left: 270px !important;
-        width: calc(100% - 270px) !important;
-        transition: all 0.3s ease !important;
-        padding-top: 0 !important;
-    }
-    
-    &.drawer-closed {
-        margin-left: 57px !important;
-        width: calc(100% - 57px) !important;
-        transition: all 0.3s ease !important;
-        padding-top: 0 !important;
-    }
-}
+// COMMENTED OUT: This was causing width constraints
+// .MuiBox-root {
+//     // Ensure main content doesn't get pushed by drawer
+//     &.drawer-open {
+//         margin-left: 270px !important;
+//         width: calc(100% - 270px) !important;
+//         transition: all 0.3s ease !important;
+//         padding-top: 0 !important;
+//     }
+//     
+//     &.drawer-closed {
+//         margin-left: 57px !important;
+//         width: calc(100% - 57px) !important;
+//         transition: all 0.3s ease !important;
+//         padding-top: 0 !important;
+//     }
+// }
 
 // Override any conflicting styles
 .MuiDrawer-root.MuiDrawer-docked {
@@ -295,13 +324,25 @@ html {
 }
 
 // Ensure the main content area is properly positioned
+// NOTE: margin-left is managed by CustomMenuDrawer (dynamic shifting based on drawer state)
+// DO NOT override margin-left here as it prevents content from shifting with sidebar
 main {
     position: relative;
     z-index: 1;
     margin-top: 0 !important;
     padding-top: 0 !important;
-    margin-left: 20% !important;
-    width: 85% !important;
+    // margin-left: REMOVED - Controlled by CustomMenuDrawer
+    width: 100% !important;
+}
+
+// IMPORTANT: Override global styles that conflict with BodyDashboard
+// The dashboard layout uses CustomMenuDrawer which manages its own spacing
+// This override ensures no global styles interfere with dashboard layout
+body .usage,
+body .usage .component-library,
+body .usage .component-library .items {
+    overflow: visible !important;
+    position: relative !important;
 }
 
 // Remove extra spacing below navbar

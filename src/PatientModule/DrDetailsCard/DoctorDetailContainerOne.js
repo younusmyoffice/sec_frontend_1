@@ -9,10 +9,34 @@ import dotLogo from "../../static/images/dotIcon.png";
 import DrImage from "../../static/images/DrImages/drProfileImage.png";
 import CustomModal from "../../components/CustomModal/custom-modal";
 import BookAppointmentModal from "./BookingAppointmentModal";
-import axiosInstance from "../../config/axiosInstance";
+import axiosInstance from "../../config/axiosInstance"; // Handles access token automatically
 import { getProfileImageSrc } from "../../utils/imageUtils";
 
-const ContainerOne = ({ Fname, Mname, Lname, Qualification,hospital, DrImage, worktime, hcfDoc = false }) => {
+/**
+ * ContainerOne Component
+ * 
+ * Displays doctor profile header with:
+ * - Back button for navigation
+ * - Doctor profile picture
+ * - Doctor name and qualification
+ * - Hospital/Organization name
+ * - Working hours
+ * - Book appointment button and modal
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.Fname - Doctor's first name
+ * @param {string} props.Mname - Doctor's middle name
+ * @param {string} props.Lname - Doctor's last name
+ * @param {string} props.Qualification - Doctor's qualification/specialization
+ * @param {string} props.hospital - Hospital/Organization name
+ * @param {string} props.DrImage - Doctor's profile picture URL
+ * @param {string} props.worktime - Working hours string
+ * @param {boolean} props.hcfDoc - Whether this is an HCF doctor
+ * @param {boolean} props.isLoading - Loading state
+ * 
+ * @component
+ */
+const ContainerOne = ({ Fname, Mname, Lname, Qualification, hospital, DrImage, worktime, hcfDoc = false }) => {
     const useStyles = makeStyles({
         drname: {
             color: "#313033",
@@ -48,21 +72,24 @@ const ContainerOne = ({ Fname, Mname, Lname, Qualification,hospital, DrImage, wo
     });
 
     const classes = useStyles();
-    const [openDialog, setOpenDialog] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [openDialog, setOpenDialog] = useState(false); // Modal open state
+    const [isLoading, setIsLoading] = useState(true); // Loading state for doctor profile
 
+    // Get doctor ID from URL parameters
     const params = useParams();
     let ID;
     if (params.resID) {
-        ID = params.resID;
+        ID = params.resID; // Regular doctor ID
     } else if (params.hcddocid) {
-        ID = params.hcddocid;
+        ID = params.hcddocid; // HCF doctor ID
     }
 
     const navigate = useNavigate();
 
+    /**
+     * Simulate loading state while data is being fetched
+     */
     useEffect(() => {
-        // Simulate API call or data fetch
         const fetchData = () => {
             setTimeout(() => {
                 setIsLoading(false); // Set loading to false after data fetch

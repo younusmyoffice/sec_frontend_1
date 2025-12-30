@@ -1,68 +1,108 @@
+/**
+ * SelectHCFTypeLoginRole Component Styles
+ * 
+ * Styles for the HCF type selection login page.
+ * Features:
+ * - Split-screen layout (image left, form right)
+ * - Responsive design with mobile breakpoints
+ * - Brand colors (#e72b4a, #e73a56)
+ * - Radio button styling
+ * - Image background with gradient overlay
+ * - Table-based layout for precise sizing
+ */
+
+// Legacy import comments (deprecated Sass @import removed)
 // @import "../../../static/scss/base/variables";
 // @import "../../../static/scss/main.scss";
 
+// Main page container - full viewport background
 .register-photo {
     background: #f1f7fc;
-    padding: 0px 0px 0px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    min-width: 100%;
+    flex-direction: column;
+    padding: 2rem;
 }
 .form-group {
+    display: flex;
     align-items: center;
-    margin-left: 250px;
-    width: 360px;
+    margin: 0 auto;
+    width: 100%;
 }
 .form-group .buttoncss {
-    width: 30px;
+    width: 100%;
+    max-width: 1.875rem;
 }
 .register-photo .image-holder {
-    display: table-cell;
-    width: 720px;
-    height: 900px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
     background-image: linear-gradient(359.75deg, #e73a56 10.46%, rgba(231, 58, 86, 0) 99.85%),
         url(https://media.istockphoto.com/id/1200980392/photo/medical-concept-of-asian-beautiful-female-doctor-in-white-coat-with-stethoscope-waist-up.jpg?s=612x612&w=0&k=20&c=nD_1Tn11kWcMZwZfnyA-lYAvNKcBeoEK_KLObBnN6Jg=);
     mix-blend-mode: normal;
-
+    background-size: cover;
+    background-position: center;
+    mix-blend-mode: normal;
+    box-sizing: border-box;
     background-size: cover;
 }
+// Logo container - centered alignment
 .logo {
     text-align: center;
-    margin-top: 110px;
+    margin-top: 20px;  // Consistent with SelectRoleLogin
+    margin-bottom: 0;
+    max-width: 100%;
 }
 
 .register-photo .form-container {
-    display: table;
-    max-width: 1440px;
-    height: 900px;
-    width: 1440px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    padding: 1px;
+    box-sizing: border-box;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
 }
 
 .register-photo form {
-    display: table-cell;
-    width: 4px;
-    background-color: #ffffff;
-    padding: 40px 60px;
-    color: #505e6c;
-    width: 720px;
-    height: 900px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+    min-height: 80vh;
 }
 
 @media (max-width: 991px) {
     .register-photo form {
-        padding: 40px;
+        padding: 2rem;
     }
     .register-photo .image-holder {
-        padding: 100px;
+        padding: 2rem;
     }
 }
 
+// Page title/heading styling
 .register-photo .text-center {
-    font-size: 24px;
+    font-size: 1.5rem;
     line-height: 1.5;
-    margin-bottom: 0px;
-    margin-top: 40px;
+    margin-top: 5px;  // Minimal margin to move radio buttons up
+    margin-bottom: 5px;  // Minimal margin
     margin-left: auto;
+    margin-right: auto;
     text-align: center;
+    width: 100%;
 }
 
 /* .register-photo form .form-control {
@@ -85,22 +125,26 @@
  */
 .register-photo form .btn-block {
     background: #e72b4a;
-    margin-left: 200px;
-    border-radius: 100px;
-    gap: 8px;
-    width: 170px;
-    height: 48px;
+    margin: 1% auto;
+    color: #ffffff;
+    text-align: center;
     border: none;
-    padding: 8px 16px;
-    box-shadow: none;
-    margin-top: 42px;
-    text-shadow: none;
-    outline: none !important;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 1rem !important;
+    box-sizing: border-box;
 }
 
 .register-photo form .btn-primary:hover,
 .register-photo form .btn-primary:active {
-    background: #e72b4a;
+    background: #e72b4a; // Brand color (red)
+    color: #ffffff;
+    text-align: center; // Center text
+    border: none; // Remove border
+    border-radius: 50px; // Round corners
+    padding: 10px 20px; // Add padding
+    font-size: 1rem !important; // Set font size
+    box-sizing: border-box; // Box sizing
 }
 
 .register-photo form .btn-primary:active {
@@ -174,15 +218,23 @@
     display: none;
 }
 
+// Component library container - role selection area
 .selectprofiletype {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 
     .component-library {
-        margin: 20px 50px;
+        margin: 0;  // No margin to move radio buttons up
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
         text-align: center;
-
+        padding: 0 !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start !important;  // Force flex-start
+        
         .items {
             display: flex;
             align-items: center;

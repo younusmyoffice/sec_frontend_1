@@ -241,7 +241,7 @@ const UpcomingCard = ({
                                 }}
                             >
                                 {data?.first_name || data?.middle_name || data?.last_name
-                                    ? `${data?.first_name || ""} ${data?.middle_name || ""} ${
+                                    ? `Dr. ${data?.first_name || ""} ${data?.middle_name || ""} ${
                                           data?.last_name || ""
                                       }`.trim()
                                     : null}

@@ -16,7 +16,7 @@ const patientpaymentinformation = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        navigate("/patientdashboard");
+        navigate("/patientDashboard/dashboard");
     };
     return (
         <div className="container">

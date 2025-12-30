@@ -1,135 +1,89 @@
 import { Box } from "@mui/material";
 import React, { Fragment, useState } from "react";
-// import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { makeStyles } from "@mui/styles";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../CustomButton/custom-button";
-// import { data } from "../../constants/const";
-// import dotLogo from "../../static/images/avatar.png";
-// import DrImage from "../../static/images/doctor.png";
 import CustomModal from "../CustomModal/custom-modal";
 import AppointmentSlider from "./appointmentSlider";
+import logger from "../../utils/logger"; // Centralized logging
+import toastService from "../../services/toastService"; // Toast notifications
 
-const bookAppointmentmodal = () => {
-    const useStyles = makeStyles({
-        drname: {
-            color: "#313033",
-            fontFamily: "Poppins",
-            fontSize: "20px",
-            fontStyle: "normal",
-            fontWeight: "900",
-            lineHeight: "30px",
-        },
-        specialist: {
-            fontFamily: "Poppins",
-            fontSize: "16px",
-            fontStyle: "normal",
-            fontWeight: "400",
-            lineHeight: "24px",
-        },
-        cardContainer: {
-            display: "flex",
-            flexWrap: "wrap",
-            width: "100%",
-            justifyContent: "space-between",
-        },
-        BookAppointmentContainer: {
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        BookAppointmentContainerDetails: {
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
-        },
-        fourthContainer: {
-            width: "100%",
-            border: "1px solid #E6E1E5 ",
-            display: "flex",
-            borderRadius: "8px",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            marginTop: "1%",
-        },
-        textField: {
-            fontFamily: "Poppins",
-            fontSize: "30px",
-            fontStyle: "normal",
-            fontWeight: "500",
-            lineHeight: "30px",
-            color: "#313033",
-            padding: "2% 0 1% 1%",
-        },
-        fourthInnerContainer: {
-            display: "flex",
-            width: "100%",
-            alignItems: "flex-start",
-            padding: "1%",
-        },
-        logoDesign: {
-            height: "70px",
-            width: "70px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: "50px",
-            backgroundColor: "#FDEAED",
-        },
-        // universityFields : {
-        //     display: "flex",
-        //     flexDirection: "column",
-        //     alignItems: "flex-start",
-        // }
-    });
-
-    // const classes = useStyles();
-    const [openDialog, setOpenDialog] = useState(false);
-    // const [openPatientDetails, setPatientDetails] = useState(false);
-    const dropdownItems = ["item1", "item2", "item3"];
-    // const [activeDropdown, setActiveDropdown] = useState("");
-    // const [ageDropDown, setAgeDropDown] = useState();
-    const radioValues = ["My self"];
-    // const [radioVal, setRadioVal] = useState(radioValues[0]);
-    // const [activeFabDropdown, setActiveFabDropdown] = useState(dropdownItems[0]);
-
-    // const [DateValue, setDataValue] = useState(null);
-
-    // const [activeStep, setActiveStep] = React.useState(0);
-    // const [skipped, setSkipped] = React.useState(new Set());
-
+/**
+ * Book Appointment Modal Component
+ * 
+ * Provides a modal wrapper for booking appointments
+ * - Opens appointment booking flow in a modal
+ * - Manages modal open/close state
+ * - Wraps AppointmentSlider component
+ * 
+ * Features:
+ * - Modal dialog for appointment booking
+ * - Clean UI with centered content
+ * - Accessible modal implementation
+ * 
+ * @component
+ */
+const BookAppointmentModal = () => {
+    logger.debug("🔵 BookAppointmentModal component rendering");
+    
     const navigate = useNavigate();
+    
+    /**
+     * Modal open/close state
+     * Controls visibility of the appointment booking modal
+     */
+    const [openDialog, setOpenDialog] = useState(false);
+    
+    /**
+     * Handle modal open
+     * Opens the appointment booking modal
+     */
+    const handleOpenModal = () => {
+        logger.debug("📅 Opening appointment booking modal");
+        setOpenDialog(true);
+        toastService.info("Opening appointment booking...");
+    };
+    
+    /**
+     * Handle modal close
+     * Closes the appointment booking modal and resets state
+     */
+    const handleCloseModal = () => {
+        logger.debug("❌ Closing appointment booking modal");
+        setOpenDialog(false);
+    };
+
+    // Removed unused makeStyles - using sx prop instead for MUI v5 compatibility
+    // Removed unused styles object - not being used anywhere in the component
 
     return (
         <Box sx={{ width: "100%" }}>
-            {/* Button Container */}
-
-            {/* <CustomButton
-                                    component={"h3"}
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        fontSize: "16px",
-                                        fontStyle: "normal",
-                                        fontWeight: "400",
-                                        lineHeight: "24px",
-                                        color: "#AEAAAE",
-                                    }}
-                                    label="Book Appointment"
-                                ></CustomButton> */}
-            {/* <Box sx={{width : "100%" , display : "flex" , justifyContent : "flex-end" , alignItems : "center"}} >
-                                    <BookAppointmentModal/>
-                                </Box> */}
-
+            {/* Book Appointment Button - Triggers modal */}
             <CustomButton
-                label={"Book Appointment"}
+                label="Book Appointment"
                 isElevated
-                handleClick={() => setOpenDialog(!openDialog)}
+                handleClick={handleOpenModal}
+                buttonCss={{
+                    backgroundColor: "#E72B4A", // Primary brand color
+                    color: "#ffffff",
+                    borderRadius: "8px",
+                    padding: "12px 24px",
+                    fontWeight: 500,
+                    "&:hover": {
+                        backgroundColor: "#c62828",
+                    },
+                }}
             />
+            
+            {/* Appointment Booking Modal */}
             <CustomModal
                 isOpen={openDialog}
-                // title={"Book Appointment"}
+                conditionOpen={setOpenDialog}
+                title="Book Appointment"
+                maxWidth="md"
                 footer={
                     <Fragment>
+                        {/* Footer content - currently empty but structured for future use */}
                         <Box
                             sx={{
                                 width: "100%",
@@ -138,16 +92,12 @@ const bookAppointmentmodal = () => {
                                 alignItems: "center",
                             }}
                         >
-                            {/* <CustomButton
-                                            label="Next"
-                                            handleClick={() =>
-                                                setPatientDetails(!openPatientDetails)
-                                            }
-                                        /> */}
+                            {/* Footer buttons can be added here in the future */}
                         </Box>
                     </Fragment>
                 }
             >
+                {/* Appointment Slider Component - Handles the multi-step appointment booking flow */}
                 <Box>
                     <AppointmentSlider />
                 </Box>
@@ -156,4 +106,9 @@ const bookAppointmentmodal = () => {
     );
 };
 
-export default bookAppointmentmodal;
+// PropTypes for component documentation
+BookAppointmentModal.propTypes = {
+    // This component doesn't accept props currently, but structure is ready
+};
+
+export default BookAppointmentModal;

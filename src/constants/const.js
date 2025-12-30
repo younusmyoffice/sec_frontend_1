@@ -1,54 +1,19 @@
 import React, { useRef } from "react";
+import PropTypes from "prop-types";
 import { Box, IconButton, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import image1 from "../static/images/DrImages/image1.png";
-import image2 from "../static/images/DrImages/image2.png";
-// import image3 from "../../static/images/DrImages/image3.png";
-import image3 from "../static/images/DrImages/image3.png"
-// import Drcard from "./drcard/drcard";
 import DoctorCard from "../components/DoctorCard/DoctorCard";
-import CustomButton from "../components/CustomButton";
+import HealthcareFacilityCard from "../components/HealthcareFacilityCard/HealthcareFacilityCard";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Skeleton from "react-loading-skeleton";
 import NoAppointmentCard from "../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
-// import HCFDrCard from "../pages/PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
 import HCFDrCard from "../PatientModule/PatientHCF/DrDetailsCard/Labs/HCFDrCard";
 
 // Re-export constants from apiConstants to maintain backward compatibility
 export { baseURL, front_end_url, emailRegex, passwordRegex, numberRegex } from "./apiConstants";
 
-export const data = [
-    {
-        id: 1,
-        drimage: image1,
-        name: "Dr. Elizabeth Davis",
-        hospital: "Xyz Hospital",
-        specialist: "Neurologist",
-        rating: "4.5",
-        reviews: "(200) Review",
-    },
-    {
-        id: 2,
-        drimage: image2,
-        name: "Dr. William",
-        hospital: "Gangaram Hospital",
-        specialist: "Pediatric",
-        rating: "4.3",
-        reviews: "(400) Review",
-    },
-    {
-        id: 3,
-        drimage: image3,
-        name: "Dr. Arbaaz Khan",
-        hospital: "RML Hospital",
-        specialist: "Nutritionist",
-        rating: "3.9",
-        reviews: "(900) Review",
-    },
-];
-
-export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID=null }) => {
+export const CallCardData = React.memo(({ sendCardData, textField, linkPath, loading, hcfID=null }) => {
     const containerRef = useRef(null);
 
     const scrollLeft = () => {
@@ -66,21 +31,35 @@ export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID
     console.log("this is the hcf id : ",hcfID?.hcfID);
 
     return (
-        <Box sx={{ width: "100%", marginTop: "1%" }}>
-                        {textField && textField.trim() && ( // Only render if textField is not null or empty
-
-            <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-start", position: "relative", paddingBottom: "10px" }}>
-                <h4 sx={{ fontWeight: "bold", position: "absolute", top: 0, left: 0 }}>
-                    {textField}
-                </h4>
-            </Box>
-                        )}
+        <Box sx={{ width: "100%", marginTop: "2rem" }}>
+            {textField && textField.trim() && ( // Only render if textField is not null or empty
+                <Box sx={{ 
+                    marginBottom: "1.5rem",
+                    paddingBottom: "0.5rem",
+                    borderBottom: "2px solid #E72B4A",
+                    width: "fit-content"
+                }}>
+                    <Typography 
+                        variant="h4" 
+                        sx={{ 
+                            fontWeight: "bold", 
+                            fontSize: "24px",
+                            color: "#333",
+                            margin: 0,
+                            fontFamily: "Poppins, sans-serif"
+                        }}
+                    >
+                        {textField}
+                    </Typography>
+                </Box>
+            )}
             <div
                 style={{
                     width: "100%",
                     display: "flex",
                     alignItems: "center",
                     overflow: "hidden",
+                    marginTop: "0.5rem", // Additional spacing after heading
                 }}
             >
                 <IconButton aria-label="Scroll left" onClick={scrollLeft}>
@@ -101,19 +80,25 @@ export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID
                         borderRadius: 1, 
                         display: "flex",
                         gap: 2,
-                        minWidth: "fit-content"
+                        minWidth: "fit-content",
+                        flexWrap: "nowrap", // Prevent wrapping
+                        alignItems: "stretch" // Ensure consistent height
                     }}>
                         {loading ? (
                             [...Array(4)].map((_, index) => (
-                                <Skeleton
+                                <Box
                                     key={index}
-                                    height="200px"
-                                    width="300px"
-                                    sx={{ 
-                                        borderRadius: "12px", 
-                                        flexShrink: 0 
+                                    sx={{
+                                        width: "300px",
+                                        flexShrink: 0,
                                     }}
-                                />
+                                >
+                                    <Skeleton
+                                        height="130px"
+                                        width="100%"
+                                        sx={{ borderRadius: "12px" }}
+                                    />
+                                </Box>
                             ))
                         ) : sendCardData?.length === 0 ? (
                             <Box sx={{ 
@@ -139,18 +124,42 @@ export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID
                                     linkPath,
                                     finalURL: url
                                 });
+                                console.log("🔍 DoctorCard DrData:", dataprop);
                                 return (
-                                    <Link
-                                        to={url}
-                                        style={{
-                                            width: "300px",
-                                            textDecoration: "none",
-                                            flexShrink: 0,
-                                        }}
+                                    <Box
                                         key={index}
+                                        sx={{
+                                            width: "300px",
+                                            flexShrink: 0,
+                                            textDecoration: "none",
+                                        }}
                                     >
-                                        <DoctorCard DrData={dataprop}/>
-                                    </Link>
+                                        <Link
+                                            to={url}
+                                            style={{
+                                                textDecoration: "none",
+                                                display: "block",
+                                                width: "100%",
+                                                height: "100%"
+                                            }}
+                                        >
+                                            {textField === "Healthcare Facility" ? (
+                                                <HealthcareFacilityCard 
+                                                    facility={{
+                                                        name: `${dataprop?.first_name || ""} ${dataprop?.last_name || ""}`.trim(),
+                                                        type: dataprop?.facility_type || "Healthcare Facility",
+                                                        rating: dataprop?.average_review || "N/A",
+                                                        review_count: dataprop?.review_count || 0,
+                                                        location: dataprop?.address || dataprop?.location || "Location not specified",
+                                                        logo: dataprop?.profile_picture
+                                                    }}
+                                                    onClick={() => {}}
+                                                />
+                                            ) : (
+                                                <DoctorCard DrData={dataprop}/>
+                                            )}
+                                        </Link>
+                                    </Box>
                                 );
                             })
                         )}
@@ -162,6 +171,21 @@ export const CallCardData = ({ sendCardData, textField, linkPath, loading, hcfID
             </div>
         </Box>
     );
+});
+
+// PropTypes for CallCardData
+CallCardData.propTypes = {
+    sendCardData: PropTypes.array.isRequired,
+    textField: PropTypes.string,
+    linkPath: PropTypes.string.isRequired,
+    loading: PropTypes.bool,
+    hcfID: PropTypes.object,
+};
+
+CallCardData.defaultProps = {
+    textField: "",
+    loading: false,
+    hcfID: null,
 };
 
 export const currencysign = "₹";

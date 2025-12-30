@@ -94,10 +94,10 @@ console.log("resData verify otp", resData);
                             navigate("/doctorsignup");
                         } else if (role_id === 2) { // HCF Admin
                             localStorage.setItem("hcfadmin_suid", resData.suid);
-                            navigate("/hcfadminsignup");
+                            navigate("/hcfAdminCompleteProfile");
                         } else if (role_id === 4) { // Diagnostic Center
                             localStorage.setItem("diagnostic_suid", resData.suid);
-                            navigate("/diagnostCenterSignup");
+                            navigate("/diagnosticCompleteProfile");
                         } else if (role_id === 5) { // Patient
                             localStorage.setItem("patient_suid", resData.suid);
                             navigate("/completeprofile");
@@ -115,10 +115,10 @@ if(resData.email)
         navigate("/doctorsignup");
     } else if (role_id === 2) { // HCF Admin
         localStorage.setItem("hcfadmin_suid", resData.suid);
-        navigate("/hcfadminsignup");
+        navigate("/hcfAdminCompleteProfile");
     } else if (role_id === 4) { // Diagnostic Center
         localStorage.setItem("diagnostic_suid", resData.suid);
-        navigate("/diagnostCenterSignup");
+        navigate("/diagnosticCompleteProfile");
     } else if (role_id === 5) { // Patient
         localStorage.setItem("patient_suid", resData.suid);
         navigate("/completeprofile");

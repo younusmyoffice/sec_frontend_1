@@ -83,9 +83,9 @@ const CustomTab = ({
                 };
             default:
                 return {
-                    color: "#1976d2",
+                    color: "#e72b4a",
                     "&.Mui-selected": {
-                        color: "#1976d2"
+                        color: "#e72b4a"
                     }
                 };
         }
@@ -109,23 +109,23 @@ const CustomTab = ({
                     "& .MuiTabs-indicator": {
                         height: 3,
                         borderRadius: "2px",
-                        background: color === "primary" ? "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)" :
+                        background: color === "primary" ? "linear-gradient(135deg, #e72b4a 0%, #42a5f5 100%)" :
                                    color === "secondary" ? "linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%)" :
                                    color === "success" ? "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)" :
                                    color === "warning" ? "linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)" :
                                    color === "error" ? "linear-gradient(135deg, #f44336 0%, #ef5350 100%)" :
-                                   "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                                   "linear-gradient(135deg, #e72b4a 0%, #42a5f5 100%)",
                         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                         ...indicatorProps
                     },
                     
                     "& .MuiTabs-scrollButtons": {
-                        color: color === "primary" ? "#1976d2" :
+                        color: color === "primary" ? "#e72b4a" :
                                color === "secondary" ? "#ff6b9d" :
                                color === "success" ? "#4caf50" :
                                color === "warning" ? "#ff9800" :
-                               color === "error" ? "#f44336" : "#1976d2",
+                               color === "error" ? "#f44336" : "#e72b4a",
                         
                         "&:hover": {
                             backgroundColor: "rgba(0, 0, 0, 0.04)",

@@ -68,7 +68,7 @@ export const CustomLinearProgress = ({
                 return {
                     backgroundColor: "rgba(25, 118, 210, 0.2)",
                     "& .MuiLinearProgress-bar": {
-                        background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)"
+                        background: "linear-gradient(135deg, #e72b4a 0%, #42a5f5 100%)"
                     }
                 };
         }
@@ -99,11 +99,11 @@ export const CustomLinearProgress = ({
                             sx={{
                                 fontFamily: "Poppins, sans-serif",
                                 fontWeight: 700,
-                                color: color === "primary" ? "#1976d2" : 
+                                color: color === "primary" ? "#e72b4a" : 
                                        color === "secondary" ? "#ff6b9d" :
                                        color === "success" ? "#4caf50" :
                                        color === "warning" ? "#ff9800" :
-                                       color === "error" ? "#f44336" : "#1976d2",
+                                       color === "error" ? "#f44336" : "#e72b4a",
                                 fontSize: getSizeStyles().fontSize
                             }}
                         >

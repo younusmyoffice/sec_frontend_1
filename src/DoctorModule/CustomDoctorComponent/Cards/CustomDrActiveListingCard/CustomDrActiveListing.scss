@@ -1,66 +1,84 @@
-// .activeListingContainer{
-//     border: 1px solid red;
-// }
+/**
+ * CustomDrActiveListingCard Styles
+ * Styles for the doctor active listing card component
+ */
 
-// .navigation-bar{
-//     display: flex;
-//     width: 100%;
-//     // border: 1px solid;
-//     // justify-content: space-around;
-//     // gap: 2rem;
+// Main card container
+.custom-dr-active-listing-card {
+    border: 2px solid #E72B4A !important;
+    padding: 1.25rem 1.5rem !important;
+    border-radius: 0.5rem !important;
+    background-color: #ffffff !important;
+    margin-bottom: 1rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-height: 120px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 
-// }
+    &:hover {
+        box-shadow: 0 4px 12px rgba(231, 43, 74, 0.15) !important;
+    }
 
-// .button-more{
-//     // display: flex;
-//     gap: 2rem;
-//     align-items: center;
-//     margin-left: -3em;
-// }
+    &:last-child {
+        margin-bottom: 0 !important;
+    }
+}
 
-.mainC{
-    // position: relative;
-    // margin-top: 10%;
-    border:1px solid  #E6E1E5 ;
+// Button container styles - override defaults for proper layout
+.bttns {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-left: 1.5rem !important;
+    border-left: 1px solid #E6E1E5 !important;
+    flex-shrink: 0 !important;
+    min-width: 140px !important;
+}
+
+// Override any Material-UI Card styles that might interfere
+.custom-dr-active-listing-card.MuiBox-root {
+    border: 2px solid #E72B4A !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+// Legacy styles for backward compatibility (kept for any old components still using them)
+.mainC {
+    border: 1px solid #E6E1E5;
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 9rem;
     padding: 1rem;
     border-radius: 8px;
-    // border : 1px solid red
 }
 
-.card-info1{
+.card-info1 {
     display: flex;
     position: relative;
-    // border:1px solid ;
     width: 100%;
     justify-content: space-between;
     align-items: center;
 }
 
-.info{
+.info {
     display: flex;
     flex-direction: column;
 }
 
-.listing{
+.listing {
     display: flex;
-    // border: 1px solid;
     justify-content: flex-start;
 }
-.ID{
-    display: flex;
-    // border: 1px solid;
-    justify-content: flex-start; 
-}
 
-.bttns{
+.ID {
     display: flex;
-    // border: 1px solid;
-    width: 100%;
-    margin-top: 2rem;
-    justify-content: flex-end;
-    gap: 1rem;
+    justify-content: flex-start;
 }

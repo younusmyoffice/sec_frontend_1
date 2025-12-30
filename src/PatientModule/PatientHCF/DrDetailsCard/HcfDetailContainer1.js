@@ -1,3 +1,20 @@
+/**
+ * HcfDetailContainer1 Component
+ * 
+ * Displays HCF profile information including:
+ * - HCF profile image
+ * - Business/company name
+ * - Working time information
+ * - Back navigation button
+ * 
+ * Features:
+ * - Loading skeleton states ✅
+ * - Responsive layout
+ * - Navigation to explore page
+ * 
+ * @component
+ */
+
 import { Box, Typography, Skeleton } from "@mui/material";
 import React from "react";
 import PropTypes from "prop-types";
@@ -7,6 +24,7 @@ import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
 import hcfpic from "../../../static/images/DrImages/doctor_alter.jpeg";
 import CustomButton from "../../../components/CustomButton/custom-button";
+import logger from "../../../utils/logger"; // Centralized logging
 
 const useStyles = makeStyles({
     drname: {
@@ -32,18 +50,40 @@ const useStyles = makeStyles({
     },
 });
 
+/**
+ * Container1 Component - HCF Profile Display
+ * 
+ * @param {string} Fname - First name (deprecated, use business_name instead)
+ * @param {string} profile_picture - URL of HCF profile picture
+ * @param {string} company_name - Company/organization name
+ * @param {string} business_name - Business/facility name
+ * @param {string} worktime - Working hours information
+ * @param {boolean} isLoading - Loading state for skeleton display
+ */
 const Container1 = ({
     Fname,
     profile_picture,
     company_name,
     business_name,
     worktime,
-    isLoading, // Suggest passing isLoading from parent for better control
+    isLoading = false, // Default to false for better control
 }) => {
+    logger.debug("🔵 HcfDetailContainer1 component rendering", {
+        hasProfilePicture: !!profile_picture,
+        hasBusinessName: !!business_name,
+        hasCompanyName: !!company_name,
+        isLoading
+    });
+    
     const classes = useStyles();
     const navigate = useNavigate();
+    
+    /**
+     * Handle back button click
+     * Navigates back to the explore page
+     */
     const handleBackClick = () => {
-        // Navigate to 'PatientModule/dashboard/explore'
+        logger.debug("⬅️ Navigating back to explore page");
         navigate("/patientDashboard/dashboard/explore");
     };
 
@@ -65,7 +105,7 @@ const Container1 = ({
             <Box className={classes.cardContainer}>
                 <Box sx={{ display: "flex", marginTop: "1%", width: "70%" }}>
                     {/* Doctor Image */}
-                    <Box sx={{ width: "213px", height: "184px" }}>
+                    <Box sx={{ width: "300px", height: "184px" }}>
                         {isLoading ? (
                             <Skeleton variant="rectangular" width="100%" height="100%" />
                         ) : (
@@ -118,18 +158,18 @@ const Container1 = ({
     );
 };
 
+// PropTypes for component documentation and type checking
 Container1.propTypes = {
-    Fname: PropTypes.string,
-    profile_picture: PropTypes.string,
-    company_name: PropTypes.string,
-    business_name: PropTypes.string,
-    service_day_from: PropTypes.string,
-    service_day_to: PropTypes.string,
-    isLoading: PropTypes.bool, // New prop type for loading
+    Fname: PropTypes.string, // Deprecated - use business_name instead
+    profile_picture: PropTypes.string, // URL of HCF profile picture
+    company_name: PropTypes.string, // Company/organization name
+    business_name: PropTypes.string, // Business/facility name
+    worktime: PropTypes.string, // Working hours information
+    isLoading: PropTypes.bool, // Loading state for skeleton display
 };
 
-Container1.defaultProps = {
-    isLoading: false, // Set a default value for loading state
-};
+// Note: Using default parameters in function signature instead of defaultProps
+// This avoids React 18.3+ deprecation warnings for defaultProps
+// Default values are handled in function parameters above
 
 export default Container1;

@@ -1,65 +1,96 @@
+/**
+ * Department Component Styles
+ * 
+ * Navigation tabs and horizontal scroll container styling
+ * Uses common color variables from _variables.scss
+ */
+
+// Import common color variables using @use (modern SCSS syntax)
+@use "../../../../static/scss/base/variables" as *;
+
 .NavBar-Container > a {
     text-decoration: none;
     margin: 0.7%;
-    border: 1px solid #e72b4a;
+    border: 1px solid $primary-color; // Primary brand color
     padding: 4px 20px;
     border-radius: 100px;
-    color: #e72b4a;
+    color: $primary-color; // Primary brand color
     cursor: pointer;
+    
+    // Hover state for better UX
+    transition: all 0.3s ease;
+    
+    &:hover {
+        background-color: rgba($primary-color, 0.1);
+    }
 }
 
 .NavBar-Container a.active {
-    background-color: #e72b4a;
-    color: white;
+    background-color: $primary-color; // Primary brand color
+    color: $white-color; // White text on active state
 }
-
 
 .NavBar-Container-one > div > a {
     text-decoration: none;
     margin: 0.7%;
-    border: 1px solid #e72b4a;
+    border: 1px solid $primary-color; // Primary brand color
     padding: 4px 20px;
     border-radius: 100px;
-    color: #e72b4a;
+    color: $primary-color; // Primary brand color
     cursor: pointer;
+    
+    // Hover state for better UX
+    transition: all 0.3s ease;
+    
+    &:hover {
+        background-color: rgba($primary-color, 0.1);
+    }
 }
 
 .NavBar-Container-one > div a.active {
-    background-color: #e72b4a;
-    color: white;
+    background-color: $primary-color; // Primary brand color
+    color: $white-color; // White text on active state
 }
 
 
+/**
+ * Horizontal Scroll Container
+ * Provides smooth horizontal scrolling for department/lab navigation buttons
+ */
 .horizontal-scroll-container {
     width: 100%;
     height: fit-content;
     display: flex;
-    // justify-content: center;
+    
+    > div {
+        width: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+        scroll-behavior: smooth; // Smooth scrolling animation
+        
+        // Hide scrollbar for cleaner appearance
+        &::-webkit-scrollbar {
+            display: none;
+        }
+        
+        // Firefox scrollbar hiding
+        scrollbar-width: none;
+        
+        > a {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
 }
 
-.horizontal-scroll-container > div {
-    width: 100%;
-    display: flex;
-    /* justify-content: center; */
-    flex-wrap: nowrap;
-    overflow-x: scroll;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-}
-
-.horizontal-scroll-container > div::-webkit-scrollbar {
-    display: none;
-  }
-
-.horizontal-scroll-container > div > a {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
+/**
+ * Responsive Design
+ * Adjusts layout for larger screens
+ */
 @media screen and (min-width: 620px) {
     .horizontal-scroll-container > div {
-        /* background-color: #717171;  */
-        // justify-content: center;
         width: 100%;
         display: flex;
         flex-wrap: nowrap;

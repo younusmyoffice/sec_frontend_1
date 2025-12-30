@@ -9,9 +9,21 @@ import Typography from "@mui/material/Typography";
 import { TextField } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+/**
+ * PatientCompleteProfile Component
+ * 
+ * Handles patient profile completion for users with incomplete profiles after login.
+ * Features:
+ * - Multi-step form (2 steps)
+ * - Personal information collection (name, gender, DOB)
+ * - Address information (country, state, city, street)
+ * - JWT token-based authentication
+ * - Automatic token handling via axiosInstance
+ * - Dynamic country/state/city dropdowns
+ */
+
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CustomTextField from "../../../components/CustomTextField/custom-text-field";
 import CustomDropdown from "../../../components/CustomDropdown/custom-dropdown";
@@ -22,12 +34,17 @@ import ClassicFrame from "../../../static/images/DrImages/Undraw.png";
 import ImageFrame from "../../../static/images/DrImages/Frame1.png";
 import axiosInstance from "../../../config/axiosInstance";
 import { getCurrentUser, getCurrentUserId, getCurrentRoleId, getCurrentUserEmail } from "../../../utils/jwtUtils";
+import logger from "../../../utils/logger";
+import toastService from "../../../services/toastService";
+import { Loading } from "../../../components/Loading";
 
 const steps = ["", ""];
 
 const PatientCompleteProfile = () => {
-    const dropdownItems = ["Male", "Female", "Others"];
-    const [activeDropdown, setActiveDropdown] = useState("");
+    // ============================================
+    // Navigation and Utilities
+    // ============================================
+    
     const navigate = useNavigate();
     function getWeeksAfter(date, amount) {
         return date ? date.add(amount, "week") : undefined;
@@ -36,9 +53,16 @@ const PatientCompleteProfile = () => {
     const [skipped, setSkipped] = React.useState(new Set());
     const [value, setValue] = useState([null, null]);
     const radioValues = ["My self"];
+    // ============================================
+    // State Management
+    // ============================================
+    
+    // Snackbar notification state
     const [openSnackBar, setOpenSnackBar] = useState(false);
     const [snackBarMessage, setSnackBarMessage] = useState("");
     const [snackBarType, setSnackBarType] = useState("success");
+    
+    // Location dropdown data
     const [countryValues, setCountryValue] = useState([]);
     const [countryNames, setCountryNames] = useState(["Please Wait"]);
     const [stateValue, setStateValue] = useState([]);
@@ -49,22 +73,32 @@ const PatientCompleteProfile = () => {
     const [selectedCountryFromDropDown, setSelectedCountryFromDropDown] = useState([]);
     const [selectCityFromDropDown, setSelectCityFromDropDown] = useState([]);
     const [citySelected, setCitySelected] = useState("");
+    
+    // Gender dropdown state
+    const dropdownItems = ["Male", "Female", "Others"];
+    const [activeDropdown, setActiveDropdown] = useState("");
+    
+    // Loading state for API operations
+    const [isLoading, setIsLoading] = useState(false);
     // Get user information from JWT token
     const currentUser = getCurrentUser();
     const userId = getCurrentUserId();
     const roleId = getCurrentRoleId();
     const userEmail = getCurrentUserEmail();
     
-    console.log("Current user from JWT:", currentUser);
-    console.log("User ID:", userId, "Role ID:", roleId, "Email:", userEmail);
-    console.log("=== LOCALSTORAGE DEBUG ===");
-    console.log("localStorage login_Email:", localStorage.getItem("login_Email"));
-    console.log("localStorage patient_Email:", localStorage.getItem("patient_Email"));
-    console.log("localStorage mobile:", localStorage.getItem("mobile"));
-    console.log("localStorage login_country_code:", localStorage.getItem("login_country_code"));
-    console.log("localStorage patient_suid:", localStorage.getItem("patient_suid"));
-    console.log("sessionStorage login_mobile:", sessionStorage.getItem("login_mobile"));
-    console.log("sessionStorage login_country_code:", sessionStorage.getItem("login_country_code"));
+    // Log user information from JWT token
+    logger.debug("Current user from JWT:", currentUser);
+    logger.debug("User ID:", userId, "Role ID:", roleId, "Email:", userEmail);
+    
+    // Debug localStorage and sessionStorage for troubleshooting
+    logger.debug("=== LOCALSTORAGE DEBUG ===");
+    logger.debug("localStorage login_Email:", localStorage.getItem("login_Email"));
+    logger.debug("localStorage patient_Email:", localStorage.getItem("patient_Email"));
+    logger.debug("localStorage mobile:", localStorage.getItem("mobile"));
+    logger.debug("localStorage login_country_code:", localStorage.getItem("login_country_code"));
+    logger.debug("localStorage patient_suid:", localStorage.getItem("patient_suid"));
+    logger.debug("sessionStorage login_mobile:", sessionStorage.getItem("login_mobile"));
+    logger.debug("sessionStorage login_country_code:", sessionStorage.getItem("login_country_code"));
 
     const [data, setData] = useState({
         email: userEmail || localStorage.getItem("patient_Email") || localStorage.getItem("login_Email") || "",
@@ -87,7 +121,20 @@ const PatientCompleteProfile = () => {
         zip_code: null,
     });
 
+    // ============================================
+    // API Functions
+    // ============================================
+    
+    /**
+     * Submit profile completion data to backend
+     * - Validates and formats data
+     * - Sends update request via axiosInstance (includes JWT token automatically)
+     * - Handles success/error states
+     * - Navigates to next step on success
+     */
     const fetchData = async () => {
+        setIsLoading(true); // Show loading state
+        
         try {
             // Ensure we have the required data for incomplete profiles
             const patientSuid = localStorage.getItem("patient_suid");
@@ -113,20 +160,20 @@ const PatientCompleteProfile = () => {
                 DOB: data.DOB ? new Date(data.DOB).toISOString().split('T')[0] : null, // Format date as YYYY-MM-DD
             };
             
-            console.log("=== PATIENT PROFILE UPDATE DEBUG ===");
-            console.log("Original data:", data);
-            console.log("Cleaned data:");
-            console.log("- cleanEmail:", cleanEmail);
-            console.log("- cleanMobile:", cleanMobile);
-            console.log("- cleanDialingCode:", cleanDialingCode);
-            console.log("- cleanSuid:", cleanSuid);
-            console.log("Formatted data for API:", formattedData);
-            console.log("Mobile data sources:");
-            console.log("- localStorage mobile:", localStorage.getItem("mobile"));
-            console.log("- sessionStorage login_mobile:", sessionStorage.getItem("login_mobile"));
-            console.log("- localStorage login_country_code:", localStorage.getItem("login_country_code"));
-            console.log("- sessionStorage login_country_code:", sessionStorage.getItem("login_country_code"));
-            console.log("API Endpoint:", `${baseURL}/sec/auth/updateProfile`);
+            logger.debug("=== PATIENT PROFILE UPDATE DEBUG ===");
+            logger.debug("Original data:", data);
+            logger.debug("Cleaned data:");
+            logger.debug("- cleanEmail:", cleanEmail);
+            logger.debug("- cleanMobile:", cleanMobile);
+            logger.debug("- cleanDialingCode:", cleanDialingCode);
+            logger.debug("- cleanSuid:", cleanSuid);
+            logger.debug("Formatted data for API:", formattedData);
+            logger.debug("Mobile data sources:");
+            logger.debug("- localStorage mobile:", localStorage.getItem("mobile"));
+            logger.debug("- sessionStorage login_mobile:", sessionStorage.getItem("login_mobile"));
+            logger.debug("- localStorage login_country_code:", localStorage.getItem("login_country_code"));
+            logger.debug("- sessionStorage login_country_code:", sessionStorage.getItem("login_country_code"));
+            logger.debug("API Endpoint:", `${baseURL}/sec/auth/updateProfile`);
             
             const response = await axiosInstance.post(
                 "/sec/auth/updateProfile",
@@ -139,16 +186,48 @@ const PatientCompleteProfile = () => {
                 }
             );
             
-            console.log("Profile update response:", response);
+            logger.info("Profile update response:", response);
+            
+            // Show success notification
             setSnackBarMessage("Profile updated successfully!");
             setSnackBarType("success");
             setOpenSnackBar(true);
+            toastService.success("Profile updated successfully!");
+            
+            // Move to next step
             handleNext();
         } catch (error) {
-            console.error("Profile update error:", error);
-            setSnackBarMessage("Profile update failed. Please try again.");
+            logger.error("Profile update error:", error);
+            logger.error("Error response:", error?.response?.data);
+            
+            // Parse specific error codes
+            let errorMessage = "Profile update failed. Please try again.";
+            
+            if (error.response?.data?.error) {
+                const errorCode = error.response.data.error;
+                switch (errorCode) {
+                    case "VALIDATION_ERROR":
+                        errorMessage = "Please check your input and try again.";
+                        break;
+                    case "UNAUTHORIZED":
+                        errorMessage = "You are not authorized to update this profile.";
+                        break;
+                    case "PROFILE_NOT_FOUND":
+                        errorMessage = "Profile not found. Please contact support.";
+                        break;
+                    default:
+                        errorMessage = errorCode || errorMessage;
+                }
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            
+            setSnackBarMessage(errorMessage);
             setSnackBarType("error");
             setOpenSnackBar(true);
+            toastService.error(errorMessage);
+        } finally {
+            setIsLoading(false); // Always stop loading
         }
     };
 
@@ -194,13 +273,13 @@ const PatientCompleteProfile = () => {
         setActiveStep(0);
     };
 
-    console.log("Current form data:", data);
-    console.log("=== JWT DEBUG INFO ===");
-    console.log("Current user from JWT:", currentUser);
-    console.log("User ID from JWT:", userId);
-    console.log("Role ID from JWT:", roleId);
-    console.log("Email from JWT:", userEmail);
-    console.log("Access token in localStorage:", localStorage.getItem("access_token"));
+    logger.debug("Current form data:", data);
+    logger.debug("=== JWT DEBUG INFO ===");
+    logger.debug("Current user from JWT:", currentUser);
+    logger.debug("User ID from JWT:", userId);
+    logger.debug("Role ID from JWT:", roleId);
+    logger.debug("Email from JWT:", userEmail);
+    logger.debug("Access token in localStorage:", localStorage.getItem("access_token"));
 
     useEffect(() => {
         FetchCountryNames();
@@ -212,16 +291,16 @@ const PatientCompleteProfile = () => {
         const patientMobile = localStorage.getItem("mobile") || sessionStorage.getItem("login_mobile");
         const patientDialingCode = localStorage.getItem("login_country_code") || sessionStorage.getItem("login_country_code");
         
-        console.log("=== PATIENT PROFILE DATA EXTRACTION ===");
-        console.log("patientSuid:", patientSuid);
-        console.log("patientEmail:", patientEmail);
-        console.log("patientMobile:", patientMobile);
-        console.log("patientDialingCode:", patientDialingCode);
-        console.log("All localStorage keys:", Object.keys(localStorage));
-        console.log("All sessionStorage keys:", Object.keys(sessionStorage));
+        logger.debug("=== PATIENT PROFILE DATA EXTRACTION ===");
+        logger.debug("patientSuid:", patientSuid);
+        logger.debug("patientEmail:", patientEmail);
+        logger.debug("patientMobile:", patientMobile);
+        logger.debug("patientDialingCode:", patientDialingCode);
+        logger.debug("All localStorage keys:", Object.keys(localStorage));
+        logger.debug("All sessionStorage keys:", Object.keys(sessionStorage));
         
         if (patientSuid || patientEmail || patientMobile) {
-            console.log("Updating data with incomplete profile information");
+            logger.debug("Updating data with incomplete profile information");
             setData(prevData => ({
                 ...prevData,
                 email: patientEmail || prevData.email || "",
@@ -232,7 +311,7 @@ const PatientCompleteProfile = () => {
                 user_id: patientSuid || prevData.user_id
             }));
         } else {
-            console.log("No incomplete profile data found, using defaults");
+            logger.debug("No incomplete profile data found, using defaults");
         }
     }, []);
 
@@ -248,7 +327,7 @@ const PatientCompleteProfile = () => {
             setCountryNames(CountryName);
             setCountryValue(CountryValues);
         } catch (error) {
-            console.log(error);
+            logger.error("Error fetching countries:", error);
         }
     };
 
@@ -264,7 +343,7 @@ const PatientCompleteProfile = () => {
             setStateValue(StateValues);
             setStateNames(StateName);
         } catch (error) {
-            console.log(error);
+            logger.error("Error fetching states:", error);
         }
     };
     // run the api call when there is change in country drop down
@@ -277,7 +356,7 @@ const PatientCompleteProfile = () => {
         let cityName = [];
         try {
             const response = await axiosInstance(`/sec/cities?state_id=${state_id}`);
-            console.log("response city id : ", response);
+            logger.debug("Cities response:", response);
             for (let key in response?.data?.response) {
                 CityValues.push(response?.data?.response[key]);
                 cityName.push(response?.data?.response[key].city_name);
@@ -285,7 +364,7 @@ const PatientCompleteProfile = () => {
             setCityValues(CityValues);
             setCityNames(cityName);
         } catch (error) {
-            console.log(error);
+            logger.error("Error fetching cities:", error);
         }
     };
     // run the api to fetch the city details
@@ -293,8 +372,24 @@ const PatientCompleteProfile = () => {
         FetchCityNames(selectCityFromDropDown[0]?.state_id);
     }, [selectCityFromDropDown]);
 
+    // ============================================
+    // Render
+    // ============================================
+    
     return (
         <>
+            {/* Loading overlay for API operations */}
+            {isLoading && (
+                <Loading
+                    variant="overlay"
+                    size="large"
+                    message="Updating Your Profile"
+                    subMessage="Please wait while we save your information..."
+                    fullScreen
+                />
+            )}
+            
+            {/* Snackbar for notifications */}
             <Box sx={{ width: "100%" }}>
                 <CustomSnackBar
                     isOpen={openSnackBar}
@@ -459,10 +554,10 @@ const PatientCompleteProfile = () => {
                                                             borderBottomColor: "#e0e0e0"
                                                         },
                                                         "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
-                                                            borderBottomColor: "#1976d2"
+                                                            borderBottomColor: "#d32f2f"
                                                         },
                                                         "& .MuiInput-underline:after": {
-                                                            borderBottomColor: "#1976d2"
+                                                            borderBottomColor: "#d32f2f"
                                                         }
                                                     }}
                                                     onInput={(event) =>
@@ -485,10 +580,10 @@ const PatientCompleteProfile = () => {
                                                             borderBottomColor: "#e0e0e0"
                                                         },
                                                         "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
-                                                            borderBottomColor: "#1976d2"
+                                                            borderBottomColor: "#d32f2f"
                                                         },
                                                         "& .MuiInput-underline:after": {
-                                                            borderBottomColor: "#1976d2"
+                                                            borderBottomColor: "#d32f2f"
                                                         }
                                                     }}
                                                     onInput={(event) =>
@@ -514,10 +609,10 @@ const PatientCompleteProfile = () => {
                                                             borderBottomColor: "#e0e0e0"
                                                         },
                                                         "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
-                                                            borderBottomColor: "#1976d2"
+                                                            borderBottomColor: "#d32f2f"
                                                         },
                                                         "& .MuiInput-underline:after": {
-                                                            borderBottomColor: "#1976d2"
+                                                            borderBottomColor: "#d32f2f"
                                                         }
                                                     }}
                                                     onInput={(event) =>
@@ -540,7 +635,7 @@ const PatientCompleteProfile = () => {
                                                             label="Date of Birth"
                                                             value={data.DOB ? dayjs(data.DOB) : null}
                                                             onChange={(value) => {
-                                                                console.log(value);
+                                                                logger.debug("Date of birth selected:", value);
                                                                 setData({
                                                                     ...data,
                                                                     DOB: value ? value.toDate() : null,
@@ -560,10 +655,10 @@ const PatientCompleteProfile = () => {
                                                                             borderBottomColor: "#e0e0e0"
                                                                         },
                                                                         "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
-                                                                            borderBottomColor: "#1976d2"
+                                                                            borderBottomColor: "#d32f2f"
                                                                         },
                                                                         "& .MuiInput-underline:after": {
-                                                                            borderBottomColor: "#1976d2"
+                                                                            borderBottomColor: "#d32f2f"
                                                                         }
                                                                     }
                                                                 },
@@ -578,7 +673,7 @@ const PatientCompleteProfile = () => {
                                                         activeItem={activeDropdown}
                                                         handleChange={(item) => {
                                                             setActiveDropdown(item);
-                                                            console.log(item);
+                                                            logger.debug("Gender selected:", item);
                                                             setData({ ...data, gender: item });
                                                         }}
                                                         variant="standard"
@@ -592,10 +687,10 @@ const PatientCompleteProfile = () => {
                                                                 borderBottomColor: "#e0e0e0"
                                                             },
                                                             "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
-                                                                borderBottomColor: "#1976d2"
+                                                                borderBottomColor: "#d32f2f"
                                                             },
                                                             "& .MuiInput-underline:after": {
-                                                                borderBottomColor: "#1976d2"
+                                                                borderBottomColor: "#d32f2f"
                                                             }
                                                         }}
                                                     />
@@ -707,10 +802,7 @@ const PatientCompleteProfile = () => {
                                                                             listItems,
                                                                         ),
                                                                 );
-                                                                console.log(
-                                                                    "Country response : ",
-                                                                    response[0]?.country_id,
-                                                                );
+                                                                logger.debug("Selected country response:", response[0]?.country_id);
                                                                 setData({
                                                                     ...data,
                                                                     country_id:
@@ -740,7 +832,7 @@ const PatientCompleteProfile = () => {
                                                                             listItems,
                                                                         ),
                                                                 );
-                                                                // console.log("State ID : " , response[0].state_id)
+                                                                logger.debug("State ID:", response[0]?.state_id);
                                                                 setData({
                                                                     ...data,
                                                                     state_id: response[0]?.state_id,

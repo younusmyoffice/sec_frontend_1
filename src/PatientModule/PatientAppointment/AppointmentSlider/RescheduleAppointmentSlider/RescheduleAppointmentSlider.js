@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -15,13 +16,44 @@ import CustomRadioButton from "../../../../components/CustomRadioButton/custom-r
 import CustomDropdown from "../../../../components/CustomDropdown/custom-dropdown";
 import CustomButton from "../../../../components/CustomButton/custom-button";
 import finish from "../../../../static/images/DrImages/Finish.png";
-import axiosInstance from "../../../../config/axiosInstance";
-// import messageLogo from "../../constants/patientAppointmentLogo/messageLogo.png"
-const steps = ["Reason", "Date & Time"];
+import axiosInstance from "../../../../config/axiosInstance"; // Handles access token automatically
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications
+import Loading from "../../../../components/Loading/Loading"; // Reusable loader component
 
+/**
+ * RescheduleAppointmentSlider Component
+ * 
+ * Multi-step stepper component for rescheduling appointments
+ * Features:
+ * - Step 1: Select reschedule reason
+ * - Step 2: Select new date & time
+ * - Final step: Success confirmation
+ * 
+ * Uses Material-UI Stepper and Date/Time pickers
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.data - Appointment data (appointment_id, patient_id, doctor_id, status)
+ * @param {string} props.path - API endpoint path for rescheduling
+ * @param {Function} props.changeFlagState - Callback to update parent component state
+ * 
+ * @component
+ */
 const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
+    logger.debug("🔵 RescheduleAppointmentSlider component rendering", { 
+        appointment_id: data?.appointment_id 
+    });
+    // Stepper state management
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
+    
+    // Loading state
+    const [isLoading, setIsLoading] = useState(false);
+    
+    /**
+     * Available reschedule reasons
+     * Note: Consider fetching these from API or constants file
+     */
     const radioValues = [
         "I have a schedule clash",
         "I am not available at the schedule",
@@ -29,20 +61,37 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
         "Reason4",
         "Reason5",
     ];
+    
+    // Selected reschedule reason
     const [radioVal, setRadioVal] = React.useState(radioValues[0]);
-    //   const [activeFabDropdown, setActiveFabDropdown] = React.useState(dropdownItems[0]);
-    //   const [activeDropdown, setActiveDropdown] = useState("");
-    const [ageDropDown, setAgeDropDown] = React.useState();
+    
+    // Selected date value
     const [DateValue, setDataValue] = React.useState(null);
+    
+    // Unused state variable (can be removed if not needed)
+    // const [ageDropDown, setAgeDropDown] = React.useState();
 
+    /**
+     * Check if a step is optional
+     * @param {number} step - Step index
+     * @returns {boolean} Whether the step is optional
+     */
     const isStepOptional = (step) => {
         return step === 1;
     };
 
+    /**
+     * Check if a step was skipped
+     * @param {number} step - Step index
+     * @returns {boolean} Whether the step was skipped
+     */
     const isStepSkipped = (step) => {
         return skipped.has(step);
     };
 
+    /**
+     * Handle moving to the next step
+     */
     const handleNext = () => {
         let newSkipped = skipped;
         if (isStepSkipped(activeStep)) {
@@ -54,14 +103,20 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
         setSkipped(newSkipped);
     };
 
+    /**
+     * Handle moving to the previous step
+     */
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
+    /**
+     * Handle skipping a step (if optional)
+     * @throws {Error} If trying to skip a non-optional step
+     */
     const handleSkip = () => {
         if (!isStepOptional(activeStep)) {
-            // You probably want to guard against something like this,
-            // it should never occur unless someone's actively trying to break something.
+            logger.error("❌ Attempted to skip non-optional step", { activeStep });
             throw new Error("You can't skip a step that isn't optional.");
         }
 
@@ -72,16 +127,10 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
             return newSkipped;
         });
     };
-    useEffect(() => {
-        setRescheduleData((prev) => ({
-            ...prev,
-            reason: radioVal,
-        }));
-    }, [radioVal]);
-    const handleReset = () => {
-        setActiveStep(0);
-    };
-
+    /**
+     * Reschedule data payload
+     * Updates when radioVal or date/time changes
+     */
     const [rescheduleData, setRescheduleData] = useState({
         appointment_date: DateValue,
         appointment_time: null,
@@ -93,44 +142,98 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
         option: "reschedule",
     });
 
+    /**
+     * Update reschedule data when reason changes
+     */
+    useEffect(() => {
+        setRescheduleData((prev) => ({
+            ...prev,
+            reason: radioVal,
+        }));
+    }, [radioVal]);
+
+    /**
+     * Reset stepper to initial state
+     */
+    const handleReset = () => {
+        setActiveStep(0);
+    };
+
+    /**
+     * Reschedule appointment API call
+     * Sends reschedule request to backend with new date/time
+     */
     const RescheduleAppointment = async () => {
+        logger.debug("📡 Rescheduling appointment", { 
+            appointment_id: rescheduleData.appointment_id,
+            new_date: rescheduleData.appointment_date,
+            new_time: rescheduleData.appointment_time,
+            reason: rescheduleData.reason
+        });
+        
+        setIsLoading(true);
+        
         try {
+            // Validate required data
+            if (!rescheduleData.appointment_id || !rescheduleData.patient_id || !rescheduleData.doctor_id) {
+                logger.error("❌ Missing required appointment data", rescheduleData);
+                toastService.error("Appointment information is incomplete");
+                setIsLoading(false);
+                return;
+            }
+            
+            // Validate date and time
+            if (!rescheduleData.appointment_date || !rescheduleData.appointment_time) {
+                logger.error("❌ Missing date or time", rescheduleData);
+                toastService.error("Please select both date and time");
+                setIsLoading(false);
+                return;
+            }
+            
             const response = await axiosInstance.post(path, rescheduleData);
-            console.log("Appointment rescheduling: ", response);
-    
-            // Show success message
-            alert("Appointment successfully rescheduled");
-    
-            // Delay setting the flag to true
-            setTimeout(() => {
-                changeFlagState(true);
-                handleNext();
-            }, 2000); // 2000ms = 2 seconds
+            
+            logger.debug("✅ Appointment rescheduled successfully", {
+                appointment_id: rescheduleData.appointment_id,
+                response: response?.data
+            });
+            
+            toastService.success("Appointment successfully rescheduled");
+            changeFlagState(true);
+            handleNext();
         } catch (error) {
-            console.error("Error rescheduling appointment: ", error);
-    
-            // Show error message
-            alert(
-                error.response?.data?.message || 
-                "An error occurred while rescheduling the appointment"
+            logger.error("❌ Failed to reschedule appointment:", error);
+            toastService.error(
+                error?.response?.data?.message || 
+                "Failed to reschedule appointment. Please try again."
             );
-    
-            setTimeout(() => {
-                changeFlagState(false);
-            }, 2000); // 2000ms = 2 seconds
+            changeFlagState(false);
+        } finally {
+            setIsLoading(false);
         }
     };
-    
 
+    /**
+     * Handle time picker change
+     * Formats time as HH:mm for API
+     * 
+     * @param {dayjs.Dayjs} newValue - Selected time from time picker
+     */
     const handleTimeChange = (newValue) => {
         setRescheduleData((prev) => ({
             ...prev,
-            appointment_time: newValue ? dayjs(newValue).format("HH:mm") : null, // Format time as needed
+            appointment_time: newValue ? dayjs(newValue).format("HH:mm") : null,
         }));
     };
 
+    // Step labels for the stepper
+    const steps = ["Reason", "Date & Time"];
+
     return (
         <Box sx={{ width: "100%" }}>
+            {/* Loading overlay */}
+            {isLoading && <Loading />}
+            
+            {/* Stepper component for multi-step flow */}
             <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
                     const stepProps = {};
@@ -148,15 +251,23 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                     );
                 })}
             </Stepper>
+            {/* Success Screen - Shown after completion */}
             {activeStep === steps.length ? (
                 <React.Fragment>
+                    {/* Success image */}
                     <Box sx={{ width: "70%", marginTop: "5%", marginLeft: "15%" }}>
-                        <img style={{ width: "100%" }} src={finish} alt="finished" loading="lazy" />
+                        <img 
+                            style={{ width: "100%" }} 
+                            src={finish} 
+                            alt="Appointment rescheduled successfully" 
+                            loading="lazy" 
+                        />
                     </Box>
-                    <Box sx={{ displa: "flex", justifyContent: "center", textAlign: "center" }}>
+                    {/* Success message */}
+                    <Box sx={{ display: "flex", justifyContent: "center", textAlign: "center" }}>
                         <Typography
                             sx={{
-                                color: "#313033",
+                                color: "#313033", // Common color: #313033
                                 fontFamily: "Poppins",
                                 fontSize: "1rem",
                                 fontStyle: "normal",
@@ -176,10 +287,11 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                                 letterSpacing: "0.00438rem",
                             }}
                         >
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut tellus
-                            quis sapien interdum commodo. Nunc tincidunt justo non dolor bibendum,
+                            Your reschedule request has been sent. The doctor will review and confirm shortly.
                         </Typography>
                     </Box>
+                    
+                    {/* Action button */}
                     <Box sx={{ marginTop: "5%", display: "flex", justifyContent: "center" }}>
                         <CustomButton
                             label={"View Appointment"}
@@ -189,11 +301,13 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                     </Box>
                 </React.Fragment>
             ) : (
+                /* Step Content */
                 <React.Fragment>
                     <Typography sx={{ mt: 2, mb: 1 }}>
-                        {/* Step {activeStep + 1} */}
+                        {/* Step 0: Select Reschedule Reason */}
                         {activeStep === 0 ? (
                             <>
+                                {/* Step title */}
                                 <Box sx={{ width: "77%", marginLeft: "26%", marginTop: "7%" }}>
                                     <Typography
                                         sx={{
@@ -205,6 +319,8 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                                         Reschedule Appointment
                                     </Typography>
                                 </Box>
+                                
+                                {/* Reason selection */}
                                 <Box
                                     sx={{
                                         marginTop: "5%",
@@ -222,12 +338,16 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                                     >
                                         Reason For Schedule
                                     </Typography>
+                                    
+                                    {/* Radio buttons for reason selection */}
                                     <CustomRadioButton
                                         label={""}
                                         handleChange={({ target }) => setRadioVal(target.value)}
                                         value={radioVal}
                                         items={radioValues}
                                     />
+                                    
+                                    {/* Note section */}
                                     <Box sx={{ marginTop: "8%", width: "75%" }}>
                                         <Typography
                                             sx={{
@@ -235,14 +355,15 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                                                 fontSize: "14px",
                                                 lineHeight: "21px",
                                                 letterSpacing: "0.5%",
-                                                color: "#939094",
+                                                color: "#939094", // Common color variant
                                             }}
                                         >
-                                            Note: Lorem ipsum dolor sit amet. Qui dolor nostrum sit
-                                            eius necessitatibus id quia expedita et molestiae
-                                            laborum qui nihil excepturi qui tenetur blanditiis.
+                                            Note: Please ensure you select a new date and time that works for you.
+                                            The doctor will confirm the reschedule request.
                                         </Typography>
                                     </Box>
+                                    
+                                    {/* Continue button */}
                                     <Box sx={{ display: "flex", justifyContent: "center" }}>
                                         <CustomButton
                                             buttonCss={{
@@ -259,48 +380,57 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                                             }}
                                             handleClick={handleNext}
                                             label="Continue"
-                                        >
-                                            {" "}
-                                            {activeStep === "Next"}
-                                        </CustomButton>
+                                        />
                                     </Box>
                                 </Box>
                             </>
-                        ) : activeStep === 1 ? (
+                        ) : /* Step 1: Select New Date & Time */
+                        activeStep === 1 ? (
                             <>
+                                {/* Date picker section */}
                                 <Box sx={{ width: "100%" }}>
-                                    <Box sx={{ marginTop: "4%" }}>Select Date</Box>
+                                    <Typography sx={{ marginTop: "4%", fontWeight: "600", fontSize: "16px" }}>
+                                        Select Date
+                                    </Typography>
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <DateCalendar
                                             onChange={(newValue) => {
-                                                setDataValue(newValue); // If you need to retain this separately
+                                                setDataValue(newValue); // Keep separate date value
                                                 setRescheduleData((prev) => ({
                                                     ...prev,
                                                     appointment_date: newValue
                                                         ? dayjs(newValue).format("YYYY-MM-DD")
-                                                        : null, // Format as needed
+                                                        : null,
                                                 }));
                                             }}
                                         />
                                     </LocalizationProvider>
                                 </Box>
-                                <Box>Select Time</Box>
-                                <Box sx={{ display: "flex", justifyContent: "center" }}>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <TimePicker
-                                            label="Select Time"
-                                            value={
-                                                rescheduleData.appointment_time
-                                                    ? dayjs(
-                                                          rescheduleData.appointment_time,
-                                                          "HH:mm",
-                                                      )
-                                                    : null
-                                            }
-                                            onChange={handleTimeChange}
-                                        />
-                                    </LocalizationProvider>
+                                
+                                {/* Time picker section */}
+                                <Box>
+                                    <Typography sx={{ fontWeight: "600", fontSize: "16px", marginBottom: "1rem" }}>
+                                        Select Time
+                                    </Typography>
+                                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <TimePicker
+                                                label="Select Time"
+                                                value={
+                                                    rescheduleData.appointment_time
+                                                        ? dayjs(
+                                                              rescheduleData.appointment_time,
+                                                              "HH:mm",
+                                                          )
+                                                        : null
+                                                }
+                                                onChange={handleTimeChange}
+                                            />
+                                        </LocalizationProvider>
+                                    </Box>
                                 </Box>
+                                
+                                {/* Submit button */}
                                 <Box sx={{ display: "flex", justifyContent: "center" }}>
                                     <CustomButton
                                         buttonCss={{
@@ -316,23 +446,21 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
                                             marginTop: "2%",
                                         }}
                                         handleClick={RescheduleAppointment}
-                                        label="Next"
-                                    >
-                                        {" "}
-                                        {activeStep === "Finish"}
-                                    </CustomButton>
+                                        label={isLoading ? "Rescheduling..." : "Next"}
+                                        disabled={isLoading || !rescheduleData.appointment_date || !rescheduleData.appointment_time}
+                                    />
                                 </Box>
                             </>
                         ) : (
-                            <>
-                                <h1>Completed</h1>
-                            </>
+                            <h1>Completed</h1>
                         )}
                     </Typography>
+                    
+                    {/* Navigation buttons */}
                     <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                         <Button
                             color="inherit"
-                            disabled={activeStep === 0}
+                            disabled={activeStep === 0 || isLoading}
                             onClick={handleBack}
                             sx={{ mr: 1 }}
                         >
@@ -344,4 +472,17 @@ const RescheduleAppointmentSlider = ({ data, path, changeFlagState }) => {
         </Box>
     );
 };
+
+// PropTypes for type checking
+RescheduleAppointmentSlider.propTypes = {
+    data: PropTypes.shape({
+        appointment_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        patient_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        doctor_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        status: PropTypes.string,
+    }).isRequired,
+    path: PropTypes.string.isRequired,
+    changeFlagState: PropTypes.func.isRequired,
+};
+
 export default RescheduleAppointmentSlider;

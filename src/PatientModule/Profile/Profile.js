@@ -14,7 +14,8 @@ import {
     Button,
     Divider
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import PropTypes from "prop-types";
 import CustomTextField from "../../components/CustomTextField/custom-text-field";
 import CustomDropdown from "../../components/CustomDropdown/custom-dropdown";
 import CustomButton from "../../components/CustomButton/custom-button";
@@ -22,163 +23,440 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import "./profile.scss";
-import { NavLink, useNavigate } from "react-router-dom";
-import axiosInstance from "../../config/axiosInstance";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import axiosInstance from "../../config/axiosInstance"; // Handles access token automatically
 import EditIcon from "@mui/icons-material/Edit";
 import dayjs from "dayjs";
 import CloseIcon from "@mui/icons-material/Close";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import PersonIcon from "@mui/icons-material/Person";
 import CustomSnackBar from "../../components/CustomSnackBar";
+import logger from "../../utils/logger"; // Centralized logging
+import toastService from "../../services/toastService"; // Toast notifications
+import Loading from "../../components/Loading/Loading"; // Reusable loader component
 
+/**
+ * Profile Component
+ * 
+ * Displays and allows editing of patient profile information
+ * Features:
+ * - View and edit personal information (name, DOB, gender)
+ * - Profile picture upload and management
+ * - Data persistence with localStorage
+ * - Integration with patient profile API
+ * 
+ * API Endpoints:
+ * - POST /sec/patientprofile (fetch profile data)
+ * - POST /sec/updatePateintProfile (update profile data)
+ * 
+ * @component
+ */
 const Profile = () => {
-    const [activeDropdown, setActiveDropdown] = useState("");
-    const [isEditing, setIsEditing] = useState(false);
+    logger.debug("🔵 Profile component rendering");
+    
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Remove unused state variable - activeDropdown was not used anywhere
+
+    /**
+     * Determine navigation paths based on current location
+     * Sets profile and contact links dynamically
+     */
+    const getNavigationPaths = useCallback(() => {
+        try {
+            const activeComponent = localStorage.getItem("activeComponent");
+            let profilePath = null;
+            let contactPath = null;
+            
+            switch (activeComponent) {
+                case "dashboard":
+                    profilePath = "/patientDashboard/dashboard/profile";
+                    contactPath = "/patientDashboard/dashboard/contact";
+                    break;
+                case "appointment":
+                    profilePath = "/patientDashboard/appointment/profile";
+                    contactPath = "/patientDashboard/appointment/contact";
+                    break;
+                case "manage":
+                    profilePath = "/patientDashboard/manage/profile";
+                    contactPath = "/patientDashboard/manage/contact";
+                    break;
+                default:
+                    // Fallback based on current URL
+                    if (location.pathname.includes("/dashboard")) {
+                        profilePath = "/patientDashboard/dashboard/profile";
+                        contactPath = "/patientDashboard/dashboard/contact";
+                    } else if (location.pathname.includes("/appointment")) {
+                        profilePath = "/patientDashboard/appointment/profile";
+                        contactPath = "/patientDashboard/appointment/contact";
+                    } else if (location.pathname.includes("/manage")) {
+                        profilePath = "/patientDashboard/manage/profile";
+                        contactPath = "/patientDashboard/manage/contact";
+                    }
+            }
+            
+            return { profilePath, contactPath };
+        } catch (error) {
+            logger.error("❌ Error determining navigation paths:", error);
+            return { profilePath: null, contactPath: null };
+        }
+    }, [location.pathname]);
+
+    // Navigation link states
     const [profileLink, setProfileLink] = useState("");
+    const [contactLink, setContactLink] = useState("");
+
+    // UI state
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
+
+    // Snackbar state (keeping for backward compatibility, but also using toastService)
     const [isopen, setIsopen] = useState(false);
     const [snackMessage, setSnackMessage] = useState("");
     const [snackStatus, setSnackStatus] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [contactLink, setContactLink] = useState("");
+
+    /**
+     * Profile data state
+     * Contains all profile information
+     */
     const [profileUpdate, setProfileUpdate] = useState({
-        email: localStorage.getItem("patient_Email"),
-        first_name: null,
-        last_name: null,
-        middle_name: null,
+        email: "",
+        first_name: "",
+        last_name: "",
+        middle_name: "",
         added_by: "self",
-        gender: null,
+        gender: "",
         DOB: null,
         profile_picture: null,
     });
-    const navigate = useNavigate();
-    const handleSubmit = (e) => {
-        fetchData();
-    };
 
-    const fetchData = async () => {
-        setLoading(true);
+    /**
+     * Get patient email from localStorage with error handling
+     */
+    const getPatientEmail = useCallback(() => {
         try {
-            const response = await axiosInstance.post(
-                "/sec/updatePateintProfile",
-                JSON.stringify(profileUpdate),
-            );
-            setSnackMessage("Updated Successfully");
-            setSnackStatus("success");
-            setIsopen(true);
-            const updatedProfilePic = response?.data?.response?.profile_picture;
-
-            if (updatedProfilePic) {
-                localStorage.setItem("profile", updatedProfilePic);
-                // Dispatch custom event to notify other components
-                window.dispatchEvent(new CustomEvent('profileUpdated', {
-                    detail: { profile: updatedProfilePic }
-                }));
-            }
-            console.log("Success  : ", response);
+            return localStorage.getItem("patient_Email") || "";
         } catch (error) {
-            console.log(error);
-            setSnackMessage("Error");
-            setSnackStatus("error");
-            setIsopen(true);
-        } finally {
-            setLoading(false);
-            setIsEditing(false);
+            logger.error("❌ Error accessing localStorage for email:", error);
+            return "";
         }
-    };
+    }, []);
 
-    console.log("Profile Update : ", profileUpdate);
-
-    const fetchDataProfile = async () => {
+    /**
+     * Get patient SUID from localStorage with error handling
+     */
+    const getPatientSuid = useCallback(() => {
         try {
+            return localStorage.getItem("patient_suid");
+        } catch (error) {
+            logger.error("❌ Error accessing localStorage for SUID:", error);
+            return null;
+        }
+    }, []);
+
+    /**
+     * Fetch patient profile data from API
+     * Loads existing profile information to populate the form
+     */
+    const fetchDataProfile = useCallback(async () => {
+        logger.debug("📡 Fetching patient profile data");
+        setIsFetching(true);
+        
+        try {
+            const patientSuid = getPatientSuid();
+            if (!patientSuid) {
+                logger.error("❌ Patient SUID not found");
+                toastService.error("Patient information not available");
+                setIsFetching(false);
+                return;
+            }
+
             const response = await axiosInstance.post(
                 "/sec/patientprofile",
                 JSON.stringify({
-                    suid: localStorage.getItem("patient_suid"),
+                    suid: patientSuid,
                 }),
             );
-            console.log("Patient Profile Details : ", response?.data?.response[0]);
-            console.log("🔍 Profile image data:", response?.data?.response[0]?.profile_picture);
-            const profileData = response?.data?.response[0];
+            
+            const profileData = response?.data?.response?.[0];
+            
+            if (!profileData) {
+                logger.warn("⚠️ No profile data received");
+                toastService.warning("Profile data not found");
+                setIsFetching(false);
+                return;
+            }
+            
+            logger.debug("✅ Patient profile fetched successfully", {
+                hasEmail: !!profileData?.email,
+                hasFirstName: !!profileData?.first_name,
+                hasProfilePicture: !!profileData?.profile_picture,
+            });
+
+            // Update profile state with fetched data
             setProfileUpdate({
-                email: profileData?.email,
-                first_name: profileData?.first_name,
-                last_name: profileData?.last_name,
-                middle_name: profileData?.middle_name,
+                email: profileData?.email || getPatientEmail(),
+                first_name: profileData?.first_name || "",
+                last_name: profileData?.last_name || "",
+                middle_name: profileData?.middle_name || "",
                 added_by: "self",
-                gender: profileData?.gender,
-                DOB: profileData?.DOB,
-                profile_picture: profileData?.profile_picture,
+                gender: profileData?.gender || "",
+                DOB: profileData?.DOB || null,
+                profile_picture: profileData?.profile_picture || null,
             });
 
             // Update profile image in localStorage and notify other components
             if (profileData?.profile_picture) {
-                localStorage.setItem("profile", profileData.profile_picture);
-                window.dispatchEvent(new CustomEvent('profileUpdated', {
-                    detail: { profile: profileData.profile_picture }
+                try {
+                    localStorage.setItem("profile", profileData.profile_picture);
+                    window.dispatchEvent(new CustomEvent('profileUpdated', {
+                        detail: { profile: profileData.profile_picture }
+                    }));
+                    logger.debug("✅ Profile image saved to localStorage");
+                } catch (error) {
+                    logger.error("❌ Error saving profile image to localStorage:", error);
+                }
+            }
+        } catch (error) {
+            logger.error("❌ Failed to fetch patient profile:", error);
+            toastService.error(
+                error?.response?.data?.message || 
+                "Failed to load profile information. Please try again later."
+            );
+        } finally {
+            setIsFetching(false);
+        }
+    }, [getPatientSuid, getPatientEmail]);
+
+    /**
+     * Update patient profile data via API
+     * Saves changes made in edit mode
+     */
+    const fetchData = useCallback(async () => {
+        logger.debug("📤 Updating patient profile", {
+            hasFirstName: !!profileUpdate.first_name,
+            hasLastName: !!profileUpdate.last_name,
+            hasProfilePicture: !!profileUpdate.profile_picture,
+        });
+        
+        setLoading(true);
+        
+        try {
+            // Validate required fields before submission
+            if (!profileUpdate.first_name || !profileUpdate.last_name) {
+                logger.warn("⚠️ Missing required fields");
+                toastService.error("First name and last name are required");
+                setLoading(false);
+                return;
+            }
+
+            const response = await axiosInstance.post(
+                "/sec/updatePateintProfile",
+                JSON.stringify(profileUpdate),
+            );
+            
+            logger.debug("✅ Profile updated successfully", {
+                hasResponse: !!response?.data?.response,
+            });
+
+            // Show success notifications
+            setSnackMessage("Updated Successfully");
+            setSnackStatus("success");
+            setIsopen(true);
+            toastService.success("Profile updated successfully");
+
+            // Update profile picture if returned from API
+            const updatedProfilePic = response?.data?.response?.profile_picture;
+            if (updatedProfilePic) {
+                try {
+                    localStorage.setItem("profile", updatedProfilePic);
+                    // Dispatch custom event to notify other components
+                    window.dispatchEvent(new CustomEvent('profileUpdated', {
+                        detail: { profile: updatedProfilePic }
+                    }));
+                    logger.debug("✅ Updated profile image saved");
+                } catch (error) {
+                    logger.error("❌ Error saving updated profile image:", error);
+                }
+            }
+
+            // Refresh profile data to get latest from server
+            await fetchDataProfile();
+        } catch (error) {
+            logger.error("❌ Failed to update patient profile:", error);
+            
+            // Show error notifications
+            setSnackMessage(
+                error?.response?.data?.message || "Error updating profile"
+            );
+            setSnackStatus("error");
+            setIsopen(true);
+            toastService.error(
+                error?.response?.data?.message || 
+                "Failed to update profile. Please try again."
+            );
+        } finally {
+            setLoading(false);
+            setIsEditing(false);
+        }
+    }, [profileUpdate, fetchDataProfile]);
+
+    /**
+     * Initialize component
+     * Sets navigation links and fetches profile data
+     */
+    useEffect(() => {
+        logger.debug("🔵 Profile component mounting");
+        
+        // Set navigation paths
+        const { profilePath, contactPath } = getNavigationPaths();
+        setProfileLink(profilePath || "/patientDashboard/dashboard/profile");
+        setContactLink(contactPath || "/patientDashboard/dashboard/contact");
+        
+        // Check if profile image exists in localStorage as fallback
+        try {
+            const storedProfile = localStorage.getItem("profile");
+            if (storedProfile && !profileUpdate.profile_picture) {
+                logger.debug("📂 Using profile image from localStorage", {
+                    hasImage: !!storedProfile,
+                    imageLength: storedProfile.length,
+                });
+                setProfileUpdate(prev => ({
+                    ...prev,
+                    profile_picture: storedProfile
                 }));
             }
         } catch (error) {
-            console.log(error);
-        }
-    };
-
-    useEffect(() => {
-        setProfileLink(
-            localStorage.getItem("activeComponent") === "dashboard"
-                ? "/patientDashboard/dashboard/profile"
-                : localStorage.getItem("activeComponent") === "appointment"
-                ? "/patientDashboard/appointment/profile"
-                : localStorage.getItem("activeComponent") === "manage"
-                ? "/patientDashboard/manage/profile"
-                : null,
-        );
-
-        setContactLink(
-            localStorage.getItem("activeComponent") === "dashboard"
-                ? "/patientDashboard/dashboard/contact"
-                : localStorage.getItem("activeComponent") === "appointment"
-                ? "/patientDashboard/appointment/contact"
-                : localStorage.getItem("activeComponent") === "manage"
-                ? "/patientDashboard/manage/contact"
-                : null,
-        );
-        
-        // Check if profile image exists in localStorage as fallback
-        const storedProfile = localStorage.getItem("profile");
-        if (storedProfile && !profileUpdate.profile_picture) {
-            console.log("🔄 Using profile image from localStorage:", storedProfile.substring(0, 50));
-            setProfileUpdate(prev => ({
-                ...prev,
-                profile_picture: storedProfile
-            }));
+            logger.error("❌ Error accessing localStorage for profile image:", error);
         }
         
+        // Fetch profile data
         fetchDataProfile();
+    }, [getNavigationPaths, fetchDataProfile]);
+
+    /**
+     * Handle profile picture file selection
+     * Converts image file to base64 for API submission
+     * 
+     * @param {Event} event - File input change event
+     */
+    const handleProfilePictureChange = useCallback((event) => {
+        const file = event.target.files?.[0];
+        
+        if (!file) {
+            logger.warn("⚠️ No file selected");
+            return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            logger.error("❌ Invalid file type selected");
+            toastService.error("Please select an image file");
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > maxSize) {
+            logger.error("❌ File size too large", { size: file.size });
+            toastService.error("Image size should be less than 5MB");
+            return;
+        }
+
+        logger.debug("📸 Processing profile picture", {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+        });
+
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+            try {
+                // Extract base64 data without metadata prefix
+                const base64Data = reader.result.split(",")[1];
+                logger.debug("✅ Profile picture processed successfully", {
+                    dataLength: base64Data.length,
+                });
+                
+                setProfileUpdate(prev => ({
+                    ...prev,
+                    profile_picture: base64Data,
+                }));
+                
+                toastService.success("Profile picture updated successfully");
+            } catch (error) {
+                logger.error("❌ Error processing profile picture:", error);
+                toastService.error("Failed to process image");
+            }
+        };
+
+        reader.onerror = () => {
+            logger.error("❌ File reading error");
+            toastService.error("Error reading image file");
+        };
+
+        reader.readAsDataURL(file);
     }, []);
 
-    const handleProfilePictureChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-
-            reader.onloadend = () => {
-                const base64Data = reader.result.split(",")[1]; // Extract base64 without metadata
-                setProfileUpdate({
-                    ...profileUpdate,
-                    profile_picture: base64Data, // Store the base64 representation
-                });
-            };
-
-            reader.readAsDataURL(file); // Read the file as Data URL
+    /**
+     * Toggle edit mode on/off
+     * When canceling, reset to original profile data
+     */
+    const toggleEditMode = useCallback(() => {
+        if (isEditing) {
+            logger.debug("❌ Edit mode cancelled - resetting data");
+            // Reload original data when canceling
+            fetchDataProfile();
+            toastService.info("Changes cancelled");
+        } else {
+            logger.debug("✏️ Edit mode enabled");
         }
-    };
+        setIsEditing(prev => !prev);
+    }, [isEditing, fetchDataProfile]);
 
-    const toggleEditMode = () => {
-        setIsEditing(!isEditing);
-    };
+    /**
+     * Handle form submission
+     * Validates and saves profile data
+     * 
+     * @param {Event} e - Form submission event
+     */
+    const handleSubmit = useCallback((e) => {
+        if (e) {
+            e.preventDefault();
+        }
+        logger.debug("📤 Form submission triggered");
+        fetchData();
+    }, [fetchData]);
+
+    // Debug logging - only in development mode
+    if (process.env.NODE_ENV === 'development') {
+        logger.debug("🔍 Profile component state:", {
+            isEditing,
+            loading,
+            isFetching,
+            hasFirstName: !!profileUpdate.first_name,
+            hasLastName: !!profileUpdate.last_name,
+            hasProfilePicture: !!profileUpdate.profile_picture,
+        });
+    }
 
     return (
         <Box sx={{ width: "100%", padding: "24px", backgroundColor: "#ffffff", minHeight: "100vh" }}>
+            {/* Loading overlay when fetching initial data */}
+            {isFetching && (
+                <Loading
+                    variant="overlay"
+                    size="large"
+                    message="Loading Profile Information"
+                    subMessage="Please wait while we fetch your profile data..."
+                    fullScreen={false}
+                />
+            )}
+            
+            {/* Snackbar for notifications (keeping for backward compatibility) */}
             <CustomSnackBar isOpen={isopen} message={snackMessage} type={snackStatus} />
             
             {/* Header Section */}
@@ -300,14 +578,9 @@ const Profile = () => {
                                 textAlign: "center"
                             }}>
                                 <Box sx={{ position: "relative", marginBottom: "16px" }}>
-                                    {console.log("🖼️ Avatar Debug:", {
-                                        hasProfilePicture: !!profileUpdate?.profile_picture,
-                                        profilePictureLength: profileUpdate?.profile_picture?.length,
-                                        profilePictureType: typeof profileUpdate?.profile_picture,
-                                        profilePictureStart: profileUpdate?.profile_picture?.substring(0, 50)
-                                    })}
+                                    {/* Profile Picture Avatar */}
                                     <Avatar
-                                        alt="Profile Picture"
+                                        alt={`${profileUpdate?.first_name || ""} ${profileUpdate?.last_name || ""} Profile Picture`}
                                         src={
                                             profileUpdate?.profile_picture
                                                 ? profileUpdate.profile_picture.startsWith('data:')
@@ -318,15 +591,25 @@ const Profile = () => {
                                         sx={{ 
                                             width: 180, 
                                             height: 180,
-                                            border: "4px solid #E72B4A",
+                                            border: "4px solid #E72B4A", // Primary brand color
                                             boxShadow: "0 8px 24px rgba(231, 43, 74, 0.2)",
                                             objectFit: "cover"
                                         }}
                                         onError={(e) => {
-                                            console.log("Avatar image failed to load, using fallback");
+                                            logger.warn("⚠️ Avatar image failed to load, using fallback");
                                             e.target.src = "/images/avatar.png";
                                         }}
                                     />
+                                    
+                                    {/* Debug logging in development mode only */}
+                                    {process.env.NODE_ENV === 'development' && profileUpdate?.profile_picture && (
+                                        logger.debug("🖼️ Avatar Debug:", {
+                                            hasProfilePicture: !!profileUpdate?.profile_picture,
+                                            profilePictureLength: profileUpdate?.profile_picture?.length,
+                                            profilePictureType: typeof profileUpdate?.profile_picture,
+                                            startsWithData: profileUpdate.profile_picture.startsWith('data:'),
+                                        })
+                                    )}
                                     {isEditing && (
                                         <Tooltip title="Change Profile Picture">
                                             <IconButton
@@ -627,7 +910,7 @@ const Profile = () => {
                         </Grid>
                     </Grid>
 
-                    {/* Action Buttons */}
+                    {/* Action Buttons - Save when editing */}
                     {isEditing && (
                         <Box sx={{ 
                             display: "flex", 
@@ -645,14 +928,22 @@ const Profile = () => {
                                     )
                                 }
                                 isTransaprent={false}
-                                isDisabled={loading}
+                                isDisabled={loading || isFetching}
                                 isElevated={false}
                                 handleClick={handleSubmit}
                                 buttonCss={{
                                     width: "180px",
                                     height: "48px",
                                     borderRadius: "8px",
-                                    fontWeight: 600
+                                    fontWeight: 600,
+                                    backgroundColor: "#E72B4A", // Primary brand color
+                                    color: "#ffffff",
+                                    "&:hover": {
+                                        backgroundColor: "#c62828",
+                                    },
+                                    "&:disabled": {
+                                        backgroundColor: "#939094", // Common color variant
+                                    },
                                 }}
                             />
                         </Box>
@@ -661,6 +952,11 @@ const Profile = () => {
             </Card>
         </Box>
     );
+};
+
+// PropTypes for component documentation
+Profile.propTypes = {
+    // This component doesn't accept props currently, but structure is ready
 };
 
 export default Profile;

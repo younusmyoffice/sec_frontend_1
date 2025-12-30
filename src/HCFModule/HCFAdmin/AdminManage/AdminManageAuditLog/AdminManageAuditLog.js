@@ -19,38 +19,113 @@ import { baseURL } from "../../../../constants/const";
 import { AuditCards } from "../../../DiagnosticCenter/DiagnosticManage/DiagnosticCenterAuditLog/AuditCards";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { formatDate } from "../../../../constants/const";
-import axiosInstance from "../../../../config/axiosInstance";
-import { doc } from "prettier";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 
 const getStatusLabel = (status) => {
     return status === 1 ? "Active" : "Inactive";
 };
 
+/**
+ * AdminManageAuditLog Component
+ * 
+ * Displays audit logs for HCF Admin
+ * Features:
+ * - Paginated audit log table
+ * - Loading skeletons during data fetch
+ * - Empty state handling
+ * - Sorted by timestamp (newest first)
+ * 
+ * @component
+ */
 const AdminManageAuditLog = () => {
-    React.useEffect(() => {
-        localStorage.setItem("activeComponent", "manage");
-        localStorage.setItem("path", "hcfadminauditlog");
-        document.getElementById("location-search-container").style.display = "none";
-    }, []);
-
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const hcf_id = localStorage.getItem('hcfadmin_suid'); // Example value; replace with your logic to get hcf_id
+    const hcf_id = localStorage.getItem('hcfadmin_suid');
 
+    /**
+     * Validate HCF admin ID from localStorage
+     * SECURITY: Ensures admin ID is present before making API calls
+     * 
+     * @returns {string|null} HCF admin ID or null if invalid
+     */
+    const validateHcfAdminId = useCallback(() => {
+        const adminId = localStorage.getItem("hcfadmin_suid");
+
+        if (!adminId) {
+            logger.warn("⚠️ HCF Admin ID not found in localStorage");
+            toastService.warning("HCF Admin ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ HCF Admin ID validated:", adminId);
+        return adminId;
+    }, []);
+
+    /**
+     * Initialize component - set localStorage and hide location search container
+     */
+    useEffect(() => {
+        logger.debug("🔵 AdminManageAuditLog component rendering");
+        localStorage.setItem("activeComponent", "manage");
+        localStorage.setItem("path", "hcfadminauditlog");
+        
+        const containerElement = document.getElementById("location-search-container");
+        if (containerElement) {
+            containerElement.style.display = "none";
+            logger.debug("✅ Location search container hidden");
+        }
+        
+        return () => {
+            if (containerElement) {
+                containerElement.style.display = "";
+                logger.debug("🔄 Location search container restored");
+            }
+        };
+    }, []);
+
+    /**
+     * Fetch audit logs
+     * Loads all audit logs for the HCF admin, sorted by timestamp (newest first)
+     * 
+     * @param {string} hcf_id - HCF admin ID
+     */
     const fetchData = async (hcf_id) => {
+        logger.debug("📋 Fetching audit logs");
+        setLoading(true);
+        
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axiosInstance(`sec/hcf/HcfAuditlogs/${hcf_id}`);
+            // Fixed: Added leading slash to endpoint
+            const response = await axiosInstance.get(`/sec/hcf/HcfAuditlogs/${adminId}`);
             const fetchedData = response?.data?.response || [];
 
-            // Sort the data by timestamp in descending order
+            // Sort the data by timestamp in descending order (newest first)
             const sortedData = fetchedData.sort((a, b) => new Date(b.time) - new Date(a.time));
     
-            setData(sortedData);        } catch (error) {
-            setError(error.response ? error.response.data : "An error occurred");
+            logger.debug("✅ Audit logs received", { count: sortedData.length });
+            setData(sortedData);
+            setError(null);
+        } catch (error) {
+            logger.error("❌ Error fetching audit logs:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to load audit logs. Please try again.";
+            setError(errorMessage);
+            toastService.error(errorMessage);
+            setData([]); // Ensure state is an array even on error
         } finally {
             setLoading(false);
         }
@@ -110,13 +185,34 @@ const AdminManageAuditLog = () => {
 
                 <Box
                     component={"div"}
-                    sx={{ position: "relative", top: "4em", width: "100%", height: "100%" }}
+                    sx={{ 
+                        flex: 1,
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        overflow: "hidden",
+                        marginTop: "4em",
+                    }}
                 >
                     {/* <Box sx={{ display: "flex", marginBottom: "1em" }}>
                         <SearchBox />
                     </Box> */}
 
-                    <TableContainer component={Paper} style={{ background: "white" }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <TableContainer 
+                        component={Paper} 
+                        style={{ 
+                            background: "white",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "auto", // Enable scrolling for table content
+                            maxHeight: "calc(100vh - 250px)", // Adjusted to account for navbar and spacing
+                            border: "1px solid #e72b4a", borderRadius: "10px", padding: "10px"
+                        }}
+                    >
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>

@@ -20,8 +20,9 @@ const CustomDatePicker = ({
     textcss = {},
     noSpacing = false,
     size = "medium",
-    variant = "outlined",
+    variant = "standard", // Changed default to "standard" for underline style
     fullWidth = true,
+    showLabel = true, // New prop to control label display
     ...props
 }) => {
     // Convert value to dayjs object if it's a Date or string
@@ -44,27 +45,31 @@ const CustomDatePicker = ({
             case "small":
                 return {
                     fontSize: "14px",
-                    padding: "8px 12px",
+                    padding: "8px 0",
                     minHeight: "40px"
                 };
             case "large":
                 return {
                     fontSize: "18px",
-                    padding: "16px 20px",
+                    padding: "16px 0",
                     minHeight: "56px"
                 };
             default:
                 return {
                     fontSize: "16px",
-                    padding: "12px 16px",
+                    padding: "12px 0",
                     minHeight: "48px"
                 };
         }
     };
 
+    // Use placeholder text - if no placeholder provided, use label text as placeholder
+    const displayPlaceholder = placeholder || label || "";
+
     return (
         <Box className={`custom-date-picker ${error ? 'error' : ''} ${disabled ? 'disabled' : ''}`}>
-            {label && (
+            {/* Label is optional and hidden by default for minimalist design */}
+            {showLabel && label && (
                 <Typography 
                     variant="body2" 
                     className="date-picker-label"
@@ -90,63 +95,66 @@ const CustomDatePicker = ({
                     value={dayjsValue}
                     onChange={handleChange}
                     disabled={disabled}
+                    openTo="day" // Open calendar when clicked
+                    disableOpenPicker={false} // CRITICAL: Ensure calendar can open
                     slotProps={{
                         textField: {
-                            variant: variant,
+                            variant: variant, // "standard" for underline style
                             fullWidth: fullWidth,
                             required: required,
                             error: error,
                             helperText: helperText,
-                            placeholder: placeholder,
+                            placeholder: displayPlaceholder, // Placeholder text appears inside field
                             size: size,
+                            InputLabelProps: {
+                                shrink: false, // Don't show floating label - use placeholder instead
+                            },
                             sx: {
                                 fontFamily: "Poppins, sans-serif",
                                 ...getSizeStyles(),
                                 marginBottom: noSpacing ? 0 : "1.5rem",
+                                position: "relative",
                                 
-                                // Modern input styling
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "12px",
-                                    backgroundColor: disabled ? "#f5f5f5" : "#ffffff",
-                                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                    border: `2px solid ${error ? "#d32f2f" : "#e0e0e0"}`,
-                                    
-                                    "&:hover": {
-                                        borderColor: error ? "#d32f2f" : "#ff6b9d",
-                                        boxShadow: `0 0 0 3px ${error ? "rgba(211, 47, 47, 0.1)" : "rgba(255, 107, 157, 0.1)"}`,
+                                // Standard/Underline variant styling (matches image design)
+                                "& .MuiInput-underline": {
+                                    "&:before": {
+                                        borderBottomColor: error ? "#d32f2f" : "#e0e0e0",
+                                        borderBottomWidth: "1px",
                                     },
-                                    
-                                    "&.Mui-focused": {
-                                        borderColor: error ? "#d32f2f" : "#ff6b9d",
-                                        boxShadow: `0 0 0 3px ${error ? "rgba(211, 47, 47, 0.2)" : "rgba(255, 107, 157, 0.2)"}`,
+                                    "&:hover:not(.Mui-disabled):before": {
+                                        borderBottomColor: error ? "#d32f2f" : "#E53935", // Red underline on hover
+                                        borderBottomWidth: "2px",
                                     },
-                                    
-                                    "&.Mui-disabled": {
-                                        backgroundColor: "#f5f5f5",
-                                        borderColor: "#e0e0e0",
-                                        cursor: "not-allowed",
+                                    "&:after": {
+                                        borderBottomColor: error ? "#d32f2f" : "#E53935", // Red underline when focused
+                                        borderBottomWidth: "2px",
                                     },
                                 },
                                 
                                 "& .MuiInputBase-input": {
                                     fontFamily: "Poppins, sans-serif",
-                                    fontWeight: 500,
-                                    color: "#2c3e50",
+                                    fontWeight: 400,
+                                    color: value ? "#2c3e50" : "#808080", // Gray when empty, darker when has value
+                                    textAlign: "left",
+                                    padding: "8px 32px 8px 0", // Space for calendar icon on right
+                                    fontSize: "16px",
+                                    cursor: "pointer", // Show pointer cursor to indicate clickable
                                     
                                     "&::placeholder": {
-                                        color: "#adb5bd",
+                                        color: "#808080", // Light gray placeholder (matches image)
                                         opacity: 1,
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontWeight: 400,
                                     },
                                 },
                                 
+                                // Make entire input area clickable to open calendar
+                                "& .MuiInputBase-root": {
+                                    cursor: "pointer", // Show pointer cursor
+                                },
+                                
                                 "& .MuiInputLabel-root": {
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontWeight: 500,
-                                    color: error ? "#d32f2f" : "#6c757d",
-                                    
-                                    "&.Mui-focused": {
-                                        color: error ? "#d32f2f" : "#ff6b9d",
-                                    },
+                                    display: "none", // Hide label - using placeholder instead
                                 },
                                 
                                 "& .MuiFormHelperText-root": {
@@ -157,26 +165,80 @@ const CustomDatePicker = ({
                                     color: error ? "#d32f2f" : "#6c757d",
                                 },
                                 
+                                // Calendar icon styling - ensure it's clickable
                                 "& .MuiInputAdornment-root": {
-                                    color: error ? "#d32f2f" : "#ff6b9d",
+                                    color: "#808080", // Light gray icon color (matches image)
+                                    paddingRight: "0",
+                                    pointerEvents: "auto", // CRITICAL: Make adornment clickable
                                     
-                                    "&:hover": {
-                                        color: error ? "#d32f2f" : "#ff8fab",
+                                    "& .MuiIconButton-root": {
+                                        color: "#808080", // Light gray calendar icon
+                                        padding: "4px",
+                                        pointerEvents: "auto", // Ensure button receives clicks
+                                        cursor: "pointer",
+                                        "&:hover": {
+                                            color: "#E53935", // Red on hover
+                                            backgroundColor: "transparent",
+                                        },
+                                        "& svg": {
+                                            fontSize: "20px",
+                                            pointerEvents: "none", // Icon doesn't need pointer events, button does
+                                        },
+                                    },
+                                    
+                                    "& .MuiSvgIcon-root": {
+                                        color: "#808080", // Light gray calendar icon
+                                        fontSize: "20px",
+                                        transition: "color 0.2s ease",
                                     },
                                 },
                                 
-                                "& .MuiSvgIcon-root": {
-                                    color: error ? "#d32f2f" : "#ff6b9d",
-                                    transition: "color 0.3s ease",
+                                // Outlined variant styling (fallback for outlined variant)
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: "12px",
+                                    backgroundColor: disabled ? "#f5f5f5" : "#ffffff",
+                                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                    border: `2px solid ${error ? "#d32f2f" : "#e0e0e0"}`,
                                     
                                     "&:hover": {
-                                        color: error ? "#d32f2f" : "#ff8fab",
+                                        borderColor: error ? "#d32f2f" : "#E53935",
+                                        boxShadow: `0 0 0 3px ${error ? "rgba(211, 47, 47, 0.1)" : "rgba(229, 57, 53, 0.1)"}`,
+                                    },
+                                    
+                                    "&.Mui-focused": {
+                                        borderColor: error ? "#d32f2f" : "#E53935",
+                                        boxShadow: `0 0 0 3px ${error ? "rgba(211, 47, 47, 0.2)" : "rgba(229, 57, 53, 0.2)"}`,
+                                    },
+                                    
+                                    "&.Mui-disabled": {
+                                        backgroundColor: "#f5f5f5",
+                                        borderColor: "#e0e0e0",
+                                        cursor: "not-allowed",
                                     },
                                 },
                                 
                                 ...textcss,
                             },
                         },
+                        openPickerButton: {
+                            sx: {
+                                color: "#808080", // Light gray icon color (matches image)
+                                padding: "4px",
+                                "&:hover": {
+                                    color: "#E53935", // Red on hover
+                                    backgroundColor: "transparent",
+                                },
+                                "& svg": {
+                                    fontSize: "20px",
+                                },
+                                // Ensure button is clickable
+                                pointerEvents: "auto",
+                                cursor: "pointer",
+                            },
+                        },
+                    }}
+                    slots={{
+                        openPickerIcon: CalendarToday, // Use CalendarToday icon
                     }}
                     {...props}
                 />
@@ -204,6 +266,7 @@ CustomDatePicker.propTypes = {
     size: PropTypes.oneOf(["small", "medium", "large"]),
     variant: PropTypes.oneOf(["standard", "outlined", "filled"]),
     fullWidth: PropTypes.bool,
+    showLabel: PropTypes.bool, // New prop to show/hide label above field
 };
 
 CustomDatePicker.defaultProps = {
@@ -218,8 +281,9 @@ CustomDatePicker.defaultProps = {
     textcss: {},
     noSpacing: false,
     size: "medium",
-    variant: "outlined",
+    variant: "standard", // Changed default to "standard" for underline style
     fullWidth: true,
+    showLabel: true, // Show label by default
 };
 
 export default CustomDatePicker;

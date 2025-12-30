@@ -14,10 +14,13 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import CustomCheckBox from "../../../../components/CustomCheckBox";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import "./clinicstaff.scss";
 import Docpic from "../../../../static/images/DrImages/image4.jpg";
 import { formatDate, currencysign } from "../../../../constants/const";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 const ClinicSalesActivities = () => {
     useEffect(() => {
@@ -31,13 +34,58 @@ const ClinicSalesActivities = () => {
     const [error, setError] = useState(null);
     const doctor_id = localStorage.getItem("clinic_suid");
 
+    /**
+     * Validate Clinic ID from localStorage
+     * SECURITY: Ensures clinic ID is present before making API calls
+     * 
+     * @returns {string|null} Clinic ID or null if invalid
+     */
+    const validateClinicId = useCallback(() => {
+        const clinicId = localStorage.getItem("clinic_suid");
+
+        if (!clinicId) {
+            logger.warn("⚠️ Clinic ID not found in localStorage");
+            toastService.warning("Clinic ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ Clinic ID validated:", clinicId);
+        return clinicId;
+    }, []);
+
+    /**
+     * Fetch clinic sales activities
+     * Loads all sales activities for the clinic
+     * 
+     * @param {string} doctor_id - Clinic ID
+     */
     const fetchData1 = async (doctor_id) => {
+        logger.debug("📋 Fetching clinic sales activities");
+        setLoading(true);
+        
+        const clinicId = validateClinicId();
+        if (!clinicId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axiosInstance.get(`/sec/hcf/${doctor_id}/clinicSaleActivity`);
-            setData1(response?.data?.response || []);
+            const response = await axiosInstance.get(`/sec/hcf/${clinicId}/clinicSaleActivity`);
+            const activities = response?.data?.response || [];
+            
+            logger.debug("✅ Clinic sales activities received", { count: activities.length });
+            setData1(activities);
+            setError(null);
         } catch (error) {
-            setError("Error fetching sales activities data.");
-            console.error(error);
+            logger.error("❌ Error fetching sales activities:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to load sales activities. Please try again.";
+            
+            setError(errorMessage);
+            toastService.error(errorMessage);
+            setData1([]);
         } finally {
             setLoading(false);
         }
@@ -161,9 +209,25 @@ const ClinicSalesActivities = () => {
                     width: "100%",
                     border: "1px solid #E6E1E5",
                     marginTop: "1rem",
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    overflow: "hidden",
                 }}
             >
-                <TableContainer style={{ overflowX: "auto" }}>
+                {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                <TableContainer 
+                    style={{ 
+                        overflowX: "auto",
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        overflowY: "auto", // Enable vertical scrolling
+                        maxHeight: "calc(100vh - 350px)", // Adjusted to account for navbar, checkboxes, and spacing
+                    }}
+                >
                     <Table sx={{ minWidth: 650 }} size="large">
                         <TableHead>
                             <TableRow>

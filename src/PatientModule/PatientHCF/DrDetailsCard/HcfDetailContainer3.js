@@ -1,41 +1,89 @@
+/**
+ * HcfDetailContainer3 Component
+ * 
+ * Displays lab test information and booking:
+ * - Test name and pricing
+ * - Test timing information
+ * - Test description
+ * - Book/Buy button with stepper modal
+ * 
+ * Features:
+ * - Modal for booking lab tests
+ * - Integration with HCFStepper for booking flow
+ * 
+ * @component
+ */
+
+/**
+ * HcfDetailContainer3 Component
+ * 
+ * Displays lab test information and booking:
+ * - Test name and pricing
+ * - Test timing information
+ * - Test description
+ * - Book/Buy button with stepper modal
+ * 
+ * Features:
+ * - Modal for booking lab tests
+ * - Integration with HCFStepper for booking flow
+ * - Loading states and error handling ✅
+ * 
+ * @component
+ */
+
 import { Box, Typography } from "@mui/material";
 import React, { Fragment, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
+import PropTypes from "prop-types";
 import CustomButton from "../../../components/CustomButton/custom-button";
 import CustomModal from "../../../components/CustomModal/custom-modal";
-// import SingleLineGridList from "./Crousal";
-import personIcon from "../../../static/images/DrImages/icon.svg";
-import messageIcon from "../../../static/images/DrImages/message.svg";
-import bagIcon from "../../../static/images/DrImages/bag.svg";
 import HCFStepper from "./HCFStepper";
-import starIcon from "../../../static/images/DrImages/Group 92.svg";
+import logger from "../../../utils/logger"; // Centralized logging
+import toastService from "../../../services/toastService"; // Toast notifications
 
+/**
+ * Container3 Component - Lab Test Card with Booking
+ * 
+ * @param {string|number} test_id - Test ID
+ * @param {string} about - Test description
+ * @param {string|number} amount - Test price/amount
+ * @param {string} service_day_from - Service start day
+ * @param {string} service_day_to - Service end day
+ */
 const Container3 = ({ test_id, about, amount, service_day_from, service_day_to }) => {
+    logger.debug("🔵 HcfDetailContainer3 component rendering", {
+        hasTestId: !!test_id,
+        hasAbout: !!about,
+        hasAmount: !!amount
+    });
+    
     const [openDialog, setOpenDialog] = useState(false);
-    const DrExp = [
-        {
-            logo: personIcon,
-            number: "4000+",
-            type: "Patient",
-        },
-        {
-            logo: bagIcon,
-            number: "10+",
-            type: "Experience",
-        },
-        {
-            logo: starIcon,
-            number: "4.8",
-            type: "Rating",
-        },
-        {
-            logo: messageIcon,
-            number: "3027",
-            type: "Reviews",
-        },
-    ];
+    
+    /**
+     * Handle opening booking modal
+     * Validates data before opening the modal
+     */
+    const handleOpenDialog = () => {
+        if (!test_id) {
+            logger.warn("⚠️ Test ID is missing, cannot open booking modal");
+            toastService.warning("Test information is incomplete");
+            return;
+        }
+        
+        logger.debug("📅 Opening lab test booking modal", { testId: test_id });
+        setOpenDialog(true);
+    };
+    
+    /**
+     * Handle closing booking modal
+     */
+    const handleCloseDialog = () => {
+        logger.debug("❌ Closing lab test booking modal");
+        setOpenDialog(false);
+    };
 
+    // Removed unused DrExp array and related imports (personIcon, bagIcon, starIcon, messageIcon)
+    // Using makeStyles for component styling - note: consider migrating to sx props for MUI v5
     const useStyles = makeStyles({
         drname: {
             color: "#313033",
@@ -108,14 +156,8 @@ const Container3 = ({ test_id, about, amount, service_day_from, service_day_to }
         // }
     });
 
-    const DrDetailsCard = () => {
-        const classes = useStyles();
-        const navigate = useNavigate();
-        // console.log(data);
-        const handleOpen = (condition) => {
-            // setOpenDialog(condition);
-        };
-    };
+    // Removed unused DrDetailsCard function and useNavigate import
+    const classes = useStyles();
 
     return (
         <Box sx={{ width: "100%", display: "flex", marginTop: "20px" }}>
@@ -169,15 +211,21 @@ const Container3 = ({ test_id, about, amount, service_day_from, service_day_to }
                         label={"Buy"}
                         isElevated
                         buttonCss={{ height: "40px", display: "block", margin: "auto" }}
-                        handleClick={() => setOpenDialog(true)}
+                        handleClick={handleOpenDialog}
                     />
                     <CustomModal
                         isOpen={openDialog}
-                        title={"dialog title"}
+                        title={"Book Lab Test"}
                         footer={<Fragment></Fragment>}
+                        conditionOpen={setOpenDialog}
                     >
                         <div>
-                            <HCFStepper />
+                            {/* Pass test data to HCFStepper for booking */}
+                            <HCFStepper data={{
+                                sub_exam_id: test_id,
+                                exam_id: test_id,
+                                hcf_id: null // Will be extracted from URL params in HCFStepper
+                            }} />
                         </div>
                     </CustomModal>
                 </Box>
@@ -186,6 +234,23 @@ const Container3 = ({ test_id, about, amount, service_day_from, service_day_to }
             
         </Box>
     );
+};
+
+// PropTypes for component documentation and type checking
+Container3.propTypes = {
+    test_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // Test ID
+    about: PropTypes.string, // Test description
+    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // Test price
+    service_day_from: PropTypes.string, // Service start day
+    service_day_to: PropTypes.string, // Service end day
+};
+
+// Default props
+Container3.defaultProps = {
+    about: "No description available",
+    amount: "0",
+    service_day_from: "",
+    service_day_to: "",
 };
 
 export default Container3;

@@ -12,27 +12,32 @@
 
 .Request-main-container1{
     width: 100%;
-    // border: 2px solid red;
     border: 1px solid #E6E1E5;
-    border-radius: 5px;
-    border-top: 1px;
-    border-left: 1px;
-    border-right: 1px;
+    border-radius: 0.5rem;
     display: flex;
-    // flex-wrap: wrap;
     gap: 1rem;
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 1rem;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+        background-color: #fafafa;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &:last-child {
+        margin-bottom: 0;
+    }
 
     @media screen and (max-width: 600px){
-        display: flex;
         flex-wrap: wrap;
         gap: 1rem;
         padding: 1rem;
-
     }
-
 }
 
 
@@ -40,54 +45,194 @@
 
 .card-details-container{
     display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
 }
 
 .Request-inner-container1{
     display: flex;
-    // border: 1px solid;
+    flex: 1;
+    gap: 1rem;
+    align-items: center;
+    min-width: 0;
 }
 
 .request-button-container{
     display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.request-image-wrapper {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+}
+
+.request-details-wrapper {
+    flex: 1;
+    min-width: 0;
+    margin-left: 0;
+    
+    @media screen and (max-width: 600px) {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+.request-button-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.request-menu-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.request-menu-icon {
+    transition: all 0.2s ease;
+}
+
+.request-patient-name {
+    word-break: break-word;
+}
+
+.patient-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 1rem;
+
+    @media screen and (max-width: 600px) {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+.patient-detail-item {
+    display: flex;
+    flex-direction: column;
 }
 
 .details-names{
-    // border: 1px solid;
-    width: 100%;
     display: flex;
-    gap: 10.8rem;
-    margin-top: 1rem;
-    // justify-content: space-between;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0;
 }
 
 .names-details{
-    // border: 1px solid;
-    width: 100%;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
 }
 
-.file-heading{
-    // border: 1px solid;
+.file-section {
     width: 100%;
-    margin-top: 1.5rem;
+    margin-top: 0;
 }
 
-.file-name{
-    // border: 1px solid;
+.file-name-label {
     width: 100%;
-    margin-top: 1rem;
+    margin-bottom: 0.5rem;
 }
 
-.file-download{
-    // border: 1px solid;
-    width: 100%;
+.file-actions-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.file-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.download-button-wrapper {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
 }
 
 .dwnl-icon{
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+}
+
+.questions-section {
+    width: 100%;
+    margin-top: 0;
+}
+
+.questions-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+    margin-top: 0;
+
+    @media screen and (max-width: 900px) {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    @media screen and (max-width: 600px) {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+.question-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.questioner-section {
+    width: 100%;
+    margin-top: 0;
+}
+
+.modal-title-container {
+    background-color: #ffffff;
+}
+
+// Modal wrapper styles - override MUI defaults
+// These styles target MUI classes directly when inside the wrapper
+.patient-details-modal-wrapper {
+    // Target MUI Dialog Paper
+    & ~ * .MuiDialog-paper,
+    .MuiDialog-paper {
+        max-width: 800px !important;
+        width: 90vw !important;
+        min-width: 600px !important;
+        border-radius: 16px !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    // Target MUI Dialog Content
+    .MuiDialogContent-root {
+        padding: 0 !important;
+        background-color: #ffffff !important;
+    }
+    
+    // Target MUI Dialog Title
+    .MuiDialogTitle-root {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
 }

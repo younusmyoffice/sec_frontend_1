@@ -19,84 +19,157 @@ import RecieveTable from "../../PatientManage/Reports/Received/ReceiveTable";
 import { PaginationCard } from "../../PatientAppointment/PatientCards";
 import CustomButton from "../../../components/CustomButton";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import axiosInstance from "../../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance"; // Handles access token automatically
 import NoAppointmentCard from "../../PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { Document, Page, pdfjs } from 'react-pdf';
 import CustomModal from "../../../components/CustomModal";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import logger from "../../../utils/logger"; // Centralized logging
+import toastService from "../../../services/toastService"; // Toast notifications
 
-// Configure PDF.js worker
+/**
+ * Configure PDF.js worker for rendering PDF files
+ * Uses CDN-hosted worker for compatibility
+ */
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
+/**
+ * Received Component
+ * 
+ * Displays patient's received medical reports
+ * Features:
+ * - Fetches completed reports from API
+ * - Table view with pagination
+ * - View PDF in modal
+ * - Download reports
+ * - Handles multiple file formats (base64, S3 URLs, local files)
+ * 
+ * @component
+ */
 const Received = () => {
+    logger.debug("🔵 Received component rendering");
     const [value, setValue] = useState([null, null]);
     const [tableData, setTableData] = useState([]);
     const [patientID, setPatientID] = useState(localStorage.getItem("patient_suid"));
     const [loading, setLoading] = useState(true);
 
-    const [page, setPage] = useState(0); // for pagination
-    const [rowsPerPage, setRowsPerPage] = useState(10); // rows per page
-    const [openModal, setOpenModal] = useState(false);
-    const [pdfUrl, setPdfUrl] = useState(null);
-    const [pdfLoading, setPdfLoading] = useState(false);
-    const [pdfError, setPdfError] = useState(null);
-    const [pdfFileType, setPdfFileType] = useState(null);
+    const [page, setPage] = useState(0); // Current page for pagination
+    const [rowsPerPage, setRowsPerPage] = useState(10); // Rows per page
+    const [openModal, setOpenModal] = useState(false); // PDF modal open state
+    const [pdfUrl, setPdfUrl] = useState(null); // PDF URL to display
+    const [pdfLoading, setPdfLoading] = useState(false); // PDF loading state
+    const [pdfError, setPdfError] = useState(null); // PDF error message
+    const [pdfFileType, setPdfFileType] = useState(null); // PDF file type (data-url, http-url, base64, local-file)
 
-    function getWeeksAfter(date, amount) {
-        return date ? date.add(amount, "week") : undefined;
-    }
-
-    const patient_id = localStorage.getItem("patient_suid");
-    const status = "completed";
+    /**
+     * Fetch patient's received reports from API
+     * Retrieves completed reports for the logged-in patient
+     * 
+     * @param {string} patient_id - Patient's SUID
+     * @param {string} status - Report status (e.g., "completed")
+     */
     const fetchData = async (patient_id, status) => {
+        logger.debug("📡 Fetching received reports", { patient_id, status });
         setLoading(true);
+        
         try {
-            console.log("Fetching reports for patient:", patient_id, "status:", status);
-            // Corrected URL string interpolation
+            // Validate patient ID
+            if (!patient_id) {
+                logger.error("❌ Patient ID not found");
+                toastService.error("Patient information not available");
+                setTableData([]);
+                return;
+            }
+            
             const response = await axiosInstance.get(
-                `/sec/patient/reportsReceived/${patient_id}/${status}`,
+                `/sec/patient/reportsReceived/${patient_id}/${status}`
             );
 
-            console.log("Reports received response:", response?.data);
-            console.log("Reports received data:", response?.data?.response);
-
-            // Handle the response
-            setTableData(response?.data?.response || []);
+            const reports = response?.data?.response || [];
+            
+            logger.debug("✅ Received reports fetched successfully", { 
+                count: reports.length 
+            });
+            
+            setTableData(reports);
+            
+            if (reports.length > 0) {
+                toastService.success(`${reports.length} reports loaded`);
+            } else {
+                logger.warn("⚠️ No reports found");
+            }
         } catch (error) {
-            console.error("Error fetching data:", error);
-            setTableData([]);
+            logger.error("❌ Failed to fetch received reports:", error);
+            toastService.error("Failed to load reports");
+            setTableData([]); // Fallback to empty array
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Initialize component and fetch data on mount
+     * Gets patient_id from localStorage
+     */
     useEffect(() => {
-        fetchData(patient_id, status); // Pass both patient_id and status to the function
+        logger.debug("🔵 Received component mounted");
+        
+        const patient_id = localStorage.getItem("patient_suid");
+        const status = "completed";
+        
+        if (patient_id) {
+            setPatientID(patient_id);
+            fetchData(patient_id, status);
+        } else {
+            logger.error("❌ Patient ID not found in localStorage");
+            toastService.error("Please login to view your reports");
+            setLoading(false);
+        }
     }, []);
 
+    /**
+     * Handle page change for pagination
+     * 
+     * @param {Event} event - Change event
+     * @param {number} newPage - New page number
+     */
     const handleChangePage = (event, newPage) => {
+        logger.debug("📄 Page changed", { newPage });
         setPage(newPage);
     };
 
+    /**
+     * Handle rows per page change for pagination
+     * Resets to page 0 when rows per page changes
+     * 
+     * @param {Event} event - Change event
+     */
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        logger.debug("📊 Rows per page changed", { newRowsPerPage });
+        setRowsPerPage(newRowsPerPage);
         setPage(0); // Reset to page 0 when rows per page is changed
     };
 
+    /**
+     * Get current page data for pagination
+     * Slices tableData based on current page and rows per page
+     */
     const currentData = tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    // const handleView = (reportPath) => {
-    //     if (reportPath) {
-    //         // Open the file in a new tab
-    //         window.open(reportPath, "_blank");
-    //     } else {
-    //         console.error("Report path is not available.");
-    //     }
-    // };
-    // Enhanced download handler for different file types
+
+    /**
+     * Handle report download
+     * Supports multiple file formats: base64, S3 URLs, local files
+     * 
+     * @param {string} reportPath - Path/URL to the report file
+     * @param {string} fileName - Name for the downloaded file
+     */
     const handleDownload = (reportPath, fileName = "report") => {
-        console.log("Download triggered - reportPath:", reportPath, "fileName:", fileName);
+        logger.debug("📥 Download triggered", { reportPath, fileName });
+        
         if (!reportPath) {
-            console.error("Report path is not available.");
+            logger.error("❌ Report path is not available");
+            toastService.error("Report not available for download");
             return;
         }
 
@@ -115,6 +188,7 @@ const Received = () => {
 
             // Handle S3 URLs or other HTTP URLs
             if (reportPath.startsWith('http')) {
+                logger.debug("🌐 Downloading from URL");
                 const link = document.createElement("a");
                 link.href = reportPath;
                 link.target = "_blank";
@@ -122,6 +196,7 @@ const Received = () => {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                toastService.success("Report downloaded successfully");
                 return;
             }
 
@@ -131,7 +206,7 @@ const Received = () => {
                 const filename = reportPath.split('/').pop();
                 const staticUrl = `http://localhost:3000/static/${filename}`;
                 
-                console.log("Converting local path to static URL:", staticUrl);
+                logger.debug("📁 Converting local path to static URL", { staticUrl });
                 
                 const link = document.createElement("a");
                 link.href = staticUrl;
@@ -140,11 +215,13 @@ const Received = () => {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                toastService.success("Report downloaded successfully");
                 return;
             }
 
             // Handle base64 strings without data URL prefix
             if (typeof reportPath === 'string' && reportPath.length > 100) {
+                logger.debug("📄 Downloading base64 PDF");
                 // Assume it's base64 encoded PDF
                 const dataUrl = `data:application/pdf;base64,${reportPath}`;
                 const link = document.createElement("a");
@@ -153,20 +230,31 @@ const Received = () => {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                toastService.success("Report downloaded successfully");
                 return;
             }
 
-            console.warn("Unknown file format:", reportPath);
+            logger.warn("⚠️ Unknown file format", { reportPath });
+            toastService.error("Unable to download this file format");
         } catch (error) {
-            console.error("Error downloading file:", error);
+            logger.error("❌ Error downloading file:", error);
+            toastService.error("Failed to download report");
         }
     };
 
-    // Enhanced view handler with better error handling
+    /**
+     * Handle report view in modal
+     * Opens PDF viewer modal with the report
+     * Supports multiple file formats
+     * 
+     * @param {string} reportPath - Path/URL to the report file
+     */
     const handleView = (reportPath) => {
-        console.log("View triggered - reportPath:", reportPath);
+        logger.debug("👁️ View triggered", { reportPath });
+        
         if (!reportPath) {
-            console.error("Report path is not available.");
+            logger.error("❌ Report path is not available");
+            toastService.error("Report not available for viewing");
             return;
         }
 
@@ -190,9 +278,10 @@ const Received = () => {
                 const filename = reportPath.split('/').pop();
                 urlToSet = `http://localhost:3000/static/${filename}`;
                 setPdfFileType('local-file');
-                console.log("Converting local path to static URL for viewing:", urlToSet);
+                logger.debug("📁 Converting local path for viewing", { urlToSet });
             } else if (typeof reportPath === 'string' && reportPath.length > 100) {
                 // Handle base64 strings without data URL prefix
+                logger.debug("📄 Converting base64 for viewing");
                 urlToSet = `data:application/pdf;base64,${reportPath}`;
                 setPdfFileType('base64');
             } else {
@@ -201,32 +290,65 @@ const Received = () => {
 
             setPdfUrl(urlToSet);
             setOpenModal(true);
+            toastService.success("Report opened");
         } catch (error) {
-            console.error("Error opening file:", error);
+            logger.error("❌ Error opening file:", error);
+            toastService.error("Failed to open report");
             setPdfError(error.message);
             setPdfLoading(false);
         }
     };
 
-    // Enhanced PDF loading handlers
+    /**
+     * Handle successful PDF document load
+     * Called when PDF is successfully rendered
+     * 
+     * @param {Object} param0 - Object containing numPages
+     * @param {number} param0.numPages - Number of pages in the PDF
+     */
     const onDocumentLoadSuccess = ({ numPages }) => {
         setPdfLoading(false);
         setPdfError(null);
-        console.log(`PDF loaded successfully: ${numPages} pages`);
+        logger.debug("✅ PDF loaded successfully", { numPages });
     };
 
+    /**
+     * Handle PDF loading errors
+     * Called when PDF fails to load or render
+     * 
+     * @param {Error} error - The error that occurred
+     */
     const onDocumentLoadError = (error) => {
-        console.error("PDF loading error:", error);
+        logger.error("❌ PDF loading error:", error);
         setPdfLoading(false);
         setPdfError("Failed to load PDF document");
+        toastService.error("Failed to load PDF");
     };
 
 
     return (
         <>
             <Box className="allfile-main-container">
-                <Box>
-                    <TableContainer component={Paper} style={{ background: "white" }}>
+                <Box sx={{ 
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    overflow: "hidden",
+                }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <TableContainer 
+                        component={Paper} 
+                        style={{ 
+                            background: "white",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "auto", // Enable scrolling for table content
+                            maxHeight: "calc(100vh - 200px)", // Adjusted to account for spacing
+                        }}
+                    >
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
@@ -263,14 +385,21 @@ const Received = () => {
                                         </TableRow>
                                     ))
                                 ) : currentData.length === 0 ? (
-                                    // Render "No Data Found" if tableData is empty
+                                    // Empty state - No reports found
                                     <NoAppointmentCard text_one={"No Data Found"} />
                                 ) : (
-                                    // Render actual data
+                                    // Render reports data with action buttons
                                     currentData.map((row) => {
-                                        console.log("Row data:", row);
-                                        console.log("Report path:", row.report_path);
-                                        console.log("Report name:", row.report_name);
+                                        // Log row data for debugging (development only)
+                                        if (process.env.NODE_ENV === 'development') {
+                                            logger.debug("📋 Rendering row", {
+                                                reportPath: row.report_path,
+                                                reportName: row.report_name,
+                                                hasDate: !!row?.date,
+                                                hasTime: !!row?.time
+                                            });
+                                        }
+                                        
                                         return (
                                         <TableRow
                                             key={row?.test_id || row?.BookingID || Math.random()}
@@ -290,8 +419,7 @@ const Received = () => {
                                             </TableCell>
 
                                             <TableCell align="right">
-                                                {`${row?.date?.split("T")[0] || "NA"} | ${row?.tbook_timeime?.split("T")[1]?.split(".")[0] || "NA"
-                                                    }`}
+                                                {`${row?.date?.split("T")[0] || "NA"} | ${row?.book_time?.split("T")[1]?.split(".")[0] || row?.time?.split("T")[1]?.split(".")[0] || "NA"}`}
                                             </TableCell>
                                             <TableCell align="right">
                                                 {row?.status || "NA"}

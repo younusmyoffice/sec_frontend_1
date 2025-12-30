@@ -63,19 +63,34 @@ console.log("this is audit log data",
     }, []);
 
     return (
-        <Box sx={{ display: "flex", width: "98%", height: "90%" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", width: "98%", height: "100%", overflow: "hidden" }}>
             <DoctorManageNavbar />
             <Box
                 sx={{
-                    position: "relative",
-                    top: "4em",
+                    flex: 1,
                     width: "100%",
                     display: "flex",
-                    height: "100%",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    overflow: "hidden",
+                    marginTop: "4em",
+                    paddingTop: "40px",
                 }}
             >
-                <Box sx={{ width: "100%", height: "100%" }}>
-                    <TableContainer component={Paper} style={{ background: "white" }}>
+                <Box sx={{ width: "100%", flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden", border: "2px solid #E72B4A", borderRadius: "10px" }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <TableContainer 
+                        component={Paper} 
+                        style={{ 
+                            background: "white",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "auto", // Enable scrolling for table content
+                            maxHeight: "calc(100vh - 250px)", // Adjusted to account for navbar and spacing
+                        }}
+                    >
                         <Table sx={{ minWidth: 1 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>

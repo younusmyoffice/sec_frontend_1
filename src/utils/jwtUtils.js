@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 
 /**
  * Decodes a JWT token and extracts user information
@@ -115,15 +116,25 @@ import axiosInstance from '../config/axiosInstance';
 
 export const refreshToken = async () => {
     try {
-        // Fallback: if no refresh_token, use access_token for minimal refresh flow
-        const bearer = localStorage.getItem('refresh_token') || localStorage.getItem('access_token');
-        if (!bearer) {
-            console.warn('No token available for refresh');
+        // FIXED: Check if token is actually expired before attempting refresh
+        const currentToken = localStorage.getItem('access_token');
+        if (!currentToken) {
+            console.warn('No access token available for refresh');
             return false;
         }
 
-        const response = await axiosInstance.post(
-            '/sec/auth/refresh',
+        // Decode current token to check expiry
+        const userInfo = decodeJWT(currentToken);
+        if (userInfo.isExpired) {
+            console.log('Token is expired, attempting refresh...');
+        }
+
+        // Fallback: if no refresh_token, use access_token for minimal refresh flow
+        const bearer = localStorage.getItem('refresh_token') || currentToken;
+        
+        // Use axios directly to avoid the interceptor loop
+        const response = await axios.post(
+            'http://localhost:3000/sec/auth/refresh',
             null,
             {
                 headers: {
@@ -146,7 +157,7 @@ export const refreshToken = async () => {
         console.error('Token refresh failed: no access_token in response');
         return false;
     } catch (error) {
-        console.error('Error refreshing token:', error);
+        console.error('Error refreshing token:', error?.response?.data || error.message);
         return false;
     }
 };

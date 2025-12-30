@@ -1,334 +1,396 @@
-.Stepper{
-  display: flex;
-  // border: 1px solid;
-  justify-content: center;
-  margin-top: 3rem;
-  }
-  
-  .title1{
-      margin-top: -1rem;
-  }
-  
-  .Srvice-details{
-      display: flex;
-      position: relative;
-      flex-direction: column;
-      width: 100%;
-      // justify-content: space-between;
-      // gap: -16rem;
-      // border: 1px solid;
-  }
-  
-  .nxt-btn{
-      // border: 1px solid;
-      width: 100%;
-      margin-top: -27rem;
-  }
-  
-  .back-btn{
-      margin-top: 2.5rem;
-      margin-left: -7em;
-  }
-  
-  .title2{
-      // margin-top: 1rem;
-      display: flex;
-      // border: 1px solid;
-      width: 100%;
-      justify-content: center;
-      margin-top: -1.5rem;
-  }
-  
-  .step-back{
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9rem;
-      // border: 1px solid;
-      width: 100%;
-  }
-  
-#app{
-height: 100vh;
-}
-  
-.mainBox1{
- width: 100%;
- height: 68vh;
- display: flex;
- flex-direction: column;
- align-items: center
-//    border: 1px solid;
-}   
+/**
+ * ProfileDoctorComplete Component Styles
+ * 
+ * Styles for the doctor profile completion page.
+ * Features:
+ * - Multi-step form layout with stepper (6 steps)
+ * - Responsive design
+ * - Form field styling
+ * - Button and navigation styling
+ * - Professional credentials section styling
+ * 
+ * Color Scheme:
+ * - Primary: #e72b4a (brand red/pink)
+ * - Backgrounds: #f5f5f5, #ffffff
+ * - Text: #313033, #000000
+ */
 
-.heading1{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content:center;
-  margin-top: 3rem;
+// ============================================
+// STEPPER (Multi-Step Form Progress Indicator)
+// ============================================
+
+// Stepper container - centered horizontally
+.Stepper {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
 }
 
-.Text-fields{
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  margin-top: 1rem;
+// ============================================
+// NAVIGATION & BUTTONS
+// ============================================
+
+// Step title container
+.title1 {
+    margin-top: -1rem;
 }
 
-.Text-fieldscss{
-display: flex;
-justify-content: center;
+// Service details container (not currently used)
+.Srvice-details {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    width: 100%;
 }
 
-
-.reg-date{
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  margin-top: 1rem;
+// Next button container - negative margin for positioning
+.nxt-btn {
+    width: 100%;
+    margin-top: -27rem;
 }
 
-
-.heading{
-  width: 100%;
-  display: flex;
-  justify-content:center;
-  margin-top: 3rem;
+// Back button container - left aligned
+.back-btn {
+    margin-top: 2.5rem;
+    margin-left: -7em;
 }
 
-.Text-fields1{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content:center;
-  gap: 1.5rem;
-  margin-top: 1rem;
+// Title 2 container - centered
+.title2 {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: -1.5rem;
 }
 
-.other-fields1{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content:center;
-  margin-top: 1rem;
-  
+// Step and back button wrapper - horizontal layout
+.step-back {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9rem; // Spacing between back button and stepper
+    width: 100%;
 }
 
-.Date-of-birth1{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content:start;
-  margin-top: 1rem;
+// ============================================
+// MAIN LAYOUT
+// ============================================
+
+// App container - full viewport height
+#app {
+    height: 100vh;
 }
 
-.gender1{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content:center;
-  margin-top: 1rem;
-}
-.Degree{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.Doc-heading{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.reg-date1{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content: start;
-  margin-top: 3%;
-}
-
-.indian-reg-no{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 2%;
-}
-
-.Registration-date{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content: start;
-  margin-top: 3%;
-}
-
-.skip-btn{
-  display: flex;
-  // border: 1px solid;
-  width: 100%;
-  justify-content: center;
-  margin-top: 0.5rem;
-
-}
-
-.sve-btn{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.imge-cont{
-  // border: 1px solid;
-  width: 100%;
-  height: 85vh;
-}
-
-.card-cont1{
-  // border: 1px solid;
-  width: 100%;
-  // height: 70vh;
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.done-btn1{
-  margin-top: 1rem;
-}
-
-.gender2{
-  // border: 1px solid;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  // margin-top: 1.5rem;
-}
-
-.FrameBox1{
-  width: 100%;
-  // border: 1px solid;
-  padding: 1rem;
-}
-
-.undraw-img2{
-
-}
-
-@media only screen and (max-width: 768px) {
+// Main content box - 68% viewport height with centered content
 .mainBox1 {
-  text-align: center;
-}
-
-.heading1,
-.Doc-heading,
-.heading {
-  margin-bottom: 20px;
-}
-
-.Text-fields1 .MuiTextField-root,
-.other-fields1 .MuiTextField-root,
-.Date-of-birth1 .MuiTextField-root,
-.Date-of-birth1 .MuiFormControl-root,
-.Degree .MuiTextField-root,
-.gender1 .MuiTextField-root,
-.Text-fields .MuiTextField-root,
-.reg-date .MuiTextField-root,
-.reg-date1 .MuiFormControl-root,
-.indian-reg-no .MuiTextField-root,
-.Registration-date .MuiTextField-root,
-.Registration-date .MuiFormControl-root,
-.last-image .MuiBox-root {
-  width: 100%;
-  max-width: 360px;
-  margin-bottom: 20px;
-}
-
-.Date-of-birth1 .MuiFormControl-root,
-.reg-date1 .MuiFormControl-root,
-.Registration-date .MuiFormControl-root {
-  width: 100%;
-  max-width: 360px;
-}
-
-// Ensure DatePicker components are properly styled
-.Date-of-birth1 .MuiDatePicker-root,
-.reg-date1 .MuiDatePicker-root,
-.Registration-date .MuiDatePicker-root {
-  width: 100%;
-}
-
-.Date-of-birth1 .MuiDatePicker-root .MuiTextField-root,
-.reg-date1 .MuiDatePicker-root .MuiTextField-root,
-.Registration-date .MuiDatePicker-root .MuiTextField-root {
-  width: 100%;
-  max-width: 360px;
-}
-
-.stepper {
-  width: 100%;
-}
-
-.sve-btn .CustomButton-root,
-.skip-btn .CustomButton-root
- {
-  width: 100%;
-  max-width: 360px;
-}
-
-.FrameBox1 img {
-  width: 100%;
-  height: auto;
-}
-
-.imge-cont .card1 {
-  text-align: center;
-}
-
-.back-btn .MuiButton-root{
-width: 100%;
-margin-left: 4rem;
-}
-}
-
-@media only screen and (max-width: 768px) {
-  .card-cont1 {
+    width: 100%;
+    height: 68vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-
-  .last-image {
-    margin-bottom: 20px;
-  }
-
-  .greetings1,
-  .note1 {
-    text-align: center;
-    margin-bottom: 15px;
-  }
-
-  .done-btn1 {
-    width: 100%;
-    max-width: 270px;
-  }
 }
 
+// ============================================
+// FORM HEADINGS & SECTIONS
+// ============================================
+
+// Primary heading (Step 1)
+.heading1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+// Doctor heading (Step 2)
+.Doc-heading {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+// Secondary heading
+.heading {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+// ============================================
+// FORM FIELD LAYOUTS
+// ============================================
+
+// Text field containers - centered layout
+.Text-fields {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.Text-fieldscss {
+    display: flex;
+    justify-content: center;
+}
+
+.Text-fields1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem; // Spacing between multiple fields
+    margin-top: 1rem;
+}
+
+.other-fields1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+// Date of birth field container
+.Date-of-birth1 {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    margin-top: 1rem;
+}
+
+// Gender selection field container
+.gender1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+// Additional field containers
+.Degree {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.reg-date {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.reg-date1 {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    margin-top: 3%;
+}
+
+.indian-reg-no {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2%;
+}
+
+.Registration-date {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    margin-top: 3%;
+}
+
+// ============================================
+// BUTTON LAYOUTS
+// ============================================
+
+// Skip button container - centered
+.skip-btn {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+// Save button container - centered
+.sve-btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+// Done button container
+.done-btn1 {
+    margin-top: 1rem;
+}
+
+// ============================================
+// IMAGE & CARD CONTAINERS
+// ============================================
+
+// Image container - 85% viewport height
+.imge-cont {
+    width: 100%;
+    height: 85vh;
+}
+
+// Card container - centered
+.card-cont1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+// Frame/image box container
+.FrameBox1 {
+    width: 100%;
+    padding: 1rem;
+}
+
+// Secondary gender container
+.gender2 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+// Undraw illustration container
+.undraw-img2 {
+    // Styles for undraw illustration (if needed)
+}
+
+// ============================================
+// RESPONSIVE DESIGN (Mobile Breakpoints)
+// ============================================
+
+// Mobile and tablet styling (max-width: 768px)
+@media only screen and (max-width: 768px) {
+    // Main content box - center aligned text
+    .mainBox1 {
+        text-align: center;
+    }
+
+    // Headings - bottom margin for spacing
+    .heading1,
+    .Doc-heading,
+    .heading {
+        margin-bottom: 20px;
+    }
+
+    // All form fields - responsive width with max-width
+    .Text-fields1 .MuiTextField-root,
+    .other-fields1 .MuiTextField-root,
+    .Date-of-birth1 .MuiTextField-root,
+    .Date-of-birth1 .MuiFormControl-root,
+    .Degree .MuiTextField-root,
+    .gender1 .MuiTextField-root,
+    .Text-fields .MuiTextField-root,
+    .reg-date .MuiTextField-root,
+    .reg-date1 .MuiFormControl-root,
+    .indian-reg-no .MuiTextField-root,
+    .Registration-date .MuiTextField-root,
+    .Registration-date .MuiFormControl-root,
+    .last-image .MuiBox-root {
+        width: 100%;
+        max-width: 360px;
+        margin-bottom: 20px;
+    }
+
+    // Date picker fields - responsive width
+    .Date-of-birth1 .MuiFormControl-root,
+    .reg-date1 .MuiFormControl-root,
+    .Registration-date .MuiFormControl-root {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    // DatePicker components - proper styling
+    .Date-of-birth1 .MuiDatePicker-root,
+    .reg-date1 .MuiDatePicker-root,
+    .Registration-date .MuiDatePicker-root {
+        width: 100%;
+    }
+
+    .Date-of-birth1 .MuiDatePicker-root .MuiTextField-root,
+    .reg-date1 .MuiDatePicker-root .MuiTextField-root,
+    .Registration-date .MuiDatePicker-root .MuiTextField-root {
+        width: 100%;
+        max-width: 360px;
+    }
+
+    // Stepper - full width
+    .stepper {
+        width: 100%;
+    }
+
+    // Buttons - responsive width
+    .sve-btn .CustomButton-root,
+    .skip-btn .CustomButton-root {
+        width: 100%;
+        max-width: 360px;
+    }
+
+    // Images - responsive
+    .FrameBox1 img {
+        width: 100%;
+        height: auto;
+    }
+
+    .imge-cont .card1 {
+        text-align: center;
+    }
+
+    // Back button - responsive positioning
+    .back-btn .MuiButton-root {
+        width: 100%;
+        margin-left: 4rem;
+    }
+}
+
+// Additional mobile styling
+@media only screen and (max-width: 768px) {
+    // Card container - column layout
+    .card-cont1 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    // Last image - spacing
+    .last-image {
+        margin-bottom: 20px;
+    }
+
+    // Greetings and notes - centered text
+    .greetings1,
+    .note1 {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    // Done button - max width
+    .done-btn1 {
+        width: 100%;
+        max-width: 270px;
+    }
+}
+
+// ============================================
+// NUMBER INPUT STYLING
+// ============================================
+
+// Remove number input spinners in webkit browsers
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    appearance: none; // Standard property for compatibility
+    margin: 0;
 }
 
-/* Firefox */
+// Number input styling for Firefox
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }

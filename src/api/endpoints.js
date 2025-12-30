@@ -137,6 +137,7 @@ export const API_ENDPOINTS = {
   // Master Data Endpoints
   MASTER_DATA: {
     COUNTRIES: `${API_BASE}/sec/countries`,
+    COUNTRIES_CODES:`${API_BASE}/sec/countries/codes`,
     DEPARTMENTS: `${API_BASE}/sec/departments`,
   },
 };

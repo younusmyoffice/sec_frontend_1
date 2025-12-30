@@ -1,3 +1,19 @@
+/**
+ * ListingDetails Component
+ * 
+ * Step 1 of the listing creation flow: Allows doctors to input basic listing information
+ * including listing name, working days, working hours, and description.
+ * 
+ * Features:
+ * - Form validation (all fields required)
+ * - Date range picker for working days (max 4 weeks from start)
+ * - Time range picker for working hours
+ * - Auto-save to localStorage
+ * - Navigation to next step (Add Plans) on success
+ * 
+ * @component
+ */
+
 import React, { useState } from "react";
 import "./listingdetails.scss";
 import { NavLink } from "react-router-dom";
@@ -12,122 +28,249 @@ import CustomTextField from "../../../../components/CustomTextField";
 import CustomButton from "../../../../components/CustomButton/custom-button";
 import axiosInstance from "../../../../config/axiosInstance";
 import CustomSnackBar from "../../../../components/CustomSnackBar/custom-sack-bar";
+import logger from "../../../../utils/logger";
+import toastService from "../../../../services/toastService";
 
+/**
+ * Helper function to calculate date after specified weeks
+ * Used to set max date limit for date range picker (4 weeks from start date)
+ * 
+ * @param {Date} date - Start date
+ * @param {number} amount - Number of weeks to add
+ * @returns {Date|undefined} Date after specified weeks or undefined if no date provided
+ */
 function getWeeksAfter(date, amount) {
     return date ? date.add(amount, "week") : undefined;
 }
 
 const ListingDetails = () => {
+    const navigate = useNavigate();
+
+    // Initialize component state - set active component in localStorage for navigation tracking
     React.useEffect(() => {
         localStorage.setItem("activeComponent", "listing");
         localStorage.setItem("path", "listingdetails");
+        logger.debug("🔵 ListingDetails component initialized");
     }, []);
+
+    // Textarea input state - tracks the "About" field input value
     const [inputValue, setInputValue] = useState("");
+    
+    // Typing indicator state - shows visual feedback when user is typing in textarea
     const [isTyping, setIsTyping] = useState(false);
+    
+    // Date range picker state - stores selected date range [startDate, endDate]
     const [value, setValue] = useState([null, null]);
-    const [message , setMessage] = useState("");
-    const [isopen , setIsopen] = useState(false)
+    
+    // Snackbar message state - stores success/error message for user feedback
+    const [message, setMessage] = useState("");
+    
+    // Snackbar visibility state - controls whether snackbar is displayed
+    const [isopen, setIsopen] = useState(false);
+    
+    // Form validation state - tracks if all required fields are filled
+    const [isFieldsFilled, setIsFieldsFilled] = useState(false);
+    
+    // Form data state - stores all listing details to be sent to API
+    // Note: is_active: 0 means draft mode (not yet published)
     const [data, setData] = useState({
-        doctor_id: localStorage.getItem('doctor_suid'),
-        listing_name: null,
-        working_days_start: null,
-        working_days_end: null,
-        working_time_start: null,
-        working_time_end: null,
-        about: null,
-        is_active: 0
+        doctor_id: localStorage.getItem('doctor_suid'), // Current doctor's ID from localStorage
+        listing_name: null,                              // Name/title of the listing
+        working_days_start: null,                        // Start date of working days (YYYY-MM-DD)
+        working_days_end: null,                          // End date of working days (YYYY-MM-DD)
+        working_time_start: null,                        // Start time of working hours (HH:mm)
+        working_time_end: null,                          // End time of working hours (HH:mm)
+        about: null,                                      // Description/about section content
+        is_active: 0                                      // 0 = draft, 1 = active/published
     });
 
-    // For text Area function ---
+    /**
+     * Handle textarea change event
+     * Updates input value, sets typing indicator, and syncs with form data state
+     * 
+     * @param {Event} event - Change event from textarea
+     */
     const handleChange = (event) => {
-        setInputValue(event.target.value);
-        console.log(event.target.value)
-        setIsTyping(true); // Set isTyping to true when typing
-        setData({...data , about : event?.target?.value})
+        const newValue = event.target.value;
+        setInputValue(newValue);
+        setIsTyping(true); // Visual indicator: green border while typing
+        setData({...data, about: newValue}); // Sync with form data
     };
 
+    /**
+     * Handle textarea blur event
+     * Removes typing indicator when user leaves the textarea field
+     */
     const handleBlur = () => {
-        setIsTyping(false); // Set isTyping to false when blur
+        setIsTyping(false); // Remove visual indicator when not typing
     };
 
-    //   For text area functions ends -----
-
+    /**
+     * Submit form data to API
+     * Creates a new listing and navigates to next step (Add Plans) on success
+     * 
+     * API Endpoint: POST /sec/createUpdatedoctorlisting/listing
+     * 
+     * Flow:
+     * 1. Validate form data
+     * 2. Send POST request with listing details
+     * 3. Store listing_id in localStorage for subsequent steps
+     * 4. Show success message
+     * 5. Navigate to Add Plans step after 2.5 seconds
+     */
     const fetchData = async () => {
-        setIsopen(false);
+        setIsopen(false); // Close any existing snackbar
+        logger.debug("🔵 Submitting listing details:", data);
+        
         try {
-            const response = await axiosInstance.post("/sec/createUpdatedoctorlisting/listing",JSON.stringify(data));
-            // console.log("Listing ID : " , response?.data?.response?.docListingCreate?.doctor_list_id);
-            localStorage.setItem("listing_id" , response?.data?.response?.docListingCreate?.doctor_list_id);
-            setMessage(response?.data?.response?.message)
-            if(response?.data?.response === "Listing Already Exists"){
-                alert(response?.data?.response);
-                setMessage(response?.data?.response)
-                setIsopen(true)
-            }else{
+            // Send listing data to backend API
+            const response = await axiosInstance.post(
+                "/sec/createUpdatedoctorlisting/listing",
+                JSON.stringify(data)
+            );
+            
+            // Store listing ID in localStorage for next steps (Add Plans, Questions, Terms)
+            const listingId = response?.data?.response?.docListingCreate?.doctor_list_id;
+            if (listingId) {
+                localStorage.setItem("listing_id", listingId);
+                logger.debug("✅ Listing ID stored:", listingId);
+            }
+            
+            const responseMessage = response?.data?.response?.message || 
+                                  response?.data?.response ||
+                                  "Listing created successfully";
+            
+            // Handle case where listing already exists
+            if (responseMessage === "Listing Already Exists") {
+                logger.warn("⚠️ Listing already exists");
+                toastService.warn("A listing with this name already exists");
+                setMessage(responseMessage);
                 setIsopen(true);
-                setTimeout( () => {
-                    navigate("/doctordashboard/doctorListing/addplans", { replace: true });
-                } , 2500 )
+            } else {
+                // Success case: show message and navigate to next step
+                logger.info("✅ Listing created successfully:", responseMessage);
+                toastService.success(responseMessage);
+                setMessage(responseMessage);
+                setIsopen(true);
+                
+                // Navigate to Add Plans step after 2.5 seconds
+                setTimeout(() => {
+                    navigate("/doctorDashboard/doctorListing/addplans", { replace: true });
+                }, 2500);
             }
         } catch (error) {
-            alert("Fill the details properly", error);
-            console.log(error.response);
+            logger.error("❌ Error creating listing:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            // Extract user-friendly error message
+            const errorMessage = error?.response?.data?.message || 
+                               error?.response?.data?.error ||
+                               error?.message ||
+                               "Failed to create listing. Please fill all details properly and try again.";
+            
+            toastService.error(errorMessage);
+            setMessage(errorMessage);
+            setIsopen(true);
         }
     };
 
-    const navigate = useNavigate();
-    const [isFieldsFilled, setIsFieldsFilled] = useState(false);
-
+    /**
+     * Handle listing name input change
+     * Updates form data and validates fields when listing name changes
+     * 
+     * @param {Event} event - Input change event
+     */
     const handleInputChange = (event) => {
-        const copy = { ...data, listing_name: event.target.value };
-        setData(copy);
-        checkFields(copy);
+        const updatedData = { ...data, listing_name: event.target.value };
+        setData(updatedData);
+        checkFields(updatedData); // Validate all fields after update
     };
 
+    /**
+     * Handle date range picker change
+     * Converts dayjs date objects to YYYY-MM-DD format for API
+     * 
+     * @param {Array} newValue - Array with [startDate, endDate] from dayjs DateRangePicker
+     */
     const handleDateRangeChange = (newValue) => {
-        console.log("Changing the data")
-        setData({
+        logger.debug("🔵 Date range changed:", newValue);
+        
+        // Format dates: Convert dayjs format ($y, $M, $D) to YYYY-MM-DD
+        // Note: $M is 0-indexed (0-11), so add 1 for month (1-12)
+        const updatedData = {
             ...data,
-            working_days_start: `${newValue[0]?.$y}-${newValue[0]?.$M + 1}-${newValue[0]?.$D}`,
-            working_days_end: `${newValue[1]?.$y}-${newValue[1]?.$M + 1}-${newValue[1]?.$D}`
-        });
-        // checkFields(data);
+            working_days_start: `${newValue[0]?.$y}-${String(newValue[0]?.$M + 1).padStart(2, '0')}-${String(newValue[0]?.$D).padStart(2, '0')}`,
+            working_days_end: `${newValue[1]?.$y}-${String(newValue[1]?.$M + 1).padStart(2, '0')}-${String(newValue[1]?.$D).padStart(2, '0')}`
+        };
+        setData(updatedData);
+        checkFields(updatedData); // Re-validate after date change
     };
 
+    /**
+     * Handle time range picker change
+     * Converts time objects to HH:mm format for API
+     * 
+     * @param {Array} newValue - Array with [startTime, endTime] from time picker
+     */
     const handleTimeRangeChange = (newValue) => {
-        setData({
+        logger.debug("🔵 Time range changed:", newValue);
+        
+        // Format times: Convert to HH:mm format (24-hour format)
+        // $H = hours (0-23), $m = minutes (0-59)
+        const updatedData = {
             ...data,
-            working_time_start: `${newValue[0]?.$H}:${newValue[0]?.$m}`,
-            working_time_end: `${newValue[1]?.$H}:${newValue[1]?.$m}`,
-        });
-        checkFields(data);
+            working_time_start: `${String(newValue[0]?.$H).padStart(2, '0')}:${String(newValue[0]?.$m).padStart(2, '0')}`,
+            working_time_end: `${String(newValue[1]?.$H).padStart(2, '0')}:${String(newValue[1]?.$m).padStart(2, '0')}`,
+        };
+        setData(updatedData);
+        checkFields(updatedData); // Re-validate after time change
     };
 
+    /**
+     * Validate if all required form fields are filled
+     * Required fields:
+     * - listing_name (listing name)
+     * - working_days_start (start date)
+     * - working_days_end (end date)
+     * - working_time_start (start time)
+     * - working_time_end (end time)
+     * 
+     * Note: "about" field is optional, not required for validation
+     * 
+     * @param {Object} formData - Current form data object
+     */
     const checkFields = (formData) => {
-        // Check if all required fields are filled
-        const isFilled =
-            formData.listing_name &&
-            formData.working_days_start &&
-            formData.working_days_end &&
-            formData.working_time_start &&
-            formData.working_time_end;
+        // Check if all required fields have values (truthy check)
+        const isFilled = 
+            formData.listing_name &&           // Listing name must be provided
+            formData.working_days_start &&    // Start date must be selected
+            formData.working_days_end &&      // End date must be selected
+            formData.working_time_start &&    // Start time must be selected
+            formData.working_time_end;        // End time must be selected
 
-        // Update the state variable
+        // Update validation state (enables/disables Submit/Next buttons)
         setIsFieldsFilled(isFilled);
+        
+        logger.debug(isFilled ? "✅ All required fields filled" : "⚠️ Missing required fields");
     };
 
     return (
         <>
+            {/* Success/Error notification snackbar */}
             <CustomSnackBar type={"success"} isOpen={isopen} message={message} />
+            
+            {/* Step navigation tabs - Shows current progress in listing creation flow */}
             <nav className="NavBar-Box-one">
-                <NavLink to={"/doctordashboard/doctorListing/listingdetails"}>
+                <NavLink to={"/doctorDashboard/doctorListing/listingdetails"}>
                     Listing Details
                 </NavLink>
-                <NavLink to={"/doctordashboard/doctorListing/addplans"}>Add Plans</NavLink>
-                <NavLink to={"/doctordashboard/doctorListing/addquestioner"}>
+                <NavLink to={"/doctorDashboard/doctorListing/addplans"}>
+                    Add Plans
+                </NavLink>
+                <NavLink to={"/doctorDashboard/doctorListing/addquestioner"}>
                     Add Questioner
                 </NavLink>
-                <NavLink to={"/doctordashboard/doctorListing/termandcondition"}>
+                <NavLink to={"/doctorDashboard/doctorListing/termandcondition"}>
                     Term & Conditions
                 </NavLink>
             </nav>
@@ -208,20 +351,23 @@ const ListingDetails = () => {
                         alignItems: "start",
                         flexWrap: "wrap",
                         gap: "2.5rem",
+                        border: "1px solid #E72B4A",
                     }}
                 >
+                    {/* Form Section 1: Listing Name Input */}
                     <div
                         className="form-container"
                         style={{
                             width: "35%",
                             minWidth: "300px",
+                         
                         }}
                     >
                         <Typography
                             style={{
                                 fontfamily: "Poppins",
-                                fontsize: "16px",
-                                fontstyle: "normal",
+                                fontsize: "10px",
+                                fontstˀyle: "normal",
                                 fontweight: "500",
                                 lineheight: "30px",
                                 width: "max-content",
@@ -229,6 +375,7 @@ const ListingDetails = () => {
                         >
                             Add Details
                         </Typography>
+                        {/* Listing Name Input Field - Required field */}
                         <div>
                             <CustomTextField
                                 helperText={""}
@@ -236,8 +383,9 @@ const ListingDetails = () => {
                                 defaultValue={data?.listing_name}
                                 onInput={(event) => {
                                     handleInputChange(event);
-                                    const Copy = { ...data, listing_name: event.target.value };
-                                    setData(Copy);
+                                    // Update form data with new listing name
+                                    const updatedData = { ...data, listing_name: event.target.value };
+                                    setData(updatedData);
                                 }}
                                 textcss={{
                                     width: "100%",
@@ -250,6 +398,7 @@ const ListingDetails = () => {
                         </div>
                     </div>
 
+                    {/* Form Section 2: Working Days Date Range Picker */}
                     <div
                         className="form-container"
                         style={{
@@ -260,7 +409,7 @@ const ListingDetails = () => {
                         <Typography
                             style={{
                                 fontfamily: "Poppins",
-                                fontsize: "16px",
+                                fontsize: "10px",
                                 fontstyle: "normal",
                                 fontweight: "500",
                                 width: "max-content",
@@ -269,23 +418,20 @@ const ListingDetails = () => {
                         >
                             Working Days
                         </Typography>
+                        {/* Date Range Picker: Select start and end dates for working period */}
+                        {/* Constraints: 
+                            - disablePast: Cannot select past dates
+                            - maxDate: Maximum 4 weeks from start date
+                        */}
                         <div className="Date-range-picker">
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DateRangePicker
-                                    disablePast
-                                    value={value}
-                                    maxDate={getWeeksAfter(value[0], 4)}
+                                    disablePast                              // Prevent selecting past dates
+                                    value={value}                            // Current selected date range
+                                    maxDate={getWeeksAfter(value[0], 4)}     // Limit: 4 weeks from start date
                                     onChange={(newValue) => {
                                         handleDateRangeChange(newValue);
-                                        // setData({
-                                        //     ...data,
-                                        //     working_days_start: `${newValue[0]?.$D}-${
-                                        //         newValue[0]?.$M + 1
-                                        //     }-${newValue[0]?.$y}`,
-                                        //     working_days_end: `${newValue[1]?.$D}-${
-                                        //         newValue[1]?.$M + 1
-                                        //     }-${newValue[1]?.$y}`,
-                                        // });
+                                        // Note: Date formatting is handled in handleDateRangeChange function
                                     }}
                                     renderInput={(FromProps, ToProps) => (
                                         <React.Fragment>
@@ -299,6 +445,7 @@ const ListingDetails = () => {
                         </div>
                     </div>
 
+                    {/* Form Section 3: Working Hours Time Range Picker */}
                     <div
                         className="form-container"
                         style={{
@@ -309,7 +456,7 @@ const ListingDetails = () => {
                         <Typography
                             style={{
                                 fontfamily: "Poppins",
-                                fontsize: "16px",
+                                fontsize: "10px",
                                 fontstyle: "normal",
                                 fontweight: "500",
                                 width: "max-content",
@@ -318,6 +465,7 @@ const ListingDetails = () => {
                         >
                             Working Time
                         </Typography>
+                        {/* Time Range Picker: Select start and end times for daily working hours */}
                         <div className="Time-range-picker">
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DemoContainer
@@ -328,18 +476,22 @@ const ListingDetails = () => {
                                 >
                                     <MultiInputTimeRangeField
                                         onChange={(newValue) => {
+                                            // Format time values and update form data
+                                            // newValue[0] = start time, newValue[1] = end time
                                             handleTimeRangeChange(newValue);
-                                            console.log("this is time value : ", newValue);
-
-                                            setData({
+                                            
+                                            // Update data with formatted time (HH:mm format)
+                                            const updatedData = {
                                                 ...data,
-                                                working_time_start: `${newValue[0]?.$H}:${newValue[0]?.$m}`,
-                                                working_time_end: `${newValue[1]?.$H}:${newValue[1]?.$m}`,
-                                            });
+                                                working_time_start: `${String(newValue[0]?.$H).padStart(2, '0')}:${String(newValue[0]?.$m).padStart(2, '0')}`,
+                                                working_time_end: `${String(newValue[1]?.$H).padStart(2, '0')}:${String(newValue[1]?.$m).padStart(2, '0')}`,
+                                            };
+                                            setData(updatedData);
+                                            checkFields(updatedData); // Validate after time change
                                         }}
                                         slotProps={{
                                             textField: ({ position }) => ({
-                                                label: position === "start" ? "From" : "To",
+                                                label: position === "start" ? "From" : "To", // Dynamic labels
                                             }),
                                         }}
                                     />
@@ -348,11 +500,13 @@ const ListingDetails = () => {
                         </div>
                     </div>
                 </Box>
+                
+                {/* Form Section 4: About/Description Textarea - Optional field */}
                 <div className="About">
                     <Typography
                         style={{
                             fontfamily: "Poppins",
-                            fontsize: "16px",
+                            fontsize: "10px",
                             fontstyle: "normal",
                             fontweight: "500",
                             lineheight: "30px",
@@ -362,28 +516,46 @@ const ListingDetails = () => {
                         About
                     </Typography>
                 </div>
+                {/* Textarea with visual feedback: Green border appears while typing */}
                 <div className="data-field">
                     <TextareaAutosize
-                        minRows={5}
-                        style={{ width: "100%",  border: isTyping ? '2px solid green' : 'none', padding: "1%" }}
-                        value={inputValue}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
+                        minRows={5}                                                    // Minimum 5 rows visible
+                        style={{ 
+                            width: "100%", 
+                            border: isTyping ? '2px solid green' : 'none',          // Visual feedback: green border while typing
+                            padding: "1%" 
+                        }}
+                        value={inputValue}                                            // Controlled input value
+                        onChange={handleChange}                                       // Handle text changes
+                        onBlur={handleBlur}                                           // Remove typing indicator on blur
                     ></TextareaAutosize>
                 </div>
+                
+                {/* Action Buttons Section */}
                 <Box sx={{ marginTop: "1%" }}>
+                    {/* Save As Draft Button: Saves listing without publishing (is_active: 0) */}
                     <CustomButton
-                        buttonCss={{ width: "10.625rem", borderRadius: "6.25rem", margin: "0.5%" }}
+                        buttonCss={{ 
+                            width: "10.625rem", 
+                            borderRadius: "6.25rem",  // Fully rounded button
+                            margin: "0.5%" 
+                        }}
                         label="Save As Draft"
-                        isTransaprent={true}
-                        isDisabled={!isFieldsFilled}
-                        handleClick={() => fetchData()}
+                        isTransaprent={true}                                          // Outlined button style
+                        isDisabled={!isFieldsFilled}                                  // Disabled until all required fields filled
+                        handleClick={() => fetchData()}                               // Submit form data
                     />
+                    
+                    {/* Next Button: Creates listing and navigates to Add Plans step */}
                     <CustomButton
-                        buttonCss={{ width: "10.625rem", borderRadius: "6.25rem", margin: "0.5%" }}
+                        buttonCss={{ 
+                            width: "10.625rem", 
+                            borderRadius: "6.25rem",  // Fully rounded button
+                            margin: "0.5%" 
+                        }}
                         label="Next"
-                        isDisabled={!isFieldsFilled}
-                        handleClick={() => fetchData()}
+                        isDisabled={!isFieldsFilled}                                  // Disabled until all required fields filled
+                        handleClick={() => fetchData()}                               // Submit form data and proceed
                     />
                 </Box>
             </div>

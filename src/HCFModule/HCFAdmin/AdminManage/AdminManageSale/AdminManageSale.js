@@ -10,12 +10,39 @@ import { NavLink, useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import DoctorTable from "./DoctorTable";
 import DiagnosticTable from "./DiagnosticTable";
+import logger from "../../../../utils/logger"; // Centralized logging
 
+/**
+ * AdminManageSale Component
+ * 
+ * Displays sale activities with toggle between Doctor and Diagnostic tables
+ * Features:
+ * - Toggle between doctor and diagnostic sales
+ * - Embedded DoctorTable and DiagnosticTable components
+ * 
+ * @component
+ */
 const AdminManageSale = () => {
+    /**
+     * Initialize component - set localStorage and hide location search container
+     */
     useEffect(() => {
+        logger.debug("🔵 AdminManageSale component rendering");
         localStorage.setItem("activeComponent", "manage");
         localStorage.setItem("path", "hcfadminsale");
-        document.getElementById("location-search-container").style.display = "none";
+        
+        const containerElement = document.getElementById("location-search-container");
+        if (containerElement) {
+            containerElement.style.display = "none";
+            logger.debug("✅ Location search container hidden");
+        }
+        
+        return () => {
+            if (containerElement) {
+                containerElement.style.display = "";
+                logger.debug("🔄 Location search container restored");
+            }
+        };
     }, []);
 
     const [doctorSelected, setDoctorSelected] = useState(true);
@@ -38,8 +65,26 @@ const AdminManageSale = () => {
                     <NavLink to={"/hcfadmin/hcfadminmanage/hcfadminpayout"}>Payout</NavLink>
                     <NavLink to={"/hcfadmin/hcfadminmanage/hcfadminauditlog"}>Audit Logs</NavLink>
                 </nav>
-                <Box component={"div"} sx={{ position: "relative", top: "4em", width: "100%", height: "100%" }}>
-                    <div className="search-date">
+                <Box 
+                    component={"div"} 
+                    sx={{ 
+                        position: "relative", 
+                        top: "4em", 
+                        width: "100%", 
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    <div 
+                        className="search-date"
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            width: "100%",
+                            marginBottom: "1rem",
+                        }}
+                    >
                         {/* <Box
                             display={"flex"}
                             margin={"10px"}
@@ -60,7 +105,6 @@ const AdminManageSale = () => {
                         <div
                             style={{
                                 display: "flex",
-                                margin: "10px",
                                 border: "1px solid #AEAAAE",
                                 borderRadius: "25px",
                                 height: "38px",
@@ -83,7 +127,10 @@ const AdminManageSale = () => {
                                 fontWeight: "bold",
                                 cursor: "pointer",
                             }}
-                            onClick={() => setDoctor(true)}
+                            onClick={() => {
+                                logger.debug("📊 Switching to Doctor sales view");
+                                setDoctor(true);
+                            }}
                             >
                                 Doctor 
                             </button>
@@ -99,7 +146,10 @@ const AdminManageSale = () => {
                                     fontWeight: "bold",
                                     cursor: "pointer",
                                 }}
-                                onClick={() => setDoctor(false)}
+                                onClick={() => {
+                                    logger.debug("📊 Switching to Diagnostic sales view");
+                                    setDoctor(false);
+                                }}
                             >
                                 Diagnostic 
                             </button>

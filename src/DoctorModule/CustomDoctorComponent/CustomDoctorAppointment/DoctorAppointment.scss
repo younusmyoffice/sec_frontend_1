@@ -1,25 +1,87 @@
-.DoctorDashboardCard{
+/**
+ * DoctorAppointmentCard Styles
+ * 
+ * Card styling for appointment statistics display
+ * Uses common SCSS variables for consistent theming
+ */
+
+@use "../../../static/scss/base/variables" as *;
+
+.DoctorDashboardCard {
     display: flex;
     flex-direction: column;
-    width: 25%;
-    height: 30%;
-    flex-shrink: 0;
-    border-radius: 1rem;
-    border: 1px solid var(--ui-colors-n-80, #E6E1E5);
-    background: var(--ui-colors-n-100, #FFF);
-    // margin: 1%;
-    // padding: 1%;
-}
-
-.DropDown-field{
-    display: flex;
-    justify-content: flex-end;
+    align-items: center; // Center all content horizontally
+    justify-content: center; // Center all content vertically
     width: 100%;
+    height: 100%; // Ensure card takes full height of parent
+    min-height: 180px; // Minimum height for card
+    max-height: 220px; // Maximum height to prevent cards from being too tall
+    flex-shrink: 0;
+    flex-grow: 1; // Allow cards to grow equally
+    border-radius: 1rem;
+    border: 1px solid $grey-background; // Using SCSS variable (#E6E1E5)
+    background: $white-color; // Using SCSS variable (#FFF)
+    padding: 2rem 1.5rem; // Add padding inside card - increased for better spacing
+    transition: all 0.2s ease; // Smooth transition for hover effect
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); // Subtle shadow for depth
+    position: relative; // For proper positioning
+    overflow: hidden; // Ensure content stays within card boundaries
+    box-sizing: border-box; // Include padding and border in width/height
+    
+    // Hover effect for better interactivity
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px); // Slight lift on hover
+        border-color: $primary-color; // Highlight border on hover
+    }
+    
+    // Ensure cards are properly sized in grid
+    @media (max-width: 768px) {
+        min-height: 150px;
+        max-height: 180px;
+        padding: 1.5rem 1rem;
+    }
 }
 
-.Number-Container{
+// Number display container - Centers the large number
+.Number-Container.number-display {
     display: flex;
     justify-content: center;
+    align-items: center;
     width: 100%;
-    padding: 2% 3%;
+    flex: 1; // Take available space
+    padding: 0.5rem 0; // Vertical padding for spacing
+    margin-bottom: 0.75rem; // Space between number and label
+    min-height: 70px; // Ensure number has enough space to display properly
+    box-sizing: border-box; // Include padding in height calculation
+    
+    // Ensure Typography number is properly contained and centered
+    .MuiTypography-root {
+        display: block; // Ensure number displays as block
+        text-align: center; // Center align the number
+        width: 100%; // Full width for proper centering
+        margin: 0; // Remove any default margins
+    }
+}
+
+// Label display container - Centers the appointment type text
+.Number-Container.label-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0; // Vertical padding only
+}
+
+// Legacy support - keep old class name working
+.Number-Container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+// DropDown field - Hidden/removed as it's not being used
+.DropDown-field {
+    display: none; // Hide dropdown field as it's not used
 }

@@ -1,21 +1,46 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Box, Typography, Link, Skeleton } from "@mui/material";
 import personIcon from "../../static/images/person.png";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
+/**
+ * ContainerThree Component
+ * 
+ * Displays doctor information in two sections:
+ * - About Me: Doctor's description
+ * - Reviews: Patient reviews with star ratings and "Show All" toggle
+ * 
+ * Features:
+ * - Loading skeletons while data loads
+ * - Toggle between showing all reviews or just first 2
+ * - Fallback to dummy reviews if no reviews available
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.description - Doctor's description
+ * @param {Array} props.review - Array of patient reviews
+ * 
+ * @component
+ */
 const ContainerThree = ({ description, review }) => {
-    const [loading, setLoading] = useState(true);
-    const [showAll, setShowAll] = useState(false);
+    const [loading, setLoading] = useState(true); // Loading state
+    const [showAll, setShowAll] = useState(false); // Toggle for showing all reviews
 
+    /**
+     * Simulate loading state while data is being fetched
+     */
     useEffect(() => {
-        // Simulate a loading delay
         const timer = setTimeout(() => {
             setLoading(false);
         }, 2000);
         return () => clearTimeout(timer);
     }, []);
 
+    /**
+     * Dummy reviews for fallback when no reviews are available
+     * Used to demonstrate the component structure
+     */
     const dummyReviews = [
         {
             profile_picture: personIcon,
@@ -43,6 +68,12 @@ const ContainerThree = ({ description, review }) => {
         },
     ];
 
+    /**
+     * Determine which reviews to display
+     * - If showAll is true: show all reviews
+     * - If showAll is false: show only first 2 reviews
+     * - Fallback to dummy reviews if no reviews available
+     */
     const reviewsToShow =
         Array.isArray(review) && review.length > 0
             ? showAll
@@ -52,7 +83,7 @@ const ContainerThree = ({ description, review }) => {
 
     return (
         <Box sx={{ width: "100%", display: "flex", marginTop: "5%" }}>
-            {/* About me container */}
+            {/* About Me Section - Doctor's description */}
             <Box
                 sx={{
                     width: "50%",
@@ -64,6 +95,7 @@ const ContainerThree = ({ description, review }) => {
                     padding: "2%",
                 }}
             >
+                {/* About Me Title */}
                 {loading ? (
                     <Skeleton variant="text" width="60%" height={30} />
                 ) : (
@@ -82,6 +114,7 @@ const ContainerThree = ({ description, review }) => {
                     </Typography>
                 )}
 
+                {/* About Me Description */}
                 {loading ? (
                     <Skeleton variant="rectangular" width="100%" height={100} />
                 ) : (
@@ -92,7 +125,7 @@ const ContainerThree = ({ description, review }) => {
                 )}
             </Box>
 
-            {/* Reviews container */}
+            {/* Reviews Section - Patient reviews with ratings */}
             <Box
                 sx={{
                     width: "50%",
@@ -130,7 +163,7 @@ const ContainerThree = ({ description, review }) => {
                     )}
                 </Box>
 
-                {/* Review List */}
+                {/* Review List - Scrollable */}
                 <Box
                     sx={{
                         marginTop: "1%",
@@ -138,6 +171,7 @@ const ContainerThree = ({ description, review }) => {
                         overflowY: "auto",
                     }}
                 >
+                    {/* Loading skeletons for reviews */}
                     {loading
                         ? [1, 2].map((_, index) => (
                               <Box
@@ -157,7 +191,8 @@ const ContainerThree = ({ description, review }) => {
                                   />
                               </Box>
                           ))
-                        : reviewsToShow.map((reviews, index) => (
+                        : /* Actual reviews */
+                          reviewsToShow.map((reviews, index) => (
                               <Box
                                   key={index}
                                   sx={{
@@ -166,11 +201,13 @@ const ContainerThree = ({ description, review }) => {
                                       borderBottom: "1px solid #E6E1E5",
                                   }}
                               >
+                                  {/* Reviewer Info Header */}
                                   <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                                      {/* Reviewer Profile and Name */}
                                       <Box sx={{ display: "flex" }}>
                                           <Box
                                               component="img"
-                                              alt="image"
+                                              alt="Reviewer profile"
                                               src={reviews.profile_picture || personIcon}
                                               sx={{
                                                   width: "40px",
@@ -190,6 +227,8 @@ const ContainerThree = ({ description, review }) => {
                                               {reviews.first_name || "Anonymous"}
                                           </Typography>
                                       </Box>
+                                      
+                                      {/* Star Rating */}
                                       <Box sx={{ display: "flex", alignItems: "center" }}>
                                           {Array.from({ length: 5 }).map((_, starIndex) =>
                                               starIndex < reviews.review_type ? (
@@ -206,6 +245,8 @@ const ContainerThree = ({ description, review }) => {
                                           )}
                                       </Box>
                                   </Box>
+                                  
+                                  {/* Review Description */}
                                   <Typography
                                       sx={{
                                           textAlign: "left",
@@ -225,6 +266,22 @@ const ContainerThree = ({ description, review }) => {
             </Box>
         </Box>
     );
+};
+
+// PropTypes for type checking
+ContainerThree.propTypes = {
+    description: PropTypes.string,
+    review: PropTypes.arrayOf(PropTypes.shape({
+        profile_picture: PropTypes.string,
+        first_name: PropTypes.string,
+        review_type: PropTypes.number,
+        description: PropTypes.string
+    })),
+};
+
+ContainerThree.defaultProps = {
+    description: "",
+    review: [],
 };
 
 export default ContainerThree;

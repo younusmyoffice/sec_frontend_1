@@ -1,32 +1,63 @@
-.Appointment-card{
+/**
+ * Request Component Styles
+ * 
+ * Styles for doctor appointment request dashboard
+ * Uses common SCSS variables for consistent theming
+ */
+
+@use "../../../static/scss/base/variables" as *;
+
+.Appointment-card {
     display: flex;
     justify-content: space-around;
+    align-items: stretch; // Ensure all cards have same height
+    gap: 1rem; // Add gap between cards
+    margin-bottom: 2rem; // Add margin below card row
+    flex-wrap: wrap; // Allow cards to wrap on smaller screens
+    width: 100%; // Full width container
+    
+    // Ensure each card takes equal space
+    > * {
+        flex: 1;
+        min-width: 200px; // Minimum width for cards
+        max-width: 350px; // Maximum width to prevent cards from being too wide
+    }
+    
+    @media (max-width: 768px) {
+        flex-direction: column; // Stack cards vertically on mobile
+        align-items: stretch; // Stretch cards to full width
+        
+        > * {
+            max-width: 100%; // Full width on mobile
+        }
+    }
 }
 
 .DocNavBar-Container {
- display: flex;
- justify-content: flex-start;
- margin: 2% 1%;
+    display: flex;
+    justify-content: flex-start;
+    margin: 2% 1%;
 }
 
 .DocNavBar-Container > a {
     text-decoration: none;
     margin: 0.7%;
     border-radius: 8px;
-    color: #313033;
+    color: $heading-color; // Using heading color variable instead of hardcoded #313033
     cursor: pointer;
     padding: 0.625rem 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem
+    gap: 1rem;
+    
+    // Active state styling with primary brand color
+    &.active {
+        background-color: $primary-color; // Primary brand color (#e72b4a)
+        color: $white-color; // White text on active tab
+    }
 }
 
-.DocNavBar-Container a.active {
-    background-color: #e72b4a;
-    color: white;
-}
-
-.location-search-container{
+.location-search-container {
     display: none;
 }

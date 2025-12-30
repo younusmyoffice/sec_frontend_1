@@ -3,18 +3,71 @@ import React, { useEffect, useState } from "react";
 import DrImage from "../../../static/images/DrImages/image3.png";
 import { AppointmentNavbar, CancelledCard } from "../PatientCards";
 import NoAppointmentCard from "../NoAppointmentCard/NoAppointmentCard";
-import axiosInstance from "../../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance"; // Handles access token automatically
+import logger from "../../../utils/logger"; // Centralized logging
+import toastService from "../../../services/toastService"; // Toast notifications
 
+/**
+ * Cancelled Component
+ * 
+ * Displays cancelled appointments for the patient
+ * Features:
+ * - Fetches and displays cancelled appointments
+ * - Pagination support
+ * - Loading skeletons
+ * - Empty state handling
+ * 
+ * @component
+ */
 const Cancelled = () => {
+    logger.debug("🔵 Cancelled component rendering");
+    
+    // Appointment data state
     const [cancelledData, setCancelledData] = useState([]);
-    const [loading, setLoading] = useState(true); // Loading state
-    const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
-    const itemsPerPage = 5; // Number of items per page
-    const [patient_id, setPatient_id] = useState(localStorage.getItem("patient_suid"));
-
-    const fetchDataNew = async () => {
-        setLoading(true); // Start loading
+    const [loading, setLoading] = useState(true);
+    
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+    
+    /**
+     * Get patient ID from localStorage with error handling
+     */
+    const getPatientId = () => {
         try {
+            const patientId = localStorage.getItem("patient_suid");
+            if (!patientId) {
+                logger.warn("⚠️ Patient ID not found in localStorage");
+                toastService.error("Patient information not available");
+            }
+            return patientId;
+        } catch (error) {
+            logger.error("❌ Error accessing localStorage:", error);
+            toastService.error("Failed to load patient information");
+            return null;
+        }
+    };
+    
+    const [patient_id, setPatient_id] = useState(getPatientId());
+
+    /**
+     * Fetch cancelled appointments from API
+     * Retrieves appointments with status "canceled"
+     */
+    const fetchDataNew = async () => {
+        logger.debug("📡 Fetching cancelled appointments", { patient_id });
+        setLoading(true);
+        
+        try {
+            // Validate patient ID
+            if (!patient_id) {
+                logger.error("❌ Patient ID is missing");
+                toastService.error("Patient information not available");
+                setCancelledData([]);
+                setLoading(false);
+                return;
+            }
+            
             const response = await axiosInstance.post(
                 "/sec/patient/CancelledAppointments",
                 JSON.stringify({
@@ -22,18 +75,50 @@ const Cancelled = () => {
                     status_cancel: "canceled",
                 }),
             );
-            setCancelledData(response?.data?.response || []);
+            
+            const appointments = response?.data?.response || [];
+            logger.debug("✅ Cancelled appointments fetched successfully", { 
+                count: appointments.length 
+            });
+            
+            setCancelledData(appointments);
+            
+            if (appointments.length > 0) {
+                toastService.success(`${appointments.length} cancelled appointment(s) loaded`);
+            }
         } catch (error) {
-            console.error("Error fetching cancelled appointments:", error);
+            logger.error("❌ Failed to fetch cancelled appointments:", error);
+            toastService.error(
+                error?.response?.data?.message || 
+                "Failed to load cancelled appointments. Please try again later."
+            );
+            setCancelledData([]);
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
 
+    /**
+     * Initialize component and fetch data
+     * Sets localStorage flags and fetches cancelled appointments
+     */
     useEffect(() => {
-        localStorage.setItem("activeComponent", "appointment");
-        setPatient_id(localStorage.getItem("patient_suid"));
-        localStorage.setItem("path", "cancelled");
+        logger.debug("🔵 Cancelled component mounting");
+        
+        try {
+            localStorage.setItem("activeComponent", "appointment");
+            localStorage.setItem("path", "cancelled");
+            logger.debug("✅ Set localStorage flags");
+        } catch (error) {
+            logger.error("❌ Error setting localStorage:", error);
+        }
+        
+        // Update patient_id from localStorage if not already set
+        const currentPatientId = getPatientId();
+        if (currentPatientId && currentPatientId !== patient_id) {
+            setPatient_id(currentPatientId);
+        }
+        
         fetchDataNew();
     }, []);
 
@@ -85,7 +170,11 @@ const Cancelled = () => {
                             />
                         ) : (
                             currentData.map((data) => (
-                                <CancelledCard key={data.id} data={data} DrImage={data.profile_picture || DrImage} />
+                                <CancelledCard 
+                                    key={data.id || data.appointment_id} 
+                                    data={data} 
+                                    DrImage={data.profile_picture || DrImage} 
+                                />
                             ))
                         )}
 

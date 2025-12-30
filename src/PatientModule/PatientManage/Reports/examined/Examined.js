@@ -19,51 +19,142 @@ import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers-pro";
 import { AdapterDayjs } from "@mui/x-date-pickers-pro/AdapterDayjs";
 import { PatientSearchTable } from "../../../../HCFModule/DiagnosticCenter/DiagnosticCenterReports/DiagnosticPatientSearch/PatientSearchTable";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Handles access token automatically
 import NoAppointmentCard from "../../../PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import { currencysign } from "../../../../constants/const";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications
 import "./examined.scss";
 
+/**
+ * Examined Component
+ * 
+ * Displays examined reports in a table
+ * Features:
+ * - Fetches and displays examined reports
+ * - Pagination support
+ * - Loading skeletons
+ * - Empty state handling
+ * 
+ * @component
+ */
 const Examined = () => {
+    logger.debug("🔵 Examined component rendering");
+    
+    // Date range picker state (currently unused but available for future use)
     const [value, setValue] = useState([null, null]);
+    
+    // Table data state
     const [tableData, setTableData] = useState([]);
-    const patient_id = localStorage.getItem("patient_suid");
-    const status = "examine";
     const [loading, setLoading] = useState(true);
+    
+    // Pagination states
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    /**
+     * Helper function for date range picker (currently unused)
+     * @param {Date} date - Start date
+     * @param {number} amount - Weeks to add
+     * @returns {Date|undefined} Date with weeks added
+     */
     function getWeeksAfter(date, amount) {
         return date ? date.add(amount, "week") : undefined;
     }
 
-    const fetchData = async (patient_id, status) => {
-        setLoading(true);
+    /**
+     * Get patient ID from localStorage with error handling
+     */
+    const getPatientId = () => {
         try {
-            // Corrected URL string interpolation
+            const patientId = localStorage.getItem("patient_suid");
+            if (!patientId) {
+                logger.warn("⚠️ Patient ID not found in localStorage");
+                toastService.error("Patient information not available");
+            }
+            return patientId;
+        } catch (error) {
+            logger.error("❌ Error accessing localStorage:", error);
+            toastService.error("Failed to load patient information");
+            return null;
+        }
+    };
+
+    const patient_id = getPatientId();
+    const status = "examine";
+    
+    /**
+     * Fetch examined reports from API
+     * Retrieves reports with status "examine"
+     */
+    const fetchData = async (patient_id, status) => {
+        logger.debug("📡 Fetching examined reports", { patient_id, status });
+        setLoading(true);
+        
+        try {
+            // Validate patient ID
+            if (!patient_id) {
+                logger.error("❌ Patient ID is missing");
+                toastService.error("Patient information not available");
+                setTableData([]);
+                setLoading(false);
+                return;
+            }
+            
             const response = await axiosInstance.get(
                 `/sec/patient/reportsExamine/${patient_id}/${status}`,
             );
 
-            // Handle the response
-            setTableData(response?.data?.response || []);
+            const reports = response?.data?.response || [];
+            logger.debug("✅ Examined reports fetched successfully", { 
+                count: reports.length 
+            });
+            
+            setTableData(reports);
+            
+            if (reports.length > 0) {
+                toastService.success(`${reports.length} examined report(s) found`);
+            }
         } catch (error) {
-            console.error("Error fetching data:", error);
+            logger.error("❌ Failed to fetch examined reports:", error);
+            toastService.error(
+                error?.response?.data?.message || 
+                "Failed to load reports. Please try again later."
+            );
+            setTableData([]);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Initialize component and fetch data
+     */
     useEffect(() => {
-        fetchData(patient_id, status); // Pass both patient_id and status to the function
+        logger.debug("🔵 Examined component mounting");
+        fetchData(patient_id, status);
     }, []);
 
+    /**
+     * Handle page change in pagination
+     * @param {Event} event - Change event
+     * @param {number} newPage - New page number (0-based)
+     */
     const handleChangePage = (event, newPage) => {
+        logger.debug("📄 Page changed", { newPage });
         setPage(newPage);
     };
 
+    /**
+     * Handle rows per page change
+     * Resets to first page when rows per page changes
+     * @param {Event} event - Change event
+     */
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        logger.debug("📄 Rows per page changed", { newRowsPerPage });
+        setRowsPerPage(newRowsPerPage);
+        setPage(0); // Reset to first page
     };
 
     return (
@@ -88,8 +179,26 @@ const Examined = () => {
             </Box> */}
 
             <Box className="allfile-main-container">
-                <Box>
-                    <TableContainer component={Paper} style={{ background: "white" }}>
+                <Box sx={{ 
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    overflow: "hidden",
+                }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <TableContainer 
+                        component={Paper} 
+                        style={{ 
+                            background: "white",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "auto", // Enable scrolling for table content
+                            maxHeight: "calc(100vh - 200px)", // Adjusted to account for spacing
+                        }}
+                    >
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
@@ -102,6 +211,7 @@ const Examined = () => {
                             </TableHead>
                             <TableBody>
                                 {loading ? (
+                                    /* Loading skeletons */
                                     Array.from(new Array(rowsPerPage)).map((_, index) => (
                                         <TableRow key={index}>
                                             <TableCell colSpan={5}>
@@ -110,38 +220,52 @@ const Examined = () => {
                                         </TableRow>
                                     ))
                                 ) : tableData.length === 0 ? (
+                                    /* Empty state */
                                     <TableRow>
-                                        <NoAppointmentCard text_one={"No Data Found"} />
+                                        <TableCell colSpan={5}>
+                                            <NoAppointmentCard text_one={"No Data Found"} />
+                                        </TableCell>
                                     </TableRow>
                                 ) : (
+                                    /* Examined report data rows */
                                     tableData
                                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                         .map((row, index) => (
                                             <TableRow
-                                                key={index}
+                                                key={row?.labID || row?.booking_id || index}
                                                 sx={{
                                                     "&:last-child td, &:last-child th": {
                                                         border: 0,
                                                     },
                                                 }}
                                             >
+                                                {/* Lab name and booking ID */}
                                                 <TableCell component="th" scope="row">
                                                     <PatientSearchTable
-                                                        name={row?.lab_name}
-                                                        Id={row?.booking_id}
+                                                        name={row?.lab_name || "N/A"}
+                                                        Id={row?.booking_id || "N/A"}
                                                         profile={row?.profile_picture}
                                                     />
                                                 </TableCell>
-                                                <TableCell align="right">{
-                                                    row?.book_date
-                                                }</TableCell>
-                                                <TableCell align="right">{
-                                                    row?.scheduled}</TableCell>
+                                                
+                                                {/* Date & Time */}
                                                 <TableCell align="right">
-                                                    {row?.test_name}
+                                                    {row?.book_date || "N/A"}
                                                 </TableCell>
+                                                
+                                                {/* Schedule */}
                                                 <TableCell align="right">
-                                                    {row?.test_price}
+                                                    {row?.scheduled || "N/A"}
+                                                </TableCell>
+                                                
+                                                {/* Test name */}
+                                                <TableCell align="right">
+                                                    {row?.test_name || "N/A"}
+                                                </TableCell>
+                                                
+                                                {/* Price */}
+                                                <TableCell align="right">
+                                                    {row?.test_price ? `${currencysign}${row.test_price}` : "N/A"}
                                                 </TableCell>
                                             </TableRow>
                                         ))

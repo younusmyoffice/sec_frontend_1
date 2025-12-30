@@ -4,54 +4,124 @@ import "./MyActivity.scss";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import CustomButton from "../../components/CustomButton/custom-button";
 import DrImage from "../../static/images/DrImages/drProfileImage.png";
-import axiosInstance from "../../config/axiosInstance";
+import axiosInstance from "../../config/axiosInstance"; // Handles access token automatically
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoAppointmentCard from "../PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import { getProfileImageSrc } from "../../utils/imageUtils";
+import logger from "../../utils/logger"; // Centralized logging
+import toastService from "../../services/toastService"; // Toast notifications
 
-// Import statements remain unchanged
-
+/**
+ * MyActivity Component
+ * 
+ * Displays patient activity including:
+ * - Appointment history
+ * - Medical reports
+ * - Activity filtering (View All / Show Less)
+ * - Nested routing for reports (Received/Shared)
+ * 
+ * Features:
+ * - Fetches patient activity from API
+ * - Toggle between showing all activities or just first 2
+ * - Reports section with nested routes (Received/Shared)
+ * - Loading states with skeletons
+ * - Error handling with fallback UI
+ * 
+ * @component
+ */
 const MyActivity = () => {
-    console.log("My Activity");
+    logger.debug("🔵 MyActivity component rendering");
     const navigate = useNavigate();
     const [myactivity, setMyactivity] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [appointmentDate, setAppointmentDate] = useState("");
-    const [showAllActivities, setShowAllActivities] = useState(false); // State to toggle view
-
+    const [showAllActivities, setShowAllActivities] = useState(false); // Toggle between view all and limited view
+    
+    /**
+     * Fetch patient activity data from API
+     * Retrieves appointment history and activity information
+     * Uses axiosInstance for authenticated requests
+     */
     const fetchDataNew = async () => {
-        console.log("Entered the fetch data");
+        logger.debug("📡 Fetching patient activity data");
+        setIsLoading(true);
+        
         try {
-            const response = await axiosInstance(
-                `/sec/patient/patientActivity/${localStorage.getItem("patient_suid")}`,
+            // Get patient SUID from localStorage
+            const patientSuid = localStorage.getItem("patient_suid");
+            
+            if (!patientSuid) {
+                logger.error("❌ Patient SUID not found in localStorage");
+                toastService.error("Patient information not available");
+                setMyactivity([]);
+                return;
+            }
+            
+            logger.debug("🔍 Fetching activity for patient:", { patientSuid });
+            
+            const response = await axiosInstance.get(
+                `/sec/patient/patientActivity/${patientSuid}`
             );
-            console.log("Fetch the My Activity:", response.data.response);
+            
+            const activityData = response?.data?.response || [];
+            
+            logger.debug("✅ Patient activity fetched successfully", { count: activityData.length });
+            
             setAppointmentDate(response?.data?.response?.appointment_date);
-            setMyactivity(response?.data?.response);
+            setMyactivity(activityData);
+            
+            if (activityData.length > 0) {
+                toastService.success(`${activityData.length} activities loaded`);
+            } else {
+                logger.warn("⚠️ No activities found for this patient");
+            }
         } catch (error) {
-            console.log("Error", error);
+            logger.error("❌ Failed to fetch patient activity:", error);
+            toastService.error("Failed to load your activities");
+            setMyactivity([]); // Fallback to empty array
+            setAppointmentDate(""); // Clear appointment date
         } finally {
             setIsLoading(false);
         }
     };
 
+    /**
+     * Initialize component and fetch data on mount
+     * Navigates to the default reports section (received)
+     */
     useEffect(() => {
-        fetchDataNew();
-        navigate("/patientDashboard/dashboard/myactivity/received");
+        logger.debug("🔵 MyActivity component mounted");
+        
+        try {
+            // Fetch patient activity data
+            fetchDataNew();
+            
+            // Navigate to received reports section by default
+            navigate("/patientDashboard/dashboard/myactivity/received", { replace: false });
+            
+            logger.debug("✅ Navigation to received section completed");
+        } catch (error) {
+            logger.error("❌ Error during initialization:", error);
+        }
     }, []);
 
-    // Determine which activities to show based on state
+    /**
+     * Filter activities based on view mode
+     * - showAllActivities = true: Show all activities
+     * - showAllActivities = false: Show only first 2 activities
+     */
     const displayedActivities = showAllActivities ? myactivity : myactivity.slice(0, 2);
 
     return (
         <Box sx={{ width: "98%", display: "flex", flexDirection: "column" }}>
+            {/* Navigation tabs - Explore / My Activity */}
             <Box className="NavBar-Box" sx={{ marginLeft: 0, marginBottom: 0 }}>
                 <NavLink to={"/patientDashboard/dashboard/explore"}>Explore</NavLink>
                 <NavLink to={"/patientDashboard/dashboard/myactivity"}>My Activity</NavLink>
             </Box>
 
-            {/* 1st container */}
+            {/* Appointment Activities Container */}
             <Box sx={{ width: "100%" }}>
                 <Box
                     sx={{
@@ -82,16 +152,22 @@ const MyActivity = () => {
                             }}
                             label={showAllActivities ? "Show Less" : "View All"}
                             handleClick={() => {
-                                setShowAllActivities(!showAllActivities); // Toggle state
+                                logger.debug("🖱️ Toggle view all activities", { 
+                                    showingAll: !showAllActivities 
+                                });
+                                setShowAllActivities(!showAllActivities);
                             }}
                         />
                     </Box>
 
+                    {/* Loading state - Show skeleton while fetching data */}
                     {isLoading ? (
                         <Skeleton count={1} height={200} style={{ marginTop: "10px" }} />
                     ) : displayedActivities.length === 0 ? (
+                        // Empty state - No activities found
                         <NoAppointmentCard text_one={"No activity recorded"} />
                     ) : (
+                        // Activity cards - Map through displayed activities
                         displayedActivities.map((cardactivity) => (
                             <Box
                                 key={cardactivity?.appointment_id}
@@ -103,7 +179,7 @@ const MyActivity = () => {
                                     marginTop: "3%",
                                 }}
                             >
-                                {/* Image tag */}
+                                {/* Doctor Profile Image */}
                                 <Box
                                     sx={{
                                         width: "143px",
@@ -116,10 +192,11 @@ const MyActivity = () => {
                                         sx={{ borderRadius: "8px", width: "100%", height: "100%" }}
                                         component={"img"}
                                         src={getProfileImageSrc(cardactivity?.profile_picture, DrImage)}
+                                        alt={`${cardactivity?.first_name} ${cardactivity?.last_name}`}
                                     />
                                 </Box>
 
-                                {/* Card content */}
+                                {/* Activity Card Content - Name, Plan, Status, Date */}
                                 <Box
                                     sx={{
                                         display: "flex",
@@ -192,7 +269,7 @@ const MyActivity = () => {
                 </Box>
             </Box>
 
-            {/* 2nd container */}
+            {/* Reports Container */}
             <Box sx={{ width: "100%" }}>
                 <Box
                     sx={{
@@ -224,21 +301,25 @@ const MyActivity = () => {
                             }}
                             label="View all"
                             handleClick={() => {
-                                console.log("Appointment Navigate");
+                                logger.debug("🔗 Navigating to reports section");
                                 navigate(`/patientDashboard/manage/reports/received`);
                             }}
                         />
                     </Box>
 
+                    {/* Reports Navigation Tabs - Received / Shared */}
                     <Box className={"NavBar-Box"} sx={{ width: "50%", margin: 0 }}>
                         <NavLink to={"received"}>Received</NavLink>
                         <NavLink to={"shared"}>Shared</NavLink>
                     </Box>
 
+                    {/* Reports Content Area - Renders nested routes (Received/Shared) */}
                     <Box sx={{ width: "100%", padding: "1%", margin: "1%" }}>
                         {isLoading ? (
+                            // Loading skeletons for reports
                             <Skeleton count={3} height={150} style={{ marginTop: "10px" }} />
                         ) : (
+                            // Render nested routes (Received/Shared components)
                             <Outlet />
                         )}
                     </Box>

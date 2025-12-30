@@ -1,26 +1,38 @@
+/**
+ * NavBar-Appointment Styles
+ * 
+ * Styles for appointment navigation bar
+ * Tabs: Upcoming, Completed, Cancelled, Chats
+ */
+
+// Container for appointment navigation tabs
 .NavBar-Container-Appoinement {
     display: flex;
-    // border: 1px solid black;
     width: 73vw;
     position: absolute;
 }
 
+// Navigation link styles
 .NavBar-Container-Appoinement > a {
     text-decoration: none;
     margin: 0.7%;
-    // border:  1px solid #E72B4A;
-    padding: 4px 20px;
+    padding: 10px 16px; // Consistent padding
     border-radius: 8px;
     gap: 16px;
-    padding: 10px 16px;
-    color: "#313033";
+    color: #313033; // Common color: #313033 (fixed - removed quotes)
     cursor: pointer;
-    // border: "10px solid black";
-    // width: "100%";
+    transition: all 0.3s ease; // Smooth transitions
+    
+    &:hover {
+        background-color: rgba(231, 43, 74, 0.1); // #E72B4A with opacity
+        color: #e72b4a; // Primary brand color
+    }
 }
 
+// Active tab styling
 .NavBar-Container-Appoinement a.active {
-    background-color: #e72b4a;
+    background-color: #e72b4a; // Primary brand color
     padding: 10px 16px;
     color: white;
+    font-weight: 600;
 }

@@ -1,66 +1,85 @@
-import React, { useEffect, useState } from "react";
+/**
+ * DoctorAppointmentCard Component
+ * 
+ * Displays appointment statistics in a card format:
+ * - Large number display for appointment count (centered)
+ * - Appointment type label below the number (centered)
+ * 
+ * Features:
+ * - Properly centered number and label within card
+ * - Hover effect for interactivity
+ * - Responsive design
+ * - Clean layout without empty dropdown field
+ * 
+ * @component
+ */
+
+import React from "react";
 import "./DoctorAppointment.scss";
 import { Typography } from "@mui/material";
-import CustomDropdown from "../../../components/CustomDropdown/custom-dropdown";
+import logger from "../../../utils/logger"; // Centralized logging
 
+/**
+ * DoctorAppointmentCard - Appointment Statistics Card
+ * 
+ * @param {number} NumberOfAppointments - Number of appointments to display (default: 0)
+ * @param {string} AppointmentType - Type/label of appointment (default: "Parameters")
+ * @param {Function} onClick - Click handler function (optional)
+ */
 const DoctorAppointmentCard = ({ NumberOfAppointments = 0, AppointmentType = "Parameters", onClick }) => {
-    const dropdownItems = ["Today", "Tomorrow", "Yesterday"];
-    const [activeDropdown, setActiveDropdown] = useState("");
-    console.log("inside doc appointment card : ",NumberOfAppointments);
-
-    // useEffect( () => {
-
-    // },[NumberOfAppointments] )
+    logger.debug("🔵 DoctorAppointmentCard rendering", {
+        count: NumberOfAppointments,
+        type: AppointmentType
+    });
 
     return (
-        <>
-          
-
-            <div  className="DoctorDashboardCard" onClick={onClick} style={{ cursor: 'pointer' }}>
-                <div className="DropDown-field">
-                    {/* <CustomDropdown
-                                dropdowncss={{
-                                    alignItem : "center",
-                                    Width : "20%",
-                                    marginRight : "8%",
-                                }}
-                                CustomSx={{width : "8em" ,   padding : "1% 8%"}}
-                                label={"Select"}
-                                items={dropdownItems}
-                                activeItem={activeDropdown}
-                                handleChange={(item) => setActiveDropdown(item)}
-                            /> */}
-                </div>
-                <div className="Number-Container">
-                    <Typography
-                        sx={{
-                            color: "#E72B4A",
-                            fontFamily: "Poppins",
-                            fontSize: "3rem",
-                            fontStyle: "normal",
-                            fontWeight: "600",
-                            lineHeight: "4.625rem",
-                        }}
-                    >
-                        {NumberOfAppointments}
-                    </Typography>
-                </div>
-                <div className="Number-Container">
-                    <Typography
-                        sx={{
-                            color: "#313033",
-                            fontFamily: "Poppins",
-                            fontSize: "1rem",
-                            fontStyle: "normal",
-                            fontWeight: "400",
-                            lineHeight: "1.5rem",
-                        }}
-                    >
-                        {AppointmentType}
-                    </Typography>
-                </div>
+        <div 
+            className="DoctorDashboardCard" 
+            onClick={onClick} 
+            style={{ cursor: onClick ? 'pointer' : 'default' }}
+        >
+            {/* Number Display - Large red number centered in card */}
+            <div className="Number-Container number-display">
+                <Typography
+                    component="div"
+                    sx={{
+                        color: "#E72B4A",
+                        fontFamily: "Poppins",
+                        fontSize: "3rem",
+                        fontStyle: "normal",
+                        fontWeight: "600",
+                        lineHeight: "1.2", // Better line height for large numbers
+                        display: "block",
+                        textAlign: "center",
+                        width: "100%",
+                        margin: 0,
+                    }}
+                >
+                    {NumberOfAppointments}
+                </Typography>
             </div>
-        </>
+            
+            {/* Label Display - Appointment type text centered below number */}
+            <div className="Number-Container label-display">
+                <Typography
+                    component="div"
+                    sx={{
+                        color: "#313033",
+                        fontFamily: "Poppins",
+                        fontSize: "1rem",
+                        fontStyle: "normal",
+                        fontWeight: "400",
+                        lineHeight: "1.5rem",
+                        textAlign: "center", // Ensure text is centered
+                        display: "block",
+                        width: "100%",
+                        margin: 0,
+                    }}
+                >
+                    {AppointmentType}
+                </Typography>
+            </div>
+        </div>
     );
 };
 

@@ -29,7 +29,12 @@ const HorizontalScrollCards = ({
 
     return (
         <Box className={`horizontal-scroll-cards ${className}`}>
-            <Box className="section-header">
+            <Box className="section-header" sx={{ 
+                    marginBottom: "1.5rem",
+                    paddingBottom: "0.5rem",
+                    borderBottom: "2px solid #E72B4A",
+                    width: "fit-content"
+                }}>
                 <Typography className="section-title">
                     {title}
                 </Typography>

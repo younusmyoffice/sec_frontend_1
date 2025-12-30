@@ -1,36 +1,86 @@
+/**
+ * EmailVerification Component Styles
+ * 
+ * Styles for the email OTP verification page, including:
+ * - Resend OTP link styling
+ * - Form container layout
+ * - Responsive design
+ * - Background image holder
+ */
+
+// Resend OTP link styles
 .resend {
-    // margin-left: 40%;
     margin-top: 3%;
-    color: #e72b4a;
+    color: #e72b4a; // Primary brand color (red/pink)
+    cursor: pointer;
+    font-weight: 500;
 }
+
+// Legacy form group (not currently used)
 .form-group5 {
     margin-left: 37%;
     margin-top: 30%;
 }
 
+// Logo container spacing
 .logo1 {
     margin-top: 20px;
 }
 
-.register-photo{
+// Main page container - fills entire viewport
+// Remove all margins/padding to prevent left gap
+.register-photo {
     box-sizing: border-box !important;
-    height: 100vh !important;
-    width: 100vw !important;
-    margin: 0px !important;
-    padding: 0px !important;
-    overflow-x: hidden;
+    height: 100vh !important; // Full viewport height
+    width: 100vw !important; // Full viewport width
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden; // Prevent horizontal scroll
+    display: flex; // Enable flexbox for proper layout
 }
 
-.form-container{
+// Form container wrapper
+// Must have flex display to create two-column layout
+.form-container {
     width: 100% !important;
     height: 100% !important;
+    display: flex !important; // Enable flexbox for two-column layout
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important; // Remove any gap between columns
 }
 
-.image-holder{
+// Background decorative image holder (left side)
+// Creates a two-column layout with image on left (50%), form on right (50%)
+// No margin or padding to ensure it touches the left edge
+.image-holder {
     width: 50% !important;
     height: 100% !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8d7da; // Light pink/red background
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0; // Prevent shrinking
+    position: relative; // Ensure proper positioning
 }
 
+// Right side form content area
+.component-library,
+.form-inner-container-two {
+    width: 50% !important;
+    height: 100% !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+    padding: 20px !important; // Add padding for content, not container
+}
+ 
+// Form inner container (commented out - not currently used)
 // .form-inner-container-two{
 //     width: 100%;
 //     height: 100%;

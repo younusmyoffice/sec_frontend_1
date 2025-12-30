@@ -17,7 +17,7 @@ import {
     DialogContent,
     DialogActions,
 } from "@mui/material";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import CustomButton from "../../../../components/CustomButton";
 import { LabsCard } from "./LabsCard";
@@ -27,12 +27,15 @@ import CustomDropdown from "../../../../components/CustomDropdown";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import dayjs from "dayjs";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import Loading from "../../../../components/Loading/Loading"; // Reusable loader component
 
 
 const AdminLabs = () => {
@@ -77,16 +80,51 @@ const AdminLabs = () => {
     const [snackOpen, setSnackOpen] = useState(false);
     const hcf_id = localStorage.getItem("hcfadmin_suid");
 
-    //getting labs list
+    /**
+     * Validate HCF admin ID from localStorage
+     * SECURITY: Ensures admin ID is present before making API calls
+     * 
+     * @returns {string|null} HCF admin ID or null if invalid
+     */
+    const validateHcfAdminId = useCallback(() => {
+        const adminId = localStorage.getItem("hcfadmin_suid");
+
+        if (!adminId) {
+            logger.warn("⚠️ HCF Admin ID not found in localStorage");
+            toastService.warning("HCF Admin ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ HCF Admin ID validated:", adminId);
+        return adminId;
+    }, []);
+
+    /**
+     * Fetch labs list for the HCF admin
+     * Loads all labs associated with the HCF admin
+     * 
+     * @param {string} hcf_id - HCF admin ID
+     */
     const fetchData1 = async (hcf_id) => {
-        setLoading(true); // Set loading to true
+        logger.debug("📋 Fetching labs list");
+        setLoading(true);
+        
         try {
             const response = await axiosInstance.get(`/sec/hcf/getHcfLab/${hcf_id}`);
-            setData1(response?.data?.response || []);
+            const labs = response?.data?.response || [];
+            
+            logger.debug("✅ Labs list received", { count: labs.length });
+            setData1(labs);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
+            logger.error("❌ Error fetching lab data:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to load labs. Please try again.";
+            toastService.error(errorMessage);
+            setData1([]); // Ensure state is an array even on error
         } finally {
-            setLoading(false); // Set loading to false
+            setLoading(false);
         }
     };
 
@@ -138,26 +176,69 @@ const AdminLabs = () => {
         checkFields(labdata); // Ensure fields are checked on each labdata update
     }, [labdata]);
 
+    /**
+     * Create new lab
+     * Posts lab data to the server and refreshes the list on success
+     */
     const fetchLabData = async () => {
+        logger.debug("📤 Creating new lab");
         setSnackOpen(false);
+        
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            return;
+        }
+
         try {
-            await axiosInstance.post(`/sec/hcf/addLabs?hcf_id=${hcf_id}`, JSON.stringify(labdata), {
-                headers: { 
-                    Accept: "Application/json",
-                    "Content-Type": "application/json"
-                },
-            });
-            await setSnackType("success");
-            await setSnackMessage("Lab Created Successfully");
+            const response = await axiosInstance.post(
+                `/sec/hcf/addLabs?hcf_id=${adminId}`,
+                JSON.stringify(labdata),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+            
+            logger.debug("✅ Lab created successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Lab Created Successfully";
+            setSnackType("success");
+            setSnackMessage(successMessage);
             setSnackOpen(true);
-            setTimeout(() => setOpenDialog(false), 3000);
-            fetchData1(hcf_id); // Refresh the list
+            toastService.success(successMessage);
+            
+            setTimeout(() => {
+                setOpenDialog(false);
+                // Reset form
+                setLabData({
+                    lab_dept_id: null,
+                    hcf_id: adminId,
+                    exam_name: null,
+                    lab_working_days_from: null,
+                    lab_working_days_to: null,
+                    lab_description: null,
+                    lab_working_time_from: null,
+                    lab_working_time_to: null,
+                });
+                setActiveDropdown("");
+                setWorkingDays1From(null);
+                setWorkingDays1To(null);
+            }, 2000);
+            
+            fetchData1(adminId); // Refresh the list
         } catch (error) {
-            alert("Fill the details properly");
-            console.error(error.response);
-            await setSnackType("error");
-            await setSnackMessage("Some error occurred!!!");
+            logger.error("❌ Error creating lab:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to create lab. Please fill all fields properly and try again.";
+            
+            setSnackType("error");
+            setSnackMessage(errorMessage);
             setSnackOpen(true);
+            toastService.error(errorMessage);
         }
     };
     // editing labs handler 
@@ -199,71 +280,137 @@ useEffect(() => {
     checkEditFields(editdata); // Ensure fields are checked on each labdata update
 }, [editdata]);
 
-const updateLabData = async () => {
-    setSnackOpen(false);
-    try {
-        await axiosInstance.post(`/sec/hcf/addLabs?hcf_id=${hcf_id}`, JSON.stringify(editdata), {
-            headers: { 
-                Accept: "Application/json",
-                "Content-Type": "application/json"
-            },
-        });
-        await setSnackType("success");
-        await setSnackMessage("Lab Updated Successfully");
-        setSnackOpen(true);
-        setTimeout(() => setEditOpenDialog(false), 3000);
-        fetchData1(hcf_id); // Refresh the list
-    } catch (error) {
-        alert("Fill the details properly");
-        console.error(error.response);
-        await setSnackType("error");
-        await setSnackMessage("Some error occurred!!!");
-        setSnackOpen(true);
-    }
-};
-
-const deleteLabData = async (exam_id) => {
-    setSnackOpen(false);
-    try {
-        console.log("exam_id2", exam_id);
-        console.log("Delete URL:", `/sec/hcf/deleteLab?exam_id=${exam_id}`);
+    /**
+     * Update existing lab
+     * Posts updated lab data to the server and refreshes the list on success
+     */
+    const updateLabData = async () => {
+        logger.debug("📤 Updating lab");
+        setSnackOpen(false);
         
-        const response = await axiosInstance.delete(`/sec/hcf/deleteLab?exam_id=${exam_id}`);
-        console.log("Delete response:", response);
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            return;
+        }
+
+        try {
+            const response = await axiosInstance.post(
+                `/sec/hcf/addLabs?hcf_id=${adminId}`,
+                JSON.stringify(editdata),
+                {
+                    headers: { 
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    },
+                }
+            );
+            
+            logger.debug("✅ Lab updated successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Lab Updated Successfully";
+            setSnackType("success");
+            setSnackMessage(successMessage);
+            setSnackOpen(true);
+            toastService.success(successMessage);
+            
+            setTimeout(() => setEditOpenDialog(false), 2000);
+            fetchData1(adminId); // Refresh the list
+        } catch (error) {
+            logger.error("❌ Error updating lab:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to update lab. Please fill all fields properly and try again.";
+            
+            setSnackType("error");
+            setSnackMessage(errorMessage);
+            setSnackOpen(true);
+            toastService.error(errorMessage);
+        }
+    };
+
+    /**
+     * Delete lab
+     * Deletes a lab by exam_id and refreshes the list on success
+     * 
+     * @param {string|number} exam_id - Lab exam ID to delete
+     */
+    const deleteLabData = async (exam_id) => {
+        logger.debug("🗑️ Deleting lab:", exam_id);
+        setSnackOpen(false);
         
-        await setSnackType("success");
-        await setSnackMessage("Lab Deleted Successfully");
-        setSnackOpen(true);
-        fetchData1(hcf_id); // Refresh the list
-    } catch (error) {
-        console.error("Delete error:", error);
-        console.error("Error response:", error.response);
-        console.error("Error response data:", error.response?.data);
-        console.error("Error response status:", error.response?.status);
-        console.error("Error response statusText:", error.response?.statusText);
-        await setSnackType("error");
-        await setSnackMessage("Some error occurred while deleting!!!");
-        setSnackOpen(true);
-    }
-};
-const handleEditDropdownChange = (selectedDepartment) => {
-    const departmentId = departmentItems.find((item) => item.name === selectedDepartment)?.id;
-    console.log(departmentId, "this lab id");
-    setEditActiveDropdown(selectedDepartment);
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            return;
+        }
 
-    setEditdata((prevState) => ({
-        ...prevState,
-        lab_dept_id: String(departmentId), // Ensure lab_dept_id is stored as a string
-    }));
-};
+        // Validate exam_id
+        if (!exam_id) {
+            logger.error("❌ Invalid exam_id provided:", exam_id);
+            toastService.error("Invalid lab ID. Please try again.");
+            return;
+        }
 
-    // Fetching lab departments
+        try {
+            const response = await axiosInstance.delete(`/sec/hcf/deleteLab?exam_id=${exam_id}`);
+            
+            logger.debug("✅ Lab deleted successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Lab Deleted Successfully";
+            setSnackType("success");
+            setSnackMessage(successMessage);
+            setSnackOpen(true);
+            toastService.success(successMessage);
+            
+            fetchData1(adminId); // Refresh the list
+        } catch (error) {
+            logger.error("❌ Error deleting lab:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            logger.error("❌ Error status:", error?.response?.status);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to delete lab. Please try again.";
+            
+            setSnackType("error");
+            setSnackMessage(errorMessage);
+            setSnackOpen(true);
+            toastService.error(errorMessage);
+        }
+    };
+    /**
+     * Handle edit dropdown change for department selection
+     * 
+     * @param {string} selectedDepartment - Selected department name
+     */
+    const handleEditDropdownChange = (selectedDepartment) => {
+        const departmentId = departmentItems.find((item) => item.name === selectedDepartment)?.id;
+        logger.debug("📋 Edit department selected:", { selectedDepartment, departmentId });
+        setEditActiveDropdown(selectedDepartment);
+
+        setEditdata((prevState) => ({
+            ...prevState,
+            lab_dept_id: String(departmentId), // Ensure lab_dept_id is stored as a string
+        }));
+    };
+
+    /**
+     * Fetch lab departments
+     * Loads all available lab departments for dropdown selection
+     */
     const fetchLabs = async () => {
+        logger.debug("📋 Fetching lab departments");
         try {
             const response = await axiosInstance.get(`/sec/labDepartments`);
-            setLabDepartments(response?.data?.response || []);
+            const departments = response?.data?.response || [];
+            
+            logger.debug("✅ Lab departments received", { count: departments.length });
+            setLabDepartments(departments);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
+            logger.error("❌ Error fetching lab departments:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            toastService.error("Failed to load lab departments");
+            setLabDepartments([]); // Ensure state is an array even on error
         }
     };
 
@@ -278,9 +425,14 @@ const handleEditDropdownChange = (selectedDepartment) => {
         name: department.lab_department_name,
     }));
 
+    /**
+     * Handle dropdown change for department selection
+     * 
+     * @param {string} selectedDepartment - Selected department name
+     */
     const handleDropdownChange = (selectedDepartment) => {
         const departmentId = departmentItems.find((item) => item.name === selectedDepartment)?.id;
-        console.log(departmentId, "this lab id");
+        logger.debug("📋 Department selected:", { selectedDepartment, departmentId });
         setActiveDropdown(selectedDepartment);
 
         setLabData((prevState) => ({
@@ -390,8 +542,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                         width: "100%",
                                         "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                         "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                        "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                        "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                     }}
                                 />
 
@@ -426,8 +578,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                             flex: 1,
                                                             "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                                             "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                                            "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                                            "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                                         }
                                                     }
                                                 }}
@@ -446,8 +598,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                             flex: 1,
                                                             "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                                             "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                                            "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                                            "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                                         }
                                                     }
                                                 }}
@@ -491,8 +643,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                 flex: 1,
                                                 "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                                 "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                                "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                                "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                                "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                                "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                             }}
                                         />
                                         <Typography sx={{ color: "#666", fontSize: "14px" }}>to</Typography>
@@ -513,8 +665,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                 flex: 1,
                                                 "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                                 "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                                "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                                "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                                "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                                "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                             }}
                                         />
                                     </Box>
@@ -553,10 +705,10 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                     borderColor: "#e0e0e0",
                                                 },
                                                 "&:hover fieldset": {
-                                                    borderColor: "#1976d2",
+                                                    borderColor: "#e72b4a",
                                                 },
                                                 "&.Mui-focused fieldset": {
-                                                    borderColor: "#1976d2",
+                                                    borderColor: "#e72b4a",
                                                 },
                                             },
                                             "& .MuiInputBase-input::placeholder": {
@@ -674,8 +826,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                     width: "100%",
                                     "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                     "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                    "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                    "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                    "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                    "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                 }}
                             />
 
@@ -695,8 +847,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                 sx={{
                                     "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                     "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                    "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                    "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                    "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                    "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                 }}
                             />
 
@@ -733,8 +885,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                         flex: 1,
                                                         "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                                         "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                                        "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                                        "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                                     }
                                                 }
                                             }}
@@ -758,8 +910,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                         flex: 1,
                                                         "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                                         "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                                        "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                                        "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                                        "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                                     }
                                                 }
                                             }}
@@ -801,8 +953,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                             flex: 1,
                                             "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                             "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                            "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                            "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                         }}
                                     />
                                     <Typography sx={{ color: "#666", fontSize: "14px" }}>to</Typography>
@@ -823,8 +975,8 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                             flex: 1,
                                             "& .MuiInputLabel-root": { color: "#787579", fontFamily: "Poppins, sans-serif" },
                                             "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#1976d2" },
-                                            "& .MuiInput-underline:after": { borderBottomColor: "#1976d2" }
+                                            "& .MuiInput-underline:hover:not(.Mui-disabled):before": { borderBottomColor: "#e72b4a" },
+                                            "& .MuiInput-underline:after": { borderBottomColor: "#e72b4a" }
                                         }}
                                     />
                                 </Box>
@@ -863,10 +1015,10 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                 borderColor: "#e0e0e0",
                                             },
                                             "&:hover fieldset": {
-                                                borderColor: "#1976d2",
+                                                borderColor: "#e72b4a",
                                             },
                                             "&.Mui-focused fieldset": {
-                                                borderColor: "#1976d2",
+                                                borderColor: "#e72b4a",
                                             },
                                         },
                                         "& .MuiInputBase-input::placeholder": {
@@ -910,9 +1062,30 @@ const handleEditDropdownChange = (selectedDepartment) => {
                 </Dialog>
                 <Box
                     component={"div"}
-                    sx={{ position: "relative", top: "4em", width: "100%", height: "100%" }}
+                    sx={{ 
+                        flex: 1,
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        overflow: "hidden",
+                        marginTop: "4em",
+                    }}
                 >
-                    <TableContainer component={Paper} style={{ background: "white" }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <TableContainer 
+                        component={Paper} 
+                        style={{ 
+                            background: "white",
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
+                            overflow: "auto", // Enable scrolling for table content
+                            maxHeight: "calc(100vh - 250px)", // Adjusted to account for navbar and spacing
+                            border: "1px solid #e72b4a", borderRadius: "10px", padding: "10px"
+                        }}
+                    >
                         <Table sx={{ minWidth: 1 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow style={{ fontWeight: "bold" }}>
@@ -1010,7 +1183,9 @@ const handleEditDropdownChange = (selectedDepartment) => {
                                                             label="Delete"
                                                             isTransaprent={false}
                                                             handleClick={() => {
-                                                                if (window.confirm("Are you sure you want to delete this lab?")) {
+                                                                // Use toastService for confirmation would require a custom modal
+                                                                // For now, using window.confirm as it's immediate
+                                                                if (window.confirm("Are you sure you want to delete this lab? This action cannot be undone.")) {
                                                                     deleteLabData(data.exam_id);
                                                                 }
                                                             }}

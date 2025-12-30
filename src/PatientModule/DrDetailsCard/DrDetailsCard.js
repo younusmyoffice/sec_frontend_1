@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
-// import SingleLineGridList from "./Crousal";
 import "./drdetailscard.scss";
 import { useNavigate, useParams } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
@@ -9,83 +8,162 @@ import ContainerTwo from "./DoctorDetailContainerTwo";
 import ContainerThree from "./DoctorDetailContainerThree";
 import ContainerFour from "./DoctorDetailContainerFour";
 import DrImage from "../../static/images/DrImages/doctor_alter.jpeg";
-import axiosInstance from "../../config/axiosInstance";
+import axiosInstance from "../../config/axiosInstance"; // Handles access token automatically
 import { formatDateDay, formatTime } from "../../constants/const";
+import logger from "../../utils/logger"; // Centralized logging
+import toastService from "../../services/toastService"; // Toast notifications
 
+/**
+ * DrDetailsCard Component
+ * 
+ * Displays detailed information about a doctor
+ * Features:
+ * - Fetches doctor details by ID from API
+ * - Shows doctor profile (name, image, qualification)
+ * - Displays statistics (ratings, consultations, reviews)
+ * - Shows reviews and description
+ * - Displays education, license, awards, and experience
+ * 
+ * API Endpoints:
+ * - POST /sec/patient/DashboardDoctordetailsbyId (with suid parameter)
+ * 
+ * @component
+ */
 const DrDetailsCard = () => {
+    logger.debug("🔵 DrDetailsCard component rendering");
+    
     const params = useParams();
     const doctorID = params.resID;
-    console.log("this is doctor doctorID", doctorID);
+    
+    logger.debug("👤 Doctor ID from params", { doctorID });
 
-    const [drCardData, setDrCardData] = useState();
-    const [review, setReview] = useState();
+    // State for doctor details
+    const [drCardData, setDrCardData] = useState(null);
+    const [review, setReview] = useState([]);
     const [loading, setloading] = useState(false);
     const [doctorLicense, setDoctorLicense] = useState([]);
     const [doctorAward, setDoctorAward] = useState([]);
     const [doctorExperience, setDoctorExperience] = useState([]);
-    const [doctorTotalconsultations, setDoctorTotalconsultations] = useState();
-    const [doctorAverageRating, setDoctorAverageRating] = useState();
-    const [doctorTotalReviews, setDoctorTotalReviews] = useState();
-    const [doctorTotalExperience, setDoctorTotalExperience] = useState();
+    const [doctorTotalconsultations, setDoctorTotalconsultations] = useState(0);
+    const [doctorAverageRating, setDoctorAverageRating] = useState(0);
+    const [doctorTotalReviews, setDoctorTotalReviews] = useState(0);
+    const [doctorTotalExperience, setDoctorTotalExperience] = useState(0);
 
-    
+    /**
+     * Fetch doctor details by ID from API
+     * Retrieves comprehensive doctor information including:
+     * - Profile details (name, image, qualification)
+     * - Statistics (ratings, consultations, reviews)
+     * - Reviews and descriptions
+     * - Education, license, awards, experience
+     */
     const fetchDataNew = async () => {
+        logger.debug("📡 Fetching doctor details", { doctorID });
         setloading(true);
+        
         try {
-            console.log("doctorID in fetchDataNew", doctorID);
+            // Validate doctor ID
+            if (!doctorID) {
+                logger.error("❌ Doctor ID is missing");
+                toastService.error("Doctor ID is required");
+                setloading(false);
+                return;
+            }
+            
             const response = await axiosInstance.post(
                 `/sec/patient/DashboardDoctordetailsbyId`,
                 { suid: Number(doctorID) },
                 { headers: { 'Content-Type': 'application/json' } }
             );
-            console.log("Response Received Doctor Details : ", response?.data?.response[0]);
-            console.log("Full API Response:", response?.data);
             
+            logger.debug("✅ Doctor details fetched successfully", {
+                hasData: !!response?.data?.response,
+                hasLicenses: (response?.data?.doctorLicense || []).length > 0,
+                hasAwards: (response?.data?.doctorAwards || []).length > 0,
+                hasExperience: (response?.data?.doctorExperience || []).length > 0
+            });
+            
+            // Set doctor card data
             setDrCardData(response.data.response);
+            
+            // Set licenses, awards, and experience
             setDoctorLicense(response?.data?.doctorLicense || []);
             setDoctorAward(response?.data?.doctorAwards || []);
             setDoctorExperience(response?.data?.doctorExperience || []);
+            
+            // Set review data
             setReview(response?.data?.doctorReviewData || []);
+            
+            // Set statistics
             setDoctorTotalconsultations(response?.data?.doctorTotalconsultations || 0);
             setDoctorAverageRating(response?.data?.doctorAverageRating || 0);
             setDoctorTotalReviews(response?.data?.doctorTotalReviews || 0);
             setDoctorTotalExperience(response?.data?.doctorTotalExperience || 0);
-
+            
+            toastService.success("Doctor details loaded successfully");
         } catch (error) {
-            console.log("Dr detauils error", error.response);
+            logger.error("❌ Failed to fetch doctor details:", error);
+            toastService.error("Failed to load doctor details");
+            
+            // Set fallback values
+            setDrCardData(null);
+            setReview([]);
+            setDoctorLicense([]);
+            setDoctorAward([]);
+            setDoctorExperience([]);
         } finally {
             setloading(false);
         }
     };
-console.log("doctorID in useEffect", doctorID);
+    /**
+     * Fetch doctor details on mount or when doctorID changes
+     */
     useEffect(() => {
+        logger.debug("🔵 DrDetailsCard useEffect triggered", { doctorID });
         
         if (doctorID) {
             fetchDataNew();
+        } else {
+            logger.warn("⚠️ Doctor ID is not available");
+            toastService.error("Invalid doctor ID");
+            setloading(false);
         }
     }, [doctorID]);
 
-    // Debug logging
-    console.log("🔍 DrDetailsCard Debug:");
-    console.log("  - doctorID:", doctorID);
-    console.log("  - drCardData:", drCardData);
-    console.log("  - doctorLicense:", doctorLicense);
-    console.log("  - doctorAward:", doctorAward);
-    console.log("  - doctorExperience:", doctorExperience);
-    console.log("  - loading:", loading);
+    /**
+     * Debug logging - only in development mode
+     */
+    if (process.env.NODE_ENV === 'development') {
+        logger.debug("🔍 DrDetailsCard state:", {
+            doctorID,
+            hasCardData: !!drCardData,
+            licensesCount: doctorLicense.length,
+            awardsCount: doctorAward.length,
+            experienceCount: doctorExperience.length,
+            reviewsCount: review.length,
+            loading
+        });
+    }
 
     const classes = useStyles();
     const navigate = useNavigate();
+    
+    /**
+     * Handle dialog open/close state
+     * 
+     * @param {boolean} condition - Dialog open state
+     */
     const handleOpen = (condition) => {
+        logger.debug("🔔 Dialog state changed", { open: condition });
         setOpenDialog(condition);
     };
-    const drimg = DrImage;
-
-    const [openDialog, setOpenDialog] = useState(false);
+    
+    const drimg = DrImage; // Default doctor image
+    const [openDialog, setOpenDialog] = useState(false); // Dialog state
     return (
         <>
             <Box sx={{ width: "100%", height: "100%" }}>
-                {/* 1st Container */}
+                {/* Container 1: Doctor Profile */}
                 <ContainerOne
                     isLoading={loading}
                     Fname={drCardData?.[0]?.first_name || drCardData?.first_name}
@@ -97,22 +175,24 @@ console.log("doctorID in useEffect", doctorID);
                     hospital={drCardData?.[0]?.hospital_org || drCardData?.hospital_org}
                     worktime={`${formatDateDay(drCardData?.[0]?.working_days_start || drCardData?.working_days_start)} - ${formatDateDay(drCardData?.[0]?.working_days_end || drCardData?.working_days_end)} | ${formatTime(drCardData?.[0]?.working_time_start || drCardData?.working_time_start)} to ${formatTime(drCardData?.[0]?.working_time_end || drCardData?.working_time_end)}`}
                 />
-                {/* 2nd container  */}
+                
+                {/* Container 2: Doctor Statistics */}
                 <ContainerTwo
                 doctorAverageRating={doctorAverageRating}
                 doctorTotalconsultations={doctorTotalconsultations}
                 doctorTotalReviews={doctorTotalReviews}
                 doctorTotalExperience={doctorTotalExperience}
-                    isLoading={loading} // Pass isLoading prop to Container1
+                    isLoading={loading}
                 />
 
-                {/* 3rd container */}
+                {/* Container 3: Reviews and Description */}
                 <ContainerThree 
                     review={review}
                     description={drCardData?.[0]?.description || drCardData?.description}
                     isLoading={loading}
                 />
-                {/* 4th container 1st card */}
+                
+                {/* Container 4: Education, License, Awards, Experience */}
                 <ContainerFour
                     Qualification={drCardData?.[0]?.qualification || drCardData?.qualification}
                     YearOfQualification={drCardData?.[0]?.qualified_year || drCardData?.qualified_year}

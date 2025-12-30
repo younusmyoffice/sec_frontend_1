@@ -1,6 +1,18 @@
-@media screen and (max-width: 768px) {
-    .upcomingButton{
+/**
+ * Upcoming Styles
+ * 
+ * Mobile-responsive styles for upcoming appointments
+ */
 
+// Mobile styles for upcoming button
+@media screen and (max-width: 768px) {
+    .upcomingButton {
+        // Note: Consider using proper brand color instead of aqua
+        // background-color: rgba(231, 43, 74, 0.1) !important; // #E72B4A with opacity
+        // Or use primary brand color
+        // background-color: #e72b4a !important;
+        
+        // Temporary: Keeping original for now, but marked for review
         background-color: aqua !important;
     }
-  }
+}

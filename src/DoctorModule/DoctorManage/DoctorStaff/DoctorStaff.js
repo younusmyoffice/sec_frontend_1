@@ -90,20 +90,23 @@ const DoctorStaff = () => {
         setAge(event.target.value);
     };
     return (
-        <Box sx={{ display: "flex", width: "98%", height: "100%", height: "90%" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", width: "98%", height: "100%", overflow: "hidden" }}>
             <DoctorManageNavbar />
             <Box
                 component={"div"}
                 sx={{
-                    position: "relative",
-                    top: "4em",
+                    flex: 1,
                     width: "100%",
                     display: "flex",
-                    height: "100%",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    overflow: "hidden",
+                    marginTop: "4em",
                 }}
             >
-                <Box sx={{ width: "100%", height: "100%" }}>
-                    <div style={{ display: "flex" }}>
+                <Box sx={{ width: "100%", flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                    {/* Filter controls - fixed at top */}
+                    <div style={{ display: "flex", flexShrink: 0, marginBottom: "1rem" }}>
                         {/* <Box
                                 display={"flex"} margin={"10px"}
                                 flexWrap={"wrap"}
@@ -156,8 +159,20 @@ const DoctorStaff = () => {
                             </FormControl>
                         </Box>
                     </div>
-                    <div className="">
-                        <TableContainer component={Paper} style={{ background: "white" }}>
+                    {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                        <TableContainer 
+                            component={Paper} 
+                            style={{ 
+                                background: "white",
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                minHeight: 0,
+                                overflow: "auto", // Enable scrolling for table content
+                                maxHeight: "calc(100vh - 350px)", // Adjusted to account for navbar, filters, and pagination
+                            }}
+                        >
                             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                                 <TableHead>
                                     <TableRow style={{ fontWeight: "bold" }}>
@@ -188,9 +203,11 @@ const DoctorStaff = () => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                    </div>
-                    <div style={{ marginTop: "400px" }}>
-                        <PaginationCard />
+                        
+                        {/* Pagination Component - fixed at bottom, doesn't scroll */}
+                        <div style={{ flexShrink: 0, marginTop: "1rem", display: "flex", justifyContent: "center" }}>
+                            <PaginationCard />
+                        </div>
                     </div>
                 </Box>
             </Box>

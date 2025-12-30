@@ -17,7 +17,6 @@ import DashboardTable from "./DashboardTable";
 import axios from "axios"
 import axiosInstance from "../../../config/axiosInstance"
 import { useNavigate } from "react-router-dom";
-import { data } from "../../../constants/const";
 
 
 const AdminDashboard = () => {

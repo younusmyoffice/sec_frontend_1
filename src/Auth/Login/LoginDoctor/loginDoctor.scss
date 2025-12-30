@@ -1,0 +1,106 @@
+/**
+ * LoginDoctor Component Styles
+ * 
+ * Styles for the doctor login page following split-screen layout pattern.
+ * Features:
+ * - Two-column layout (image left, form right)
+ * - Centered card design for form
+ * - Responsive design
+ * - Brand color scheme (#e72b4a)
+ */
+
+// ============================================
+// MAIN LAYOUT
+// ============================================
+
+// Main page container - full viewport with centered content
+.register-photo {
+    
+    display: flex;
+    height: 100vh; // Full viewport height
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5; // Light gray background
+}
+
+// Background decorative image holder (left side - 50% width)
+.image-holder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8d7da; // Light pink/red background
+    width: 50%; // Take up half of the screen
+}
+
+// Form container - centered card with shadow
+.form-container {
+    background: #ffffff; // White background
+    width: 50%; // Takes remaining 50% of screen
+    display: flex;
+    padding: 2rem; // Spacing around form content
+}
+
+.component-library {
+    width: 100%; // Full width of form container
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+// Logo container - centered with top margin
+.logo1 {
+    text-align: center;
+    margin-top: 4%;
+}
+
+// ============================================
+// LINKS & NAVIGATION
+// ============================================
+
+// "Already have account" / Sign up link styling
+.already {
+    margin-left: auto;
+    justify-content: center;
+    display: contents; // Display as inline content
+    margin-top: 10px;
+    font-size: medium;
+}
+
+// Whole container utility (not currently used)
+.whole {
+    margin: auto;
+}
+
+// Forgot password link styling
+.forgotpassword {
+    margin: auto;
+    display: contents; // Display as inline content
+    margin-top: 10px;
+    font-size: medium;
+    color: #e72b4a; // Primary brand color (red/pink)
+}
+
+// Centered text (page title)
+.text-center {
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 0px;
+    margin-top: 40px;
+    margin-left: auto;
+    text-align: center;
+}
+
+// Mobile/OTP login link styling
+.mobile {
+    margin: auto;
+    margin-top: 10px;
+    display: contents; // Display as inline content
+    font-size: medium;
+    color: #e72b4a; // Primary brand color (red/pink)
+}
+
+// Link color - brand color for all links
+.link {
+    color: #e72b4a; // Primary brand color (red/pink)
+}

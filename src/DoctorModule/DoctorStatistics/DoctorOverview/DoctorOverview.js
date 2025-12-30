@@ -91,9 +91,9 @@ const OverView = () => {
 
     return (
         <>
-            <Box sx={{ display: "flex", width: "98%",}}>
+            <Box sx={{ display: "flex", flexDirection: "column", width: "98%", height: "100%", overflow: "hidden" }}>
                 <DoctorStatisticsNavbar />
-                <div className="main-container3">
+                <div className="main-container3" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                     <div className="Earning-container">
                         <Box
                             sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
@@ -155,8 +155,20 @@ const OverView = () => {
                         </Typography>
                     </div>
 
-                    <div className="Earning-Table">
-                        <TableContainer component={Paper} style={{ background: "white" }}>
+                    <div className="Earning-Table" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                        {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                        <TableContainer 
+                            component={Paper} 
+                            style={{ 
+                                background: "white",
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                minHeight: 0,
+                                overflow: "auto", // Enable scrolling for table content
+                                maxHeight: "calc(100vh - 350px)", // Adjusted to account for navbar, earnings cards, and spacing
+                            }}
+                        >
                             <Table sx={{ minWidth: 650 }} size="large">
                                 <TableHead
                                     sx={{ fontSize: "14px", fontWeight: "500", color: "#313033" }}

@@ -51,71 +51,100 @@ const DoctorCompleted = () => {
     const paginatedData = completedData.slice(startIndex, endIndex);
 
     return (
-        <>
-            <Box sx={{ display: "flex", width: "95%", height: "100%" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", width: "95%", height: "100%", overflow: "hidden" }}>
+            {/* Fixed navbar container - accounts for absolute positioning */}
+            <Box sx={{ 
+                flexShrink: 0, 
+                zIndex: 10,
+                width: "100%",
+                height: "70px", // Fixed height to account for navbar
+                position: "relative",
+                marginBottom: "1rem",
+            }}>
                 <DoctorAppointmentNavbar />
-                <Box
-                    component={"div"}
-                    sx={{
-                        position: "relative",
-                        top: "4em",
-                        width: "100%",
+            </Box>
+            
+            {/* Scrollable content area below navbar */}
+            <Box
+                component={"div"}
+                sx={{
+                    flex: 1,
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                    overflow: "hidden",
+                }}
+            >
+                {/* Scrollable content container - enables internal scrolling when content exceeds viewport */}
+                <Box 
+                    sx={{ 
+                        width: "100%", 
+                        border: "1px solid #E72B4A",
+                        borderRadius: "0.5rem",
+                        padding: "2%",
+                        marginLeft: "2%",
+                        minHeight: "55vh",
+                        maxHeight: "calc(100vh - 320px)", // Adjusted to account for navbar and pagination
+                        overflowY: "auto", // CRITICAL: Enable vertical scrolling when content overflows
+                        overflowX: "hidden", // Prevent horizontal scrolling
                         display: "flex",
-                        height: "100%",
+                        flexDirection: "column",
+                        flex: 1, // Take available space
+                        minHeight: 0, // Allow shrinking below minHeight when needed for scrolling
                     }}
                 >
-                    <Box sx={{ width: "100%", height: "100%" }}>
-                        <Box sx={{ width: "100%", height: "100%" }}>
-                            <Box
-                                sx={{
-                                    width: "100%",
-                                    border: "1px solid #E6E1E5",
-                                    height: "70%",
-                                    borderRadius: "8px",
-                                    padding: "2%",
-                                    marginLeft: "2%",
-                                }}
-                            >
-                                {loading ? (
-                                    Array.from({ length: 3 }).map((_, index) => (
-                                        <Skeleton
-                                            key={index}
-                                            variant="rectangular"
-                                            width="100%"
-                                            height={80}
-                                            sx={{ mb: 2 }}
-                                        />
-                                    ))
-                                ) : completedData.length === 0 ? (
-                                    <NoAppointmentCard text_one={"No Appointment"} />
-                                ) : (
-                                    paginatedData.map((completeData) => (
-                                        <CustomRequestCard key={completeData.id} data={completeData} />
-                                    ))
-                                )}
-                            </Box>
-                            {/* Pagination Component */}
-                            {!loading && completedData.length > 0 && (
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        mt: 2,
-                                    }}
-                                >
-                                    <Pagination
-                                        count={Math.ceil(completedData.length / itemsPerPage)}
-                                        page={currentPage}
-                                        onChange={handlePageChange}
-                                        color="primary"
-                                    />
-                                </Box>
-                            )}
-                        </Box>
+                    <Box sx={{ 
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "2px solidrgb(122, 122, 122)",
+                        borderRadius: "10px",
+                        boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.1)",
+                        gap: 0, // Gap handled by card margin-bottom
+                    }}>
+                        {loading ? (
+                            Array.from({ length: 3 }).map((_, index) => (
+                                <Skeleton
+                                    key={index}
+                                    variant="rectangular"
+                                    width="100%"
+                                    height={80}
+                                    sx={{ mb: 2, borderRadius: "0.5rem" }}
+                                />
+                            ))
+                        ) : completedData.length === 0 ? (
+                            <NoAppointmentCard text_one={"No Appointment"} />
+                        ) : (
+                            paginatedData.map((completeData) => (
+                                <CustomRequestCard key={completeData.id} data={completeData} />
+                            ))
+                        )}
                     </Box>
                 </Box>
+                
+                {/* Pagination Component - fixed at bottom, doesn't scroll */}
+                {!loading && completedData.length > 0 && (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            paddingTop: "1.5rem",
+                            paddingBottom: "1rem",
+                            marginLeft: "2%",
+                            flexShrink: 0, // Prevent pagination from shrinking
+                        }}
+                    >
+                        <Pagination
+                            count={Math.ceil(completedData.length / itemsPerPage)}
+                            page={currentPage}
+                            onChange={handlePageChange}
+                            color="primary"
+                        />
+                    </Box>
+                )}
             </Box>
-        </>
+        </Box>
     );
 };
 

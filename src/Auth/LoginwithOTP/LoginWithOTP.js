@@ -58,7 +58,7 @@ const LoginWithOtp = () => {
 
     const roleRoutes = {
         1: { path: "/admindashboard" },
-        2: { path: "/hcfadminsignup" },
+        2: { path: "/hcfAdminCompleteProfile" },
         3: { path: "/doctorsignup" },
         4: { path: "/diagnostCenterDashboard" },
         5: { path: "/patientcompleteprofile" },

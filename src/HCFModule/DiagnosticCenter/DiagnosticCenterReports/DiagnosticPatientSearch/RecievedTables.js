@@ -15,10 +15,13 @@ import {
 import React, { useState, useEffect } from "react";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CustomButton from "../../../../components/CustomButton";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import CustomSnackBar from "../../../../components/CustomSnackBar";
 import DiagnostCenterTableCard from "../DiagnosticCenterChat/DiagnostCenterTableCard";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 const RecievedTables = () => {
     const [cardData, setCardData] = useState([]);
@@ -30,13 +33,50 @@ const RecievedTables = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    /**
+     * Validate Diagnostic staff ID from localStorage
+     * SECURITY: Ensures staff ID is present before making API calls
+     * 
+     * @returns {string|null} Staff ID or null if invalid
+     */
+    const validateStaffId = useCallback(() => {
+        const staffId = localStorage.getItem("diagnostic_suid");
+
+        if (!staffId) {
+            logger.warn("⚠️ Diagnostic staff ID not found in localStorage");
+            toastService.warning("Staff ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ Diagnostic staff ID validated:", staffId);
+        return staffId;
+    }, []);
+
+    /**
+     * Fetch test requests
+     * Loads all test requests for the diagnostic center
+     */
     const fetchData = async () => {
+        logger.debug("📋 Fetching test requests");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const resp = await axiosInstance(`/sec/hcf/testRequests/${staff_id}`);
-            setCardData(resp?.data?.response || []);
+            const resp = await axiosInstance.get(`/sec/hcf/testRequests/${staffId}`);
+            const requests = resp?.data?.response || [];
+            
+            logger.debug("✅ Test requests received", { count: requests.length });
+            setCardData(requests);
         } catch (err) {
-            console.log("Error: ", err);
+            logger.error("❌ Error fetching test requests:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            toastService.error("Failed to load test requests");
+            setCardData([]);
         } finally {
             setLoading(false);
         }
@@ -46,41 +86,111 @@ const RecievedTables = () => {
         fetchData();
     }, [isopen]);
 
+    /**
+     * Accept test request
+     * Accepts a test request and updates its status
+     * 
+     * @param {string} testID - Test ID
+     * @param {string} staffID - Staff ID
+     */
     const AcceptData = async (testID, staffID) => {
+        logger.debug("✅ Accepting test request", { testID, staffID });
         setIsopen(false);
+        
+        const staffId = validateStaffId();
+        if (!staffId || !testID) {
+            return;
+        }
+
         try {
-            await axiosInstance.post(`/sec/hcf/testRequestsAccept`, JSON.stringify({
-                test_id: String(testID),
-                staff_id: String(staffID)
-            }));
-            setSnackMessage("Accepted Successfully");
+            const response = await axiosInstance.post(
+                `/sec/hcf/testRequestsAccept`,
+                JSON.stringify({
+                    test_id: String(testID),
+                    staff_id: String(staffId)
+                }),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+            
+            logger.debug("✅ Test request accepted successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Accepted Successfully";
+            setSnackMessage(successMessage);
             setSnackStatus("success");
             setIsopen(true);
+            toastService.success(successMessage);
+            
             fetchData(); // Refresh data after acceptance
         } catch (err) {
-            console.log("Error: ", err);
-            setSnackMessage("Error");
+            logger.error("❌ Error accepting test request:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            
+            const errorMessage = err?.response?.data?.message ||
+                                "Failed to accept test request. Please try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackStatus("error");
             setIsopen(true);
+            toastService.error(errorMessage);
         }
     };
 
+    /**
+     * Reject test request
+     * Rejects a test request and updates its status
+     * 
+     * @param {string} testID - Test ID
+     * @param {string} staffID - Staff ID
+     */
     const RejectData = async (testID, staffID) => {
+        logger.debug("❌ Rejecting test request", { testID, staffID });
         setIsopen(false);
+        
+        const staffId = validateStaffId();
+        if (!staffId || !testID) {
+            return;
+        }
+
         try {
-            await axiosInstance.post(`/sec/hcf/testRequestReject`, JSON.stringify({
-                test_id: String(testID),
-                staff_id: String(staffID)
-            }));
-            setSnackMessage("Rejected Successfully");
+            const response = await axiosInstance.post(
+                `/sec/hcf/testRequestReject`,
+                JSON.stringify({
+                    test_id: String(testID),
+                    staff_id: String(staffId)
+                }),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+            
+            logger.debug("✅ Test request rejected successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Rejected Successfully";
+            setSnackMessage(successMessage);
             setSnackStatus("success");
             setIsopen(true);
+            toastService.success(successMessage);
+            
             fetchData(); // Refresh data after rejection
         } catch (err) {
-            console.log("Error: ", err);
-            setSnackMessage("Error");
+            logger.error("❌ Error rejecting test request:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            
+            const errorMessage = err?.response?.data?.message ||
+                                "Failed to reject test request. Please try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackStatus("error");
             setIsopen(true);
+            toastService.error(errorMessage);
         }
     };
 

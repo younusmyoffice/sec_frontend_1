@@ -1406,7 +1406,7 @@ export default function HorizontalLinearStepper({  hcfDoc }) {
                                                             ? "#4caf50" 
                                                             : (!values?.instance || isRefreshing || isProcessingPayment) 
                                                                 ? "#adb5bd" 
-                                                                : (isDevelopmentMode() ? "#ff9800" : "#1976d2"),
+                                                                : (isDevelopmentMode() ? "#ff9800" : "#e72b4a"),
                                                         marginBottom: "8px",
                                                         opacity: (!values?.instance || isRefreshing || isProcessingPayment || isAppointmentBooked) ? 0.7 : 1
                                                     }}

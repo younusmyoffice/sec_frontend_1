@@ -2,6 +2,11 @@
   position: relative;
   width: 100%;
   
+  // Ensure input container is positioned relative for absolute icon positioning
+  .MuiTextField-root {
+    position: relative;
+  }
+  
   .date-picker-label {
     display: flex;
     align-items: center;
@@ -14,6 +19,61 @@
     
     svg {
       transition: color 0.3s ease;
+    }
+  }
+  
+  // Override for standard variant (underline style) - matches image design
+  .MuiInputBase-root {
+    position: relative;
+    
+    // Calendar icon positioning for standard variant - MUST be clickable
+    .MuiInputAdornment-root {
+      // CRITICAL: Allow pointer events so icon button is clickable
+      pointer-events: auto !important;
+      
+      // Calendar icon button styling
+      .MuiIconButton-root {
+        color: #808080;
+        padding: 4px;
+        cursor: pointer;
+        pointer-events: auto !important; // Ensure button receives clicks
+        
+        &:hover {
+          color: #E53935;
+          background-color: transparent;
+        }
+        
+        .MuiSvgIcon-root {
+          color: #808080;
+          font-size: 20px;
+          transition: color 0.2s ease;
+          pointer-events: none; // Icon itself doesn't need pointer events
+        }
+      }
+      
+      .MuiSvgIcon-root {
+        color: #808080;
+        font-size: 20px;
+      }
+    }
+  }
+  
+  // Standard variant specific styling
+  .MuiInput-underline {
+    // Ensure calendar icon is visible on right
+    &::before {
+      border-bottom-color: #e0e0e0;
+      border-bottom-width: 1px;
+    }
+    
+    &:hover:not(.Mui-disabled)::before {
+      border-bottom-color: #E53935;
+      border-bottom-width: 2px;
+    }
+    
+    &::after {
+      border-bottom-color: #E53935;
+      border-bottom-width: 2px;
     }
   }
   

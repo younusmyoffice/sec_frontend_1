@@ -1,3 +1,17 @@
+/**
+ * HCFAdminCompleteProfile Component
+ * 
+ * Handles HCF Admin profile completion for users with incomplete profiles after login.
+ * Features:
+ * - Multi-step form (2 steps)
+ * - HCF information collection (name, category, registration details)
+ * - Service details (dates, times, departments)
+ * - JWT token-based authentication
+ * - Automatic token handling via axiosInstance
+ * - Dynamic department selection
+ * - HCF category selection (Clinic, Diagnostic Center, Both)
+ */
+
 import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
@@ -21,10 +35,13 @@ import dayjs from "dayjs";
 import CustomTimePicker from "../../../../components/CustomTimePicker";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { getCurrentUser, getCurrentUserId, getCurrentRoleId, getCurrentUserEmail } from "../../../../utils/jwtUtils";
+import logger from "../../../../utils/logger"; // Added logger
+import toastService from "../../../../services/toastService"; // Added toastService
+import { Loading } from "../../../../components/Loading"; // Added Loading component
 
 const steps = ["", ""];
 
-const HcfAdminSignUp = () => {
+const HCFAdminCompleteProfile = () => {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const [flagToSendDoctorData, setFlagToSendDoctorData] = useState(false);
@@ -35,16 +52,18 @@ const HcfAdminSignUp = () => {
     const roleId = getCurrentRoleId();
     const userEmail = getCurrentUserEmail();
     
-    console.log("HCF Admin - Current user from JWT:", currentUser);
-    console.log("HCF Admin - User ID:", userId, "Role ID:", roleId, "Email:", userEmail);
-    console.log("HCF Admin - localStorage hcfadmin_Email:", localStorage.getItem("hcfadmin_Email"));
-    console.log("HCF Admin - localStorage jwt_email:", localStorage.getItem("jwt_email"));
-    console.log("HCF Admin - localStorage access_token:", localStorage.getItem("access_token"));
-    console.log("HCF Admin - All localStorage keys:", Object.keys(localStorage));
+    // Log user information for debugging (development only)
+    logger.debug("HCF Admin - Current user from JWT:", currentUser);
+    logger.debug("HCF Admin - User ID:", userId, "Role ID:", roleId, "Email:", userEmail);
+    logger.debug("HCF Admin - localStorage hcfadmin_Email:", localStorage.getItem("hcfadmin_Email"));
+    logger.debug("HCF Admin - localStorage jwt_email:", localStorage.getItem("jwt_email"));
+    logger.debug("HCF Admin - localStorage access_token:", localStorage.getItem("access_token"));
+    logger.debug("HCF Admin - All localStorage keys:", Object.keys(localStorage));
     
     const [updateUserData, setUpdateUserData] = useState({
         suid: localStorage.getItem("hcfadmin_suid"),
         email: userEmail || localStorage.getItem("jwt_email") || localStorage.getItem("hcfadmin_Email") || "",
+        role_id: roleId || localStorage.getItem("role_id") || 2, // HCF Admin role_id is 2
         hcf_name: null,
         reg_no: null,
         category_id: null,
@@ -61,6 +80,7 @@ const HcfAdminSignUp = () => {
     const [hcfCategory, setHcfCategory] = useState("Clinic");
     const [hcfItems] = useState(["Clinic", "Diagnostic Center", "Both"]);
     const [departments, setDepartments] = useState([]);
+    const [isLoading, setIsLoading] = useState(false); // Loading state for API operations
 
     const navigate = useNavigate();
 
@@ -122,7 +142,7 @@ const HcfAdminSignUp = () => {
         }
     }, []);
 
-    console.log("user data : ", updateUserData);
+    logger.debug("User data state:", updateUserData);
 
     useEffect(() => {
         if (flagToSendDoctorData) {
@@ -132,6 +152,7 @@ const HcfAdminSignUp = () => {
 
     const PostUserData = async () => {
         setFlagToSendDoctorData(false);
+        setIsLoading(true); // Show loading overlay
         try {
             // Final email check before sending - comprehensive extraction
             const emailFromJWT = getCurrentUserEmail();
@@ -142,11 +163,15 @@ const HcfAdminSignUp = () => {
             
             // Ensure we have the required data for incomplete profiles
             const hcfAdminSuid = localStorage.getItem("hcfadmin_suid");
+            const roleIdFromJWT = getCurrentRoleId();
+            const roleIdFromStorage = localStorage.getItem("role_id");
+            const finalRoleId = updateUserData.role_id || roleIdFromJWT || roleIdFromStorage || 2; // Default to 2 (HCF Admin)
             
             const finalData = {
                 ...updateUserData,
                 suid: updateUserData.suid || hcfAdminSuid,
                 email: finalEmail,
+                role_id: finalRoleId, // Explicitly include role_id
                 // Format time values to HH:MM:SS format for database
                 service_time_from: updateUserData.service_time_from ? 
                     new Date(updateUserData.service_time_from).toTimeString().split(' ')[0] : null,
@@ -154,20 +179,21 @@ const HcfAdminSignUp = () => {
                     new Date(updateUserData.service_time_to).toTimeString().split(' ')[0] : null
             };
             
-            console.log("=== HCF ADMIN PROFILE UPDATE DEBUG ===");
-            console.log("Original data:", updateUserData);
-            console.log("Time formatting:");
-            console.log("- service_time_from original:", updateUserData.service_time_from);
-            console.log("- service_time_from formatted:", finalData.service_time_from);
-            console.log("- service_time_to original:", updateUserData.service_time_to);
-            console.log("- service_time_to formatted:", finalData.service_time_to);
-            console.log("Final data being sent:", finalData);
-            console.log("Email extraction sources:");
-            console.log("- JWT email:", emailFromJWT);
-            console.log("- Storage hcfadmin_Email:", emailFromStorage);
-            console.log("- Storage jwt_email:", emailFromJWTStorage);
-            console.log("- Final email used:", finalEmail);
-            console.log("Access token:", localStorage.getItem("access_token"));
+            logger.info("=== HCF ADMIN PROFILE UPDATE DEBUG ===");
+            logger.debug("Original data:", updateUserData);
+            logger.debug("Time formatting:");
+            logger.debug("- service_time_from original:", updateUserData.service_time_from);
+            logger.debug("- service_time_from formatted:", finalData.service_time_from);
+            logger.debug("- service_time_to original:", updateUserData.service_time_to);
+            logger.debug("- service_time_to formatted:", finalData.service_time_to);
+            logger.info("Final data being sent:", finalData);
+            logger.debug("Email extraction sources:");
+            logger.debug("- JWT email:", emailFromJWT);
+            logger.debug("- Storage hcfadmin_Email:", emailFromStorage);
+            logger.debug("- Storage jwt_email:", emailFromJWTStorage);
+            logger.info("Final email used:", finalEmail);
+            logger.info("Role ID being sent:", finalRoleId);
+            logger.debug("Access token:", localStorage.getItem("access_token"));
             
             const response = await axiosInstance.post(
                 "/sec/auth/updateProfile",
@@ -179,15 +205,42 @@ const HcfAdminSignUp = () => {
                     },
                 }
             );
+            logger.info("Profile update successful:", response);
+            toastService.success("Profile Completed Successfully! 🎉");
             setUpdatedUserSuccesfully("Profile Completed 🙂");
-            console.log("send data succesfully : ", response);
             setShowSnackBar(true);
             setFlagToSendDoctorData(false);
             handleNext();
         } catch (err) {
-            console.log("Error sending data", err);
-            setShowSnackBar(false);
+            logger.error("Error sending data:", err);
+            logger.error("Error response:", err?.response?.data);
+            
+            // Parse error codes and provide user-friendly messages
+            let errorMsg = "Failed to complete profile. Please try again.";
+            
+            if (err?.response?.data?.error) {
+                const errorCode = err.response.data.error;
+                switch (errorCode) {
+                    case "VALIDATION_ERROR":
+                        errorMsg = "Please fill in all required fields correctly.";
+                        break;
+                    case "UNAUTHORIZED":
+                        errorMsg = "Session expired. Please login again.";
+                        break;
+                    case "INCOMPLETE_DATA":
+                        errorMsg = "Please provide all required information.";
+                        break;
+                    default:
+                        errorMsg = errorCode || errorMsg;
+                }
+            }
+            
+            toastService.error(errorMsg);
+            setShowSnackBar(true);
+            setUpdatedUserSuccesfully(errorMsg);
             setFlagToSendDoctorData(false);
+        } finally {
+            setIsLoading(false); // Hide loading overlay
         }
     };
     // Removed handleDateRangeChange - now using individual CustomDatePicker components
@@ -197,8 +250,10 @@ const HcfAdminSignUp = () => {
             const response = await axiosInstance.get("/sec/labDepartments");
             const departmentData = response?.data?.response || [];
             setDepartments(departmentData);
+            logger.info("Departments fetched successfully:", departmentData.length, "departments");
         } catch (err) {
-            console.error("Error fetching department names:", err);
+            logger.error("Error fetching department names:", err);
+            logger.error("Error response:", err?.response?.data);
         }
     };
 
@@ -211,14 +266,14 @@ const HcfAdminSignUp = () => {
         const emailFromJWTStorage = localStorage.getItem("jwt_email");
         const email = emailFromJWT || emailFromJWTStorage || emailFromStorage;
         
-        console.log("Component mount - Email extraction:");
-        console.log("- JWT email:", emailFromJWT);
-        console.log("- Storage hcfadmin_Email:", emailFromStorage);
-        console.log("- Storage jwt_email:", emailFromJWTStorage);
-        console.log("- Final email:", email);
+        logger.debug("Component mount - Email extraction:");
+        logger.debug("- JWT email:", emailFromJWT);
+        logger.debug("- Storage hcfadmin_Email:", emailFromStorage);
+        logger.debug("- Storage jwt_email:", emailFromJWTStorage);
+        logger.debug("- Final email:", email);
         
         if (email && email !== updateUserData.email) {
-            console.log("Setting email on component mount:", email);
+            logger.debug("Setting email on component mount:", email);
             setUpdateUserData(prev => ({
                 ...prev,
                 email: email
@@ -233,14 +288,14 @@ const HcfAdminSignUp = () => {
         const emailFromJWTStorage = localStorage.getItem("jwt_email");
         const email = emailFromJWT || emailFromJWTStorage || emailFromStorage;
         
-        console.log("Email extraction debug:");
-        console.log("- JWT email:", emailFromJWT);
-        console.log("- Storage hcfadmin_Email:", emailFromStorage);
-        console.log("- Storage jwt_email:", emailFromJWTStorage);
-        console.log("- Final email:", email);
+        logger.debug("Email extraction debug:");
+        logger.debug("- JWT email:", emailFromJWT);
+        logger.debug("- Storage hcfadmin_Email:", emailFromStorage);
+        logger.debug("- Storage jwt_email:", emailFromJWTStorage);
+        logger.debug("- Final email:", email);
         
         if (email && email !== updateUserData.email) {
-            console.log("Updating email in state:", email);
+            logger.debug("Updating email in state:", email);
             setUpdateUserData(prev => ({
                 ...prev,
                 email: email
@@ -266,6 +321,18 @@ const HcfAdminSignUp = () => {
     };
     return (
         <>
+            {/* Loading overlay for API operations - shows while profile is being saved */}
+            {isLoading && (
+                <Loading
+                    variant="overlay"
+                    size="large"
+                    message="Saving Your Profile"
+                    subMessage="Please wait while we save your HCF information..."
+                    fullScreen
+                />
+            )}
+
+            {/* Success/Error snackbar - shows feedback messages */}
             <CustomSnackBar
                 isOpen={showSnackBar}
                 actionLabel={""}
@@ -273,6 +340,8 @@ const HcfAdminSignUp = () => {
                 message={updatedUserSuccesfully}
                 type="success"
             />
+            
+            {/* Main container */}
             <Box sx={{ width: "100%" }}>
                 <div className="FrameBox1">
                     <Box
@@ -405,7 +474,7 @@ const HcfAdminSignUp = () => {
                                                     label={""}
                                                     handleChange={(event) => {
                                                         const selectedCategory = event.target.value;
-                                                        console.log(
+                                                        logger.debug(
                                                             "Selected Category: ",
                                                             selectedCategory,
                                                         );
@@ -698,4 +767,4 @@ const HcfAdminSignUp = () => {
     );
 };
 
-export default HcfAdminSignUp;
+export default HCFAdminCompleteProfile;

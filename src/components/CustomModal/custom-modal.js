@@ -8,14 +8,23 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
         borderRadius: "16px",
         boxShadow: "0 24px 48px rgba(0, 0, 0, 0.15)",
-        maxWidth: "90vw",
+        maxWidth: "50vw",
         maxHeight: "90vh",
         margin: "24px",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        backgroundColor: "#ffffff",
+        "&.patient-details-modal": {
+            maxWidth: "800px",
+            width: "90vw",
+        },
     },
     "& .MuiDialogContent-root": {
-        padding: theme.spacing(3),
+        padding: 0,
         fontFamily: "Poppins, sans-serif",
+        backgroundColor: "#ffffff",
+        "&.patient-details-content": {
+            padding: theme.spacing(0),
+        },
     },
     "& .MuiDialogActions-root": {
         padding: theme.spacing(2, 3),
@@ -29,25 +38,36 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 function BootstrapDialogTitle(props) {
     const { children, onClose, ...other } = props;
+    const isReactNode = React.isValidElement(children) || (children && typeof children === 'object');
 
     return (
         <DialogTitle 
             sx={{ 
                 m: 0, 
-                p: 3, 
-                pb: 2,
+                p: 0,
                 fontFamily: "Poppins, sans-serif",
-                fontSize: "20px",
-                fontWeight: 600,
-                color: "#333",
-                borderBottom: "1px solid #f0f0f0",
-                position: "relative"
+                position: "relative",
+                borderBottom: isReactNode ? "none" : "1px solid #f0f0f0",
             }} 
             {...other}
         >
-            <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-                {children}
-            </Typography>
+            {isReactNode ? (
+                children
+            ) : (
+                <Typography 
+                    variant="h6" 
+                    component="div" 
+                    sx={{ 
+                        fontWeight: 600,
+                        fontSize: "20px",
+                        color: "#333",
+                        padding: "24px",
+                        paddingBottom: "16px",
+                    }}
+                >
+                    {children}
+                </Typography>
+            )}
             {onClose ? (
                 <IconButton
                     aria-label="close"
@@ -86,7 +106,7 @@ const CustomModal = ({
     children, 
     class_name, 
     disableBackdropClick, 
-    maxWidth = "sm",
+    maxWidth = "md",
     fullWidth = true
 }) => {
     const handleClose = () => {
@@ -114,6 +134,9 @@ const CustomModal = ({
                 onBackdropClick={handleBackdropClick}
                 maxWidth={maxWidth}
                 fullWidth={fullWidth}
+                PaperProps={{
+                    className: class_name?.includes('patient-details') ? 'patient-details-modal' : '',
+                }}
             >
                 <BootstrapDialogTitle
                     id="customized-dialog-title"
@@ -121,7 +144,15 @@ const CustomModal = ({
                 >
                     {title}
                 </BootstrapDialogTitle>
-                <DialogContent>{children}</DialogContent>
+                <DialogContent 
+                    className={class_name?.includes('patient-details') ? 'patient-details-content' : ''}
+                    sx={{
+                        padding: class_name?.includes('patient-details') ? 0 : undefined,
+                        backgroundColor: "#ffffff",
+                    }}
+                >
+                    {children}
+                </DialogContent>
                 {footer && <DialogActions>{footer}</DialogActions>}
             </BootstrapDialog>
         </div>
@@ -131,9 +162,9 @@ const CustomModal = ({
 CustomModal.propTypes = {
     children: PropTypes.node,
     isOpen: PropTypes.bool.isRequired,
-    title: PropTypes.string,
+    title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     footer: PropTypes.node,
-    conditionOpen: PropTypes.func.isRequired,
+    conditionOpen: PropTypes.func,
     class_name: PropTypes.string,
     disableBackdropClick: PropTypes.bool,
     maxWidth: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),

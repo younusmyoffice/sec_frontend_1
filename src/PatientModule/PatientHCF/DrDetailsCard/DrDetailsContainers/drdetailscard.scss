@@ -1,4 +1,14 @@
+/**
+ * Doctor Details Card Styles
+ * 
+ * Styles for doctor credential and detail containers
+ * Uses common color variables from _variables.scss
+ */
+
+// Import common color variables using @use (modern SCSS syntax)
+@use "../../../../static/scss/base/variables" as *;
+
 .Education {
     font-size: xx-large;
-    color: "red";
+    color: $primary-color; // Primary brand color instead of hardcoded "red"
 }

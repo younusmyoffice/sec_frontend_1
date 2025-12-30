@@ -10,10 +10,13 @@ import CustomButton from "../../../../components/CustomButton";
 import CustomTextField from "../../../../components/CustomTextField";
 import CustomDropdown from "../../../../components/CustomDropdown";
 import "./clinicprofileinformation.scss";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import dayjs from "dayjs";
 import CustomSnackBar from "../../../../components/CustomSnackBar";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 import DocProf from "../../../../static/images/DrImages/Image02.png";
 import { MultiInputTimeRangeField } from "@mui/x-date-pickers-pro/MultiInputTimeRangeField";
 import { right } from "@popperjs/core";
@@ -73,9 +76,9 @@ const ClinicProfileInformation = () => {
         // Define the function to fetch the profile data
         const fetchProfileData = async () => {
             try {
-                const response = await axiosInstance.get(`sec/hcf/getClinicProfile/${doctor_id}`);
+                const response = await axiosInstance.get(`/sec/hcf/getClinicProfile/${doctor_id}`);
                 const profiledata = response.data.response[0];
-                console.log("profiledata clinic : ", profiledata);
+                logger.debug("✅ Clinic profile data received", { suid: profiledata?.suid });
 
                 // Update the state with fetched data
                 setProfileData((prevState) => ({
@@ -112,14 +115,16 @@ const ClinicProfileInformation = () => {
                         ? profiledata.profile_picture
                         : `data:image/jpeg;base64,${profiledata.profile_picture}`;
                     setProfileImage(imageSrc);
-                    console.log("🖼️ Profile image updated from fetched data:", imageSrc);
+                    logger.debug("🖼️ Profile image updated from fetched data");
                 } else {
                     // If no profile picture, keep the default image
                     setProfileImage(DocProf);
-                    console.log("🖼️ No profile picture found, using default image");
+                    logger.debug("🖼️ No profile picture found, using default image");
                 }
             } catch (error) {
-                console.error("Error fetching profile data:", error);
+                logger.error("❌ Error fetching profile data:", error);
+                logger.error("❌ Error response:", error?.response?.data);
+                toastService.error("Failed to load profile data. Please try again.");
             }
         };
 
@@ -127,18 +132,31 @@ const ClinicProfileInformation = () => {
         if (doctor_id) fetchProfileData();
     }, [doctor_id]);
 
+    /**
+     * Update clinic profile
+     * Posts updated profile data to the server
+     */
     const fetchData = async () => {
-        console.log("Entered the fetch data");
+        logger.debug("📤 Updating clinic profile");
         try {
             const response = await axiosInstance.post(
                 `/sec/hcf/updateClinicProfile`,
                 JSON.stringify(profiledata),
-                { Accept: "Application/json" },
+                {
+                    headers: {
+                        Accept: "Application/json",
+                        "Content-Type": "application/json"
+                    }
+                }
             );
-            console.log(response);
-            setSnackMessage("Profile Updated Successfully");
+            
+            logger.debug("✅ Profile updated successfully", { response: response?.data });
+            
+            const successMessage = response?.data?.message || "Profile Updated Successfully";
+            setSnackMessage(successMessage);
             setSnackType("success");
             setSnackOpen(true);
+            toastService.success(successMessage);
 
             // Update navbar profile image if profile picture was changed
             if (profiledata.profile_picture) {
@@ -149,7 +167,7 @@ const ClinicProfileInformation = () => {
 
                 // Update the profile image preview state
                 setProfileImage(imageSrc);
-                console.log("🖼️ Profile image updated after save:", imageSrc);
+                logger.debug("🖼️ Profile image updated after save");
 
                 // Trigger a custom event to notify navbar of profile update
                 window.dispatchEvent(new CustomEvent('profileUpdated', {
@@ -158,16 +176,21 @@ const ClinicProfileInformation = () => {
             } else {
                 // If no profile picture, keep the default image
                 setProfileImage(DocProf);
-                console.log("🖼️ No profile picture after save, using default image");
+                logger.debug("🖼️ No profile picture after save, using default image");
             }
         } catch (error) {
-            setSnackMessage("error during updating profile");
+            logger.error("❌ Error updating profile:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to update profile. Please try again.";
+            
+            setSnackMessage(errorMessage);
             setSnackType("error");
             setSnackOpen(true);
-            console.log(error.response);
+            toastService.error(errorMessage);
         }
     };
-    console.log("data is appear", profiledata);
 
     React.useEffect(() => {
         localStorage.setItem("activeComponent", "profile");
@@ -271,13 +294,23 @@ const ClinicProfileInformation = () => {
         }
     };
 
-    // Fetching staff Designation
+    /**
+     * Fetch staff designations/departments
+     * Loads all available departments for dropdown selection
+     */
     const fetchDesignation = async () => {
+        logger.debug("📋 Fetching departments");
         try {
             const response = await axiosInstance.get(`/sec/departments`);
-            setStaffDesignation(response?.data?.response || []);
+            const departments = response?.data?.response || [];
+            
+            logger.debug("✅ Departments received", { count: departments.length });
+            setStaffDesignation(departments);
         } catch (error) {
-            console.error("Error fetching lab data:", error.response);
+            logger.error("❌ Error fetching departments:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load departments");
+            setStaffDesignation([]);
         }
     };
 
@@ -291,31 +324,67 @@ const ClinicProfileInformation = () => {
         name: designation.department_name,
     }));
 
-    // fetching country list
+    /**
+     * Fetch country list
+     * Loads all available countries for dropdown selection
+     */
     const fetchCountries = async () => {
+        logger.debug("📋 Fetching countries");
         try {
             const response = await axiosInstance.get(`/sec/countries`);
-            setCountries(response?.data?.response || []);
+            const countryList = response?.data?.response || [];
+            
+            logger.debug("✅ Countries received", { count: countryList.length });
+            setCountries(countryList);
         } catch (error) {
-            console.error("Error fetching countries:", error.response);
+            logger.error("❌ Error fetching countries:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load countries");
+            setCountries([]);
         }
     };
 
+    /**
+     * Fetch states for a selected country
+     * Loads all states for the given country ID
+     * 
+     * @param {number} countryId - Country ID to fetch states for
+     */
     const fetchStates = async (countryId) => {
+        logger.debug("📋 Fetching states", { countryId });
         try {
             const response = await axiosInstance.get(`/sec/states?country_id=${countryId}`);
-            setStates(response?.data?.response || []);
+            const stateList = response?.data?.response || [];
+            
+            logger.debug("✅ States received", { count: stateList.length });
+            setStates(stateList);
         } catch (error) {
-            console.error("Error fetching states:", error.response);
+            logger.error("❌ Error fetching states:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load states");
+            setStates([]);
         }
     };
 
+    /**
+     * Fetch cities for a selected state
+     * Loads all cities for the given state ID
+     * 
+     * @param {number} stateId - State ID to fetch cities for
+     */
     const fetchCities = async (stateId) => {
+        logger.debug("📋 Fetching cities", { stateId });
         try {
             const response = await axiosInstance.get(`/sec/cities?state_id=${stateId}`);
-            setCities(response?.data?.response || []);
+            const cityList = response?.data?.response || [];
+            
+            logger.debug("✅ Cities received", { count: cityList.length });
+            setCities(cityList);
         } catch (error) {
-            console.error("Error fetching cities:", error.response);
+            logger.error("❌ Error fetching cities:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load cities");
+            setCities([]);
         }
     };
 
@@ -378,12 +447,16 @@ const ClinicProfileInformation = () => {
             service_time_to: newRange[1] ? newRange[1].format("HH:mm:ss") : null,
         }));
 
-        console.log(
-            "Time range: ",
-            newRange[0]?.format("HH:mm:ss"),
-            newRange[1]?.format("HH:mm:ss"),
-        );
+        logger.debug("⏰ Time range selected:", {
+            start: newRange[0]?.format("HH:mm:ss"),
+            end: newRange[1]?.format("HH:mm:ss")
+        });
     };
+    
+    /**
+     * Handle date range picker change for service days
+     * Updates profile data with selected service day range
+     */
     const handleDateRangePicker = (newDateRange) => {
         setDateRange(newDateRange);
 
@@ -393,27 +466,47 @@ const ClinicProfileInformation = () => {
             service_day_to: newDateRange[1] ? newDateRange[1].format("YYYY-MM-DD") : null,
         }));
 
-        console.log(
-            "Date range:",
-            newDateRange[0]?.format("YYYY-MM-DD"),
-            newDateRange[1]?.format("YYYY-MM-DD"),
-        );
+        logger.debug("📅 Date range selected:", {
+            start: newDateRange[0]?.format("YYYY-MM-DD"),
+            end: newDateRange[1]?.format("YYYY-MM-DD")
+        });
     };
 
     const [profileImage, setProfileImage] = useState(DocProf);
 
+    /**
+     * Handle profile image change
+     * Converts selected image to base64 and updates profile data
+     * 
+     * @param {Event} event - File input change event
+     */
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-            console.log("🖼️ File selected:", file.name, "Size:", file.size);
+            logger.debug("🖼️ File selected", { fileName: file.name, fileSize: file.size });
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                toastService.error("Please select a valid image file");
+                return;
+            }
+            
+            // Validate file size (e.g., max 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if (file.size > maxSize) {
+                toastService.error("Image size must be less than 5MB");
+                return;
+            }
+            
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64Data = reader.result.split(",")[1]; // Extract base64 without metadata
                 const fullBase64Data = reader.result; // Full data URL for preview
 
-                console.log("🖼️ Image processed, updating preview and data");
-                console.log("🖼️ Base64 data length:", base64Data.length);
-                console.log("🖼️ Full data URL length:", fullBase64Data.length);
+                logger.debug("🖼️ Image processed", {
+                    base64Length: base64Data.length,
+                    fullDataURLLength: fullBase64Data.length
+                });
 
                 setProfileImage(fullBase64Data); // For preview - use full data URL
                 setProfileData((prevData) => ({
@@ -421,11 +514,15 @@ const ClinicProfileInformation = () => {
                     profile_picture: base64Data, // Store base64 without metadata for API
                 }));
 
-                console.log("🖼️ Profile image state updated");
+                logger.debug("🖼️ Profile image state updated");
+            };
+            reader.onerror = () => {
+                logger.error("❌ Error reading image file");
+                toastService.error("Failed to read image file. Please try again.");
             };
             reader.readAsDataURL(file); // Trigger the file reading process
         } else {
-            console.log("🖼️ No file selected");
+            logger.debug("🖼️ No file selected");
         }
     };
     const toggleEditMode = () => {
@@ -434,8 +531,15 @@ const ClinicProfileInformation = () => {
 
     const dropdownItems = ["Male", "Female", "Others"];
     const [activeDropdown, setActiveDropdown] = useState(""); // Gender
+    
+    /**
+     * Handle gender dropdown change
+     * Updates profile data with selected gender
+     * 
+     * @param {string} item - Selected gender value
+     */
     const handleGenderDropdownChange = (item) => {
-        console.log("Selected item:", item);
+        logger.debug("👤 Gender selected:", item);
 
         // Update the profiledata state with the selected gender
         setProfileData((prev) => ({

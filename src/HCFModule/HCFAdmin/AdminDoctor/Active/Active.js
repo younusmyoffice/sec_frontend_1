@@ -8,20 +8,42 @@ import {
     TableHead,
     TableRow,
     Skeleton,
-    TablePagination
+    TablePagination,
+    IconButton,
 } from "@mui/material";
-import React, { useEffect, useState, useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { NavLink } from "react-router-dom";
 import CustomButton from "../../../../components/CustomButton";
 import { AllDoctorTable } from "../AllDoctors/AllDoctorTable";
 import pen from "../../../../static/images/DrImages/Pen.svg";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
 import profile from "../../../../static/images/DrImages/Out Patient Department.png";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
 
+/**
+ * HCFDoctorActive Component
+ * 
+ * Displays active doctors in the HCF Admin system with department-based filtering
+ * Features:
+ * - Horizontal scrolling department filter (matches Explore.js pattern)
+ * - Paginated doctor table
+ * - View-only status (doctors are already active)
+ * 
+ * Security:
+ * - Validates HCF admin ID from localStorage
+ * - Uses axiosInstance for automatic token handling
+ * 
+ * @component
+ */
 const HCFDoctorActive = () => {
+    // ============================================
+    // State Management
+    // ============================================
+    
     const [hcf_id] = useState(localStorage.getItem("hcfadmin_suid"));
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -32,58 +54,212 @@ const HCFDoctorActive = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    // Scroll container ref for horizontal scrolling
     const scrollContainerRef = useRef(null);
 
-    const fetchData = async (departmentName) => {
-        setLoading(true);
-        try {
-            const response = await axiosInstance.get(`/sec/hcf/ActiveBlockedClinicDoctors/1/${hcf_id}/${departmentName}`);
-            setData(response?.data?.response || []);
-        } catch (error) {
-            console.log(error.response);
-        } finally {
-            setLoading(false);
+    // ============================================
+    // Security & Validation Functions
+    // ============================================
+
+    /**
+     * Validate HCF admin ID from localStorage
+     * SECURITY: Ensures admin ID is present before making API calls
+     * 
+     * @returns {string|null} HCF admin ID or null if invalid
+     */
+    const validateHcfAdminId = useCallback(() => {
+        const adminId = localStorage.getItem("hcfadmin_suid");
+
+        if (!adminId) {
+            logger.warn("⚠️ HCF Admin ID not found in localStorage");
+            toastService.warning("HCF Admin ID is missing. Please log in again.");
+            return null;
         }
-    };
 
-    useEffect(() => {
-        fetchData(specializationDoc);
-    }, [specializationDoc]);
-
-    const navSpecializtion = async () => {
-        try {
-            const resp = await axiosInstance(`/sec/patient/doctorDepartments`);
-            setNav_spelization(resp?.data?.response || []);
-        } catch (err) {
-            console.log("Nav specialization error : ", err);
-        }
-    };
-
-    useEffect(() => {
-        navSpecializtion();
+        logger.debug("✅ HCF Admin ID validated:", adminId);
+        return adminId;
     }, []);
 
+    // ============================================
+    // API Fetch Functions
+    // ============================================
+
+    /**
+     * Fetch active doctors by department
+     * Loads active doctors filtered by selected department
+     * Status parameter: 1 = Active, 0 = Blocked
+     * 
+     * @param {string} departmentName - Name of the department to filter by
+     */
+    const fetchData = useCallback(async (departmentName) => {
+        const adminId = validateHcfAdminId();
+        if (!adminId) {
+            setLoading(false);
+            return;
+        }
+
+        logger.debug("📋 Fetching active doctors by department", { departmentName });
+        setLoading(true); // Show loader
+
+        try {
+            const response = await axiosInstance.get(
+                `/sec/hcf/ActiveBlockedClinicDoctors/1/${adminId}/${departmentName}`
+            );
+            
+            const doctors = response?.data?.response || [];
+            
+            logger.debug("✅ Active doctors received", {
+                department: departmentName,
+                count: doctors.length
+            });
+            
+            setData(doctors);
+        } catch (error) {
+            logger.error("❌ Failed to fetch active doctors:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            
+            const errorMessage = error?.response?.data?.message ||
+                                "Failed to load active doctors";
+            toastService.error(errorMessage);
+            setData([]);
+        } finally {
+            setLoading(false); // Hide loader
+        }
+    }, [validateHcfAdminId]);
+
+    /**
+     * Fetch doctor departments/specializations
+     * Loads all available departments for filtering
+     */
+    const navSpecializtion = useCallback(async () => {
+        logger.debug("📋 Fetching doctor departments");
+        
+        try {
+            const resp = await axiosInstance(`/sec/patient/doctorDepartments`);
+            const departments = resp?.data?.response || [];
+            
+            logger.debug("✅ Doctor departments received", {
+                count: departments.length
+            });
+            
+            setNav_spelization(departments);
+        } catch (err) {
+            logger.error("❌ Failed to fetch doctor departments:", err);
+            logger.error("❌ Error response:", err?.response?.data);
+            toastService.error("Failed to load departments");
+            setNav_spelization([]);
+        }
+    }, []);
+
+    // ============================================
+    // Scroll Handlers
+    // ============================================
+
+    /**
+     * Handle horizontal scroll left
+     * Scrolls the department buttons container to the left
+     * Uses same pattern as HorizontalScrollCards component from Explore.js
+     */
     const handleScrollLeft = () => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollLeft -= 100; // Adjust scroll distance as needed
+            const scrollAmount = 300;
+            const currentScroll = scrollContainerRef.current.scrollLeft;
+            const targetScroll = currentScroll - scrollAmount;
+            
+            scrollContainerRef.current.scrollTo({
+                left: targetScroll,
+                behavior: 'smooth'
+            });
         }
     };
 
+    /**
+     * Handle horizontal scroll right
+     * Scrolls the department buttons container to the right
+     * Uses same pattern as HorizontalScrollCards component from Explore.js
+     */
     const handleScrollRight = () => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollLeft += 100; // Adjust scroll distance as needed
+            const scrollAmount = 300;
+            const currentScroll = scrollContainerRef.current.scrollLeft;
+            const targetScroll = currentScroll + scrollAmount;
+            
+            scrollContainerRef.current.scrollTo({
+                left: targetScroll,
+                behavior: 'smooth'
+            });
         }
     };
 
-    // Handle pagination change
+    // ============================================
+    // Pagination Handlers
+    // ============================================
+
+    /**
+     * Handle pagination page change
+     * 
+     * @param {Event} event - Change event
+     * @param {number} newPage - New page number (0-indexed)
+     */
     const handleChangePage = (event, newPage) => {
+        logger.debug("📄 Page changed:", { from: page, to: newPage });
         setPage(newPage);
     };
 
+    /**
+     * Handle rows per page change
+     * 
+     * @param {Event} event - Change event
+     */
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        logger.debug("📄 Rows per page changed:", { from: rowsPerPage, to: newRowsPerPage });
+        setRowsPerPage(newRowsPerPage);
+        setPage(0); // Reset to first page
     };
+
+    // ============================================
+    // useEffect Hooks
+    // ============================================
+
+    /**
+     * Initialize component on mount
+     * Hides location search container and fetches initial data
+     */
+    useEffect(() => {
+        logger.debug("🔵 HCFDoctorActive component mounting");
+        
+        // Hide location search container
+        const containerElement = document.getElementById("location-search-container");
+        if (containerElement) {
+            containerElement.style.display = "none";
+            logger.debug("✅ Location search container hidden");
+        }
+
+        // Fetch initial data
+        navSpecializtion();
+
+        // Cleanup: restore location search container
+        return () => {
+            if (containerElement) {
+                containerElement.style.display = "";
+                logger.debug("🔄 Location search container restored");
+            }
+        };
+    }, [navSpecializtion]);
+
+    /**
+     * Fetch active doctors when department selection changes
+     */
+    useEffect(() => {
+        if (specializationDoc) {
+            fetchData(specializationDoc);
+        }
+    }, [specializationDoc, fetchData]);
+
+    // ============================================
+    // Render
+    // ============================================
 
     return (
         <>
@@ -95,68 +271,159 @@ const HCFDoctorActive = () => {
                     flexDirection: "row",
                 }}
             >
+                {/* Navigation Bar */}
                 <nav className="NavBar-Container-Appoinement">
                     <NavLink to={"/hcfadmin/doctor/alldoctors"}>All Doctors</NavLink>
                     <NavLink to={"/hcfadmin/doctor/active"}>Active</NavLink>
                     <NavLink to={"/hcfadmin/doctor/blocked"}>Blocked</NavLink>
                 </nav>
 
+                {/* Main Content Area */}
                 <Box
                     component={"div"}
                     sx={{
-                        position: "relative",
-                        top: "4em",
+                        flex: 1,
                         width: "100%",
                         display: "flex",
-                        height: "100%",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        overflow: "hidden",
+                        marginTop: "4em",
                     }}
                 >
-                    <Box sx={{ width: "100%", height: "100%" }}>
-                        {/*--------------------- Category component starts ---------------------------------*/}
-                        <Box>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <div onClick={handleScrollLeft}>
-                                    <ChevronLeftIcon />
-                                </div>
-                                <Box
-                                    sx={{ display: "flex", position: "relative" }}
-                                    className={"horizontal-scroll-container NavBar-Container-one"}
+                    <Box sx={{ width: "100%", flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                        {/* Department Filter Section - Horizontal scroll */}
+                        <Box sx={{ flexShrink: 0, marginBottom: "1rem", width: "100%", position: "relative" }}>
+                            <Box 
+                                sx={{ 
+                                    position: "relative",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    width: "100%",
+                                }}
+                                className="department-scroll-container"
+                            >
+                                {/* Left scroll button - positioned absolutely */}
+                                <IconButton 
+                                    onClick={handleScrollLeft}
+                                    sx={{
+                                        position: "absolute",
+                                        left: "-20px",
+                                        zIndex: 2,
+                                        background: "white !important",
+                                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1) !important",
+                                        border: "1px solid #e0e0e0 !important",
+                                        width: "40px !important",
+                                        height: "40px !important",
+                                        transition: "all 0.3s ease !important",
+                                        "&:hover": {
+                                            background: "#f5f5f5 !important",
+                                            transform: "scale(1.05)",
+                                        },
+                                        "& .MuiSvgIcon-root": {
+                                            color: "#E82B4A !important",
+                                            fontSize: "20px !important",
+                                        },
+                                    }}
+                                    aria-label="Scroll left"
                                 >
-                                    <div
-                                        ref={scrollContainerRef}
-                                        style={{ overflowX: "auto", display: "flex" }}
+                                    <ChevronLeftIcon />
+                                </IconButton>
+                                
+                                {/* Scrollable wrapper - matches cards-wrapper pattern */}
+                                <Box
+                                    ref={scrollContainerRef}
+                                    sx={{ 
+                                        flex: 1,
+                                        overflowX: "auto",
+                                        overflowY: "hidden",
+                                        scrollbarWidth: "none", // Firefox
+                                        msOverflowStyle: "none", // IE/Edge
+                                        "&::-webkit-scrollbar": {
+                                            display: "none", // Chrome, Safari, Opera
+                                        },
+                                        WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
+                                    }}
+                                    className="department-scroll-wrapper"
+                                >
+                                    {/* Cards container - matches cards-container pattern with min-width: max-content */}
+                                    <Box
+                                        sx={{ 
+                                            display: "flex",
+                                            gap: "0.75rem",
+                                            padding: "0.5rem 20px",
+                                            minWidth: "max-content", // CRITICAL: Prevents wrapping, forces horizontal scroll
+                                        }}
+                                        className="department-buttons-container"
                                     >
                                         {nav_specialization.map((specialization, index) => (
                                             <CustomButton
                                                 key={index}
                                                 label={`${specialization?.department_name}`}
                                                 isTransaprent={
-                                                    specialization.department_name.toLowerCase() ===
+                                                    specialization.department_name.toLowerCase() !==
                                                     specializationDoc.toLowerCase()
-                                                        ? false
-                                                        : true
                                                 }
                                                 buttonCss={{
                                                     borderRadius: "50px",
-                                                    padding: "0.3% 6.5%",
-                                                    marginRight: "1%",
-                                                    whiteSpace: "normal",
+                                                    padding: "0.5rem 1.5rem",
+                                                    whiteSpace: "nowrap",
+                                                    fontSize: "0.875rem",
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
+                                                    flexShrink: 0, // Prevent buttons from shrinking
                                                 }}
                                                 handleClick={() => {
+                                                    logger.debug("🏥 Department selected:", specialization?.department_name);
                                                     setSpecializationDoc(specialization?.department_name);
-                                                    console.log("specialization : ", specialization?.department_name)
                                                 }}
                                             />
                                         ))}
-                                    </div>
+                                    </Box>
                                 </Box>
-                                <div onClick={handleScrollRight}>
+                                
+                                {/* Right scroll button - positioned absolutely */}
+                                <IconButton 
+                                    onClick={handleScrollRight}
+                                    sx={{
+                                        position: "absolute",
+                                        right: "-20px",
+                                        zIndex: 2,
+                                        background: "white !important",
+                                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1) !important",
+                                        border: "1px solid #e0e0e0 !important",
+                                        width: "40px !important",
+                                        height: "40px !important",
+                                        transition: "all 0.3s ease !important",
+                                        "&:hover": {
+                                            background: "#f5f5f5 !important",
+                                            transform: "scale(1.05)",
+                                        },
+                                        "& .MuiSvgIcon-root": {
+                                            color: "#E82B4A !important",
+                                            fontSize: "20px !important",
+                                        },
+                                    }}
+                                    aria-label="Scroll right"
+                                >
                                     <ChevronRightIcon />
-                                </div>
+                                </IconButton>
                             </Box>
                         </Box>
 
-                        <TableContainer component={Paper} style={{ background: "white" }}>
+                        {/* Scrollable table container - enables internal scrolling when table exceeds viewport */}
+                        <TableContainer 
+                            component={Paper} 
+                            style={{ 
+                                background: "white",
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                minHeight: 0,
+                                overflow: "auto", // Enable scrolling for table content
+                                maxHeight: "calc(100vh - 350px)", // Adjusted to account for navbar, category filters, and spacing
+                            }}
+                        >
                             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                                 <TableHead>
                                     <TableRow>
@@ -167,6 +434,7 @@ const HCFDoctorActive = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
+                                    {/* LOADER: Show skeleton loaders while fetching data */}
                                     {loading ? (
                                         Array.from(new Array(rowsPerPage)).map((_, index) => (
                                             <TableRow key={index}>
@@ -176,23 +444,27 @@ const HCFDoctorActive = () => {
                                             </TableRow>
                                         ))
                                     ) : data.length === 0 ? (
+                                        // Empty state: No active doctors found
                                         <TableRow>
                                             <TableCell colSpan={4} align="center">
                                                 <NoAppointmentCard text_one={"No Data Available"} />
                                             </TableCell>
                                         </TableRow>
                                     ) : (
+                                        // Display paginated active doctor data
                                         data
                                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             .map((row) => (
                                                 <TableRow
-                                                    key={row.doctor_id} // Ensure uniqueness
+                                                    key={row.doctor_id || row.suid} // Ensure uniqueness
                                                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                                                 >
                                                     <TableCell component="th" scope="row">
-                                                        <AllDoctorTable name={row.first_name} user_id={row.suid} profile_picture={
-                                                                row?.profile_picture || profile
-                                                            }/>
+                                                        <AllDoctorTable 
+                                                            name={row.first_name} 
+                                                            user_id={row.suid} 
+                                                            profile_picture={row?.profile_picture || profile}
+                                                        />
                                                     </TableCell>
                                                     <TableCell align="right">{row.department_name}</TableCell>
                                                     <TableCell align="right">
@@ -202,7 +474,10 @@ const HCFDoctorActive = () => {
                                                         />
                                                     </TableCell>
                                                     <TableCell align="right">
-                                                        <CustomButton label={<img src={pen} alt="Edit" />} isTransaprent />
+                                                        <CustomButton 
+                                                            label={<img src={pen} alt="Edit" />} 
+                                                            isTransaprent 
+                                                        />
                                                     </TableCell>
                                                 </TableRow>
                                             ))
@@ -210,7 +485,7 @@ const HCFDoctorActive = () => {
                                 </TableBody>
                             </Table>
 
-                            {/* Add the TablePagination component */}
+                            {/* Pagination Component */}
                             <TablePagination
                                 rowsPerPageOptions={[5, 10, 25]}
                                 component="div"

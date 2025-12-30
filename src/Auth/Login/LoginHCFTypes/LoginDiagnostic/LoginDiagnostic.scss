@@ -1,40 +1,218 @@
+/**
+ * LoginDiagnostic Component Styles
+ *
+ * Styles for the Diagnostic Center login page following split-screen layout pattern.
+ * Features:
+ * - Two-column layout (image left, form right)
+ * - Centered card design for form
+ * - Responsive design
+ * - Brand color scheme (#e72b4a)
+ * - Logo and heading styling
+ * - Link styling for forgot password and OTP login
+ */
+
+// ============================================
+// MAIN CONTAINER
+// ============================================
+
+// Main page container - full viewport with centered content
+.register-photo {
+    display: flex;
+    height: 100vh; // Full viewport height
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5; // Light gray background
+}
+
+// ============================================
+// FORM CONTAINER
+// ============================================
+
+// Form container with two-column layout
+.form-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px; // Limit max width for larger screens
+    margin: 0 auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); // Card shadow
+    border-radius: 8px; // Rounded corners
+    overflow: hidden; // Ensure rounded corners show
+}
+
+// ============================================
+// IMAGE HOLDER (Left Side)
+// ============================================
+
+// Background decorative image holder (left side - 50% width)
+.image-holder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8d7da; // Light pink/red background
+    width: 50%; // Take up half of the screen
+    background-image: linear-gradient(359.75deg, #e73a56 10.46%, rgba(231, 58, 86, 0) 99.85%),
+        url(https://media.istockphoto.com/id/1200980392/photo/medical-concept-of-asian-beautiful-female-doctor-in-white-coat-with-stethoscope-waist-up.jpg?s=612x612&w=0&k=20&c=nD_1Tn11kWcMZwZfnyA-lYAvNKcBeoEK_KLObBnN6Jg=);
+    background-size: cover;
+    background-position: center;
+}
+
+// ============================================
+// FORM CONTENT (Right Side)
+// ============================================
+
+// Component library container - main form content area
+.component-library {
+    width: 50%; // Take up half of the screen
+    background: #ffffff; // White background for form
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px; // Padding for content spacing
+}
+
+// ============================================
+// LOGO & HEADING
+// ============================================
+
+// Logo container - centered alignment
+.logo1 {
+    text-align: center;
+    margin-top: 4%; // Reduced from previous versions for better spacing
+    margin-bottom: 20px;
+
+    img {
+        max-width: 200px; // Logo size
+        height: auto;
+    }
+}
+
+// Page title/heading styling
+.text-center {
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 0px;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    color: #313033; // Dark gray text
+    font-family: poppins, sans-serif;
+
+    strong {
+        color: #e72b4a; // Brand red/pink color
+    }
+}
+
+// ============================================
+// LOGIN HEADING (Legacy - not currently used)
+// ============================================
+
+.login-head {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+// ============================================
+// FIELD CENTERING
+// ============================================
+
+// Field center container (legacy - minimal usage)
+.field-center {
+    padding: 10px 75px 10px 0px;
+    margin-left: 10%;
+    margin-top: 3%;
+}
+
+// ============================================
+// SPACING UTILITIES
+// ============================================
+
+// Spacing utility (legacy - not currently used)
 .spacing {
     margin-top: 100px;
 }
-.login-head {
-    // text-align: center;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    // margin-left: 35%;
-    // margin-right: 35%;
-}
-.logo1 {
-    // align-items: center;
-    // padding: 150px 10px;
-    // padding-top: 150px;
-    // padding-bottom: 0px;
-    // display: block;
-    // margin-left: auto;
-    // margin-right: auto;
-    // width: 50%;
-    // margin-left: 200px;
-    // margin-top: 70px;
-    // vertical-align:bottom;
-    text-align: center;
-    margin-top: 4%;
+
+// Whole container (legacy - not currently used)
+.whole {
+    margin-left: 0px;
 }
 
-.field-center {
-    padding: 10px 75px 10px 0px;
-    // padding-top: 150px;
-    // padding-bottom: 0px;
-    // display: block;
-    margin-left: 10%;
-    margin-top: 3%;
-    // margin-right: auto;
-    // width: 10%;
+// ============================================
+// LINKS & NAVIGATION
+// ============================================
+
+// Forgot password link styling
+.forgotpassword {
+    margin: auto;
+    display: contents;
+    margin-top: 10px;
+    font-size: medium;
+    color: #e72b4a; // Brand color
+
+    .link {
+        color: #e72b4a;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: #c02036; // Darker red on hover
+            text-decoration: underline;
+        }
+    }
 }
 
+// OTP/Mobile login link styling
+.mobile {
+    margin: auto;
+    margin-top: 10px;
+    display: contents;
+    font-size: medium;
+    color: #e72b4a; // Brand color
+
+    .link {
+        color: #e72b4a;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: #c02036; // Darker red on hover
+            text-decoration: underline;
+        }
+    }
+}
+
+// Generic link styling
+.link {
+    color: #e72b4a;
+    text-decoration: none;
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: #c02036; // Darker red on hover
+        text-decoration: underline;
+    }
+}
+
+// Already have account link container (legacy - not currently used)
+.already {
+    margin: auto;
+    justify-content: center;
+    display: contents;
+    margin-top: 10px;
+    font-size: medium;
+
+    .link {
+        color: #e72b4a;
+    }
+}
+
+// ============================================
+// BUTTON STYLING
+// ============================================
+
+// Button block styling (legacy - CustomButton component handles this now)
 .register-photo form .btn-block {
     padding-top: 8px !important;
     padding-right: 16px !important;
@@ -45,43 +223,64 @@
     right: 30px;
 }
 
-.already {
-    margin: auto;
-    justify-content: center;
-    display: contents;
-    margin-top: 10px;
-    font-size: medium;
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+// Mobile breakpoint - 768px and below
+@media (max-width: 991px) {
+    // Stack layout for mobile
+    .form-container {
+        flex-direction: column;
+        max-width: 100%;
+    }
+
+    // Hide image on mobile to save space
+    .image-holder {
+        display: none !important;
+    }
+
+    // Full width form on mobile
+    .component-library {
+        width: 100% !important;
+        padding: 20px;
+    }
+
+    // Adjust logo size for mobile
+    .logo1 {
+        margin-top: 20px;
+
+        img {
+            max-width: 150px;
+        }
+    }
+
+    // Adjust heading for mobile
+    .text-center {
+        font-size: 20px;
+        margin-top: 20px;
+    }
+
+    // Field center adjustments for mobile
+    .field-center {
+        margin-left: 0;
+        padding: 10px;
+    }
 }
 
-.whole {
-    margin-left: 0px;
-}
+// Extra small devices (phones, 600px and down)
+@media (max-width: 600px) {
+    // Reduce padding for very small screens
+    .component-library {
+        padding: 15px;
+    }
 
-.forgotpassword {
-    margin: auto;
-    display: contents;
-    margin-top: 10px;
-    font-size: medium;
-    color: #e72b4a;
-}
+    .logo1 img {
+        max-width: 120px;
+    }
 
-.text-center {
-    font-size: 24px;
-    line-height: 1.5;
-    margin-bottom: 0px;
-    margin-top: 40px;
-    margin-left: auto;
-    text-align: center;
-}
-
-.mobile {
-    margin: auto;
-    margin-top: 10px;
-    display: contents;
-    font-size: medium;
-    color: #e72b4a;
-}
-
-.link {
-    color: #e72b4a;
+    .text-center {
+        font-size: 18px;
+        margin-top: 15px;
+    }
 }

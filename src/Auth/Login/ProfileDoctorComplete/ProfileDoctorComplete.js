@@ -16,32 +16,67 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import ClassicFrame from "../../../static/images/DrImages/Undraw.png";
 import ImageFrame from "../../../static/images/logos/Doctor_logo.png";
+/**
+ * DoctorCompleteProfile Component
+ * 
+ * Handles doctor profile completion for users with incomplete profiles after login.
+ * Features:
+ * - Multi-step form (6 steps)
+ * - Personal information collection (name, gender, DOB)
+ * - Address information (country, state, city, street)
+ * - Professional credentials (qualification, speciality, department)
+ * - License and certification details
+ * - JWT token-based authentication
+ * - Automatic token handling via axiosInstance
+ * - Dynamic country/state/city/department dropdowns
+ * - Doctor verification workflow with admin approval
+ */
+
 import axiosInstance from "../../../config/axiosInstance";
 import CustomSnackBar from "../../../components/CustomSnackBar";
 import VerificationLoader from "../../../components/VerificationLoader";
 import useVerificationLoader from "../../../hooks/useVerificationLoader";
 import { useNavigate } from "react-router-dom";
+import logger from "../../../utils/logger"; // Added logger
+import toastService from "../../../services/toastService"; // Added toastService
 
 const steps = ["", "", "", "", "", ""];
 
 const DoctorCompleteProfile = () => {
+    // ============================================
+    // State Management
+    // ============================================
+    
+    // Gender dropdown options
     const [dropdownItems] = useState(["Male", "Female", "Others"]);
     const [activeDropdown, setActiveDropdown] = useState("");
+    
+    // Location data - Country dropdowns and selection
     const [selectedCountryFromDropDown, setSelectedCountryFromDropDown] = useState([]);
     const [countryValues, setCountryValue] = useState([]);
     const [countryNames, setCountryNames] = useState(["Please Wait"]);
+    
+    // Location data - State dropdowns and selection
     const [stateNames, setStateNames] = useState(["Please Wait"]);
     const [stateName, setStateName] = useState("");
     const [stateValue, setStateValue] = useState([]);
+    
+    // Location data - City dropdowns and selection
     const [selectCityFromDropDown, setSelectCityFromDropDown] = useState([]);
     const [cityNames, setCityNames] = useState([]);
     const [citySelected, setCitySelected] = useState("");
     const [cityValues, setCityValues] = useState([]);
+    
+    // Multi-step form navigation
     const [activeStep, setActiveStep] = React.useState(0);
+    const [skipped, setSkipped] = React.useState(new Set());
+    
+    // Department/Specialization data
     const [departmentName, setDepartmentName] = useState([]);
     const [departmentValue, setDepartmentValue] = useState([]);
     const [departmentDropDown, setDepartmentDropdown] = useState("Specialization");
-    const [skipped, setSkipped] = React.useState(new Set());
+    
+    // Flag to trigger profile data submission
     const [flagToSendDoctorData, setFlagToSendDoctorData] = useState(false);
     const [updateUserData, setUpdateUserData] = useState({
         suid: localStorage.getItem("doctor_suid"),
@@ -77,28 +112,47 @@ const DoctorCompleteProfile = () => {
     const [showSnackBar, setShowSnackBar] = useState(false);
     const navigate = useNavigate();
     
-    // Use the verification loader hook
+    // ============================================
+    // Verification Loader Hook
+    // ============================================
+    // Custom hook for doctor verification loader with admin approval workflow
     const {
-        isLoading: isVerifying,
-        title,
-        message: verificationMessage,
-        subMessage,
-        showLoader,
-        hideLoader,
-        updateMessage,
-        showDoctorVerification
+        isLoading: isVerifying,           // Loader visibility state
+        title,                            // Loader title text
+        message: verificationMessage,      // Current verification message
+        subMessage,                       // Sub-message/description
+        showLoader,                       // Function to show loader
+        hideLoader,                       // Function to hide loader
+        updateMessage,                    // Function to update message dynamically
+        showDoctorVerification            // Function to show doctor verification loader
     } = useVerificationLoader({
-        progressColor: "#e72b49"
+        progressColor: "#e72b49" // Brand color for progress indicator
     });
 
+    // ============================================
+    // Stepper Navigation Functions
+    // ============================================
+    
+    /**
+     * Check if a step is optional (skippable)
+     * Currently, step 1 is optional
+     */
     const isStepOptional = (step) => {
         return step === 1;
     };
 
+    /**
+     * Check if a step has been skipped
+     * Skips are tracked in a Set to maintain unique values
+     */
     const isStepSkipped = (step) => {
         return skipped.has(step);
     };
 
+    /**
+     * Navigate to next step in the multi-step form
+     * If current step was skipped, removes it from skipped set
+     */
     const handleNext = () => {
         let newSkipped = skipped;
         if (isStepSkipped(activeStep)) {
@@ -110,10 +164,18 @@ const DoctorCompleteProfile = () => {
         setSkipped(newSkipped);
     };
 
+    /**
+     * Navigate to previous step in the multi-step form
+     */
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
+    /**
+     * Skip current step and move to next
+     * Only works for optional steps (step 1)
+     * Throws error if trying to skip non-optional step
+     */
     const handleSkip = () => {
         if (!isStepOptional(activeStep)) {
             // You probably want to guard against something like this,
@@ -129,15 +191,28 @@ const DoctorCompleteProfile = () => {
         });
     };
 
+    /**
+     * Reset stepper to first step
+     */
     const handleReset = () => {
         setActiveStep(0);
     };
 
+    // ============================================
+    // useEffect Hooks
+    // ============================================
+    
+    /**
+     * Component mount - Fetch initial data and populate form
+     * - Fetches countries list
+     * - Fetches departments list
+     * - Initializes form with doctor data from localStorage
+     */
     useEffect(() => {
         FetchCountryNames();
         fetchDepartmentName();
         
-        // Handle incomplete profile data
+        // Handle incomplete profile data from localStorage
         const doctorSuid = localStorage.getItem("doctor_suid");
         const doctorEmail = localStorage.getItem("email") || localStorage.getItem("login_Email");
         
@@ -150,17 +225,30 @@ const DoctorCompleteProfile = () => {
         }
     }, []);
 
-    // run the api call when there is change in country drop down
+    /**
+     * Fetch states when country selection changes
+     * Triggers when user selects a country from dropdown
+     */
     useEffect(() => {
         FetchStateNames(selectedCountryFromDropDown[0]?.country_id);
     }, [selectedCountryFromDropDown]);
 
-    // run the api to fetch the city details
+    /**
+     * Fetch cities when state selection changes
+     * Triggers when user selects a state from dropdown
+     */
     useEffect(() => {
         FetchCityNames(selectCityFromDropDown[0]?.state_id);
     }, [selectCityFromDropDown]);
 
-    //API call to fetch the country names
+    // ============================================
+    // API Functions - Data Fetching
+    // ============================================
+    
+    /**
+     * Fetch country names from API
+     * Populates country dropdown with available countries
+     */
     const FetchCountryNames = async () => {
         let CountryValues = [];
         let CountryName = [];
@@ -173,11 +261,14 @@ const DoctorCompleteProfile = () => {
             setCountryNames(CountryName);
             setCountryValue(CountryValues);
         } catch (error) {
-            console.log(error);
+            logger.error("Error fetching countries:", error);
         }
     };
 
-    // to fetch the state names
+    /**
+     * Fetch state names from API based on selected country
+     * Populates state dropdown with states for the selected country
+     */
     const FetchStateNames = async (country_id) => {
         let StateValues = [];
         let StateName = [];
@@ -190,16 +281,20 @@ const DoctorCompleteProfile = () => {
             setStateValue(StateValues);
             setStateNames(StateName);
         } catch (error) {
-            console.log(error);
+            logger.error("Error fetching states:", error);
         }
     };
 
+    /**
+     * Fetch city names from API based on selected state
+     * Populates city dropdown with cities for the selected state
+     */
     const FetchCityNames = async (state_id) => {
         let CityValues = [];
         let cityName = [];
         try {
             const response = await axiosInstance(`/sec/cities?state_id=${state_id}`);
-            console.log("response city id : ", response);
+            logger.debug("Cities response:", response);
             for (let key in response?.data?.response) {
                 CityValues.push(response?.data?.response[key]);
                 cityName.push(response?.data?.response[key].city_name);
@@ -207,16 +302,20 @@ const DoctorCompleteProfile = () => {
             setCityValues(CityValues);
             setCityNames(cityName);
         } catch (error) {
-            console.log(error);
+            logger.error("Error fetching cities:", error);
         }
     };
 
+    /**
+     * Fetch department names from API
+     * Populates department/specialization dropdown
+     */
     const fetchDepartmentName = async () => {
         let DepartmentValues = [];
         let DepartmentName = [];
         try {
             const response = await axiosInstance("/sec/departments");
-            console.log("fetch Department Name : ", response?.data?.response);
+            logger.debug("Departments response:", response?.data?.response);
 
             for (let key in response?.data?.response) {
                 DepartmentValues.push(response?.data?.response[key]);
@@ -225,18 +324,29 @@ const DoctorCompleteProfile = () => {
             setDepartmentName(DepartmentName);
             setDepartmentValue(DepartmentValues);
         } catch (err) {
-            console.log("Department Name error : ", err);
+            logger.error("Department fetch error:", err);
         }
     };
 
-    console.log("user data : ", updateUserData);
+    logger.debug("User data updated:", updateUserData);
 
+    // Send doctor profile data when flag is set to true
     useEffect(() => {
         if (flagToSendDoctorData) {
             PostUserData();
         }
     }, [flagToSendDoctorData]);
 
+    // ============================================
+    // API Functions - Profile Submission
+    // ============================================
+    
+    /**
+     * Submit doctor profile data to backend
+     * Handles both admin approval required and direct verification scenarios
+     * Shows verification loader with dynamic messages
+     * Displays success/error notifications via snackbar and toast
+     */
     const PostUserData = async () => {
         setFlagToSendDoctorData(false);
         
@@ -251,66 +361,118 @@ const DoctorCompleteProfile = () => {
             email: updateUserData.email || doctorEmail
         };
         
-        console.log("Sending doctor profile data:", dataToSend);
+        logger.info("Sending doctor profile data:", dataToSend);
         
-        // Show verification loading popup
+        // Show verification loading popup with custom loader
         showDoctorVerification();
         
         try {
+            // Use axiosInstance - automatically includes JWT token
+            // Located in: config/axiosInstance.js (axios interceptor)
+            // Token is read from localStorage and attached to Authorization header
             const response = await axiosInstance.post(
                 "/sec/auth/updateProfile",
                 JSON.stringify(dataToSend),
             );
             
-            // Check if verification is in progress
+            // ============================================
+            // Handle Response Based on Verification Status
+            // ============================================
+            
+            // Check if admin approval is required (verification workflow)
             if (response.data?.response?.message === "ADMIN_APPROVAL_REQUIRED") {
+                logger.info("Profile submitted - admin approval required");
+                
+                // Update loader message to show admin approval status
                 updateMessage({
                     message: "Doctor verification pending admin approval...",
                     subMessage: "Your profile has been submitted for review"
                 });
+                
+                // Show success toast notification
+                toastService.success("Profile submitted for verification!");
+                
                 // Keep the popup open for a bit longer to show the message
                 setTimeout(() => {
                     hideLoader();
                     setUpdatedUserSuccesfully("Profile submitted for verification 🙂");
                     setShowSnackBar(true);
-                    handleNext();
+                    handleNext(); // Navigate to next step
                 }, 2000);
             } else {
-                // Verification successful
+                // ============================================
+                // Direct Verification Successful
+                // ============================================
+                logger.info("Profile completed successfully");
+                
+                // Update loader message to show successful verification
                 updateMessage({
                     message: "Doctor verification successful!",
                     subMessage: "Your profile has been verified and activated"
                 });
+                
+                // Show success toast notification
+                toastService.success("Profile completed successfully!");
+                
                 setTimeout(() => {
                     hideLoader();
                     setUpdatedUserSuccesfully("Profile Completed 🙂");
                     setShowSnackBar(true);
-                    handleNext();
+                    handleNext(); // Navigate to next step
                 }, 2000);
             }
             
-            console.log("send data succesfully : ", response);
+            logger.info("Profile data sent successfully:", response);
         } catch (err) {
-            console.log("Error sending data", err);
+            // ============================================
+            // Error Handling with Specific Error Codes
+            // ============================================
+            logger.error("Error sending profile data:", err);
+            logger.error("Error response:", err?.response?.data);
+            
+            // Parse error codes from backend and provide user-friendly messages
+            let errorMessage = "Failed to update profile. Please try again.";
+            
+            if (err?.response?.data?.error) {
+                const errorCode = err.response.data.error;
+                switch (errorCode) {
+                    case "VALIDATION_ERROR":
+                        errorMessage = "Please check your input and try again.";
+                        break;
+                    case "UNAUTHORIZED":
+                        errorMessage = "You are not authorized to update this profile.";
+                        break;
+                    case "PROFILE_NOT_FOUND":
+                        errorMessage = "Profile not found. Please contact support.";
+                        break;
+                    case "INCOMPLETE_DATA":
+                        errorMessage = "Please complete all required fields.";
+                        break;
+                    default:
+                        errorMessage = errorCode || errorMessage;
+                }
+            }
+            
+            // Hide loader and show error notifications
             hideLoader();
-            setShowSnackBar(false);
+            toastService.error(errorMessage);
+            setShowSnackBar(true);
             setFlagToSendDoctorData(false);
         }
     };
 
-    // console.log("update use data : " , departmentName)
-    // console.log("update use data : " , departmentValue)
-
-    console.log(
-        "True or false ",
-        updateUserData.first_name != null &&
+    // Debug logs for validation (only in development)
+    logger.debug("Update user data validation:", {
+        departmentName,
+        departmentValue,
+        hasRequiredFields: updateUserData.first_name != null &&
             updateUserData.middle_name != null &&
             updateUserData.last_name != null &&
             updateUserData.DOB != null &&
             updateUserData.gender != null,
-    );
-    console.log("True or false ", updateUserData.first_name != null);
-    console.log("True or false ", updateUserData.first_name === null);
+        firstNameExists: updateUserData.first_name != null,
+        firstNameMissing: updateUserData.first_name === null
+    });
 
     return (
         <>
@@ -704,10 +866,7 @@ const DoctorCompleteProfile = () => {
                                                                                 listItems,
                                                                             ),
                                                                     );
-                                                                console.log(
-                                                                    "speacilist ID : ",
-                                                                    response[0]?.department_id,
-                                                                );
+                                                                logger.debug("Specialist department ID:", response[0]?.department_id);
                                                                 setUpdateUserData({
                                                                     ...updateUserData,
                                                                     speciality_id:
@@ -1179,7 +1338,7 @@ const DoctorCompleteProfile = () => {
                                                         onChange={(value) => {
                                                             if (value) {
                                                                 const formattedDate = value.format('YYYY-MM-DD');
-                                                                console.log("License Issue Date:", formattedDate);
+                                                                logger.debug("License issue date:", formattedDate);
                                                                 setUpdateUserData({
                                                                     ...updateUserData,
                                                                     lic_date: formattedDate,

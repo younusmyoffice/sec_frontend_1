@@ -15,9 +15,21 @@ import CancelAppointmentSlider from "./AppointmentSlider/CancleAppointment/Cancl
 import CustomButton from "../../components/CustomButton/custom-button";
 import { LeaveAReview } from "./UpComing/CompletedModal/LeaveAReviewModal";
 import BookAppointmentModal from "../DrDetailsCard/BookingAppointmentModal";
-import axiosInstance from "../../config/axiosInstance";
+import axiosInstance from "../../config/axiosInstance"; // Handles access token automatically
 import { getProfileImageSrc } from "../../utils/imageUtils";
+import logger from "../../utils/logger"; // Centralized logging
+import toastService from "../../services/toastService"; // Toast notifications
 
+/**
+ * AppointmentNavbar Component
+ * 
+ * Navigation bar for appointment tabs
+ * Tabs: Upcoming, Completed, Cancelled, Chats
+ * 
+ * Uses NavLink for active state highlighting
+ * 
+ * @component
+ */
 export const AppointmentNavbar = () => {
     return (
         <nav className="NavBar-Container-Appoinement">
@@ -29,6 +41,18 @@ export const AppointmentNavbar = () => {
     );
 };
 
+/**
+ * CancelledCard Component
+ * 
+ * Displays cancelled appointment card
+ * Shows doctor info, plan name, status, date, and reports
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.data - Appointment data (first_name, middle_name, last_name, plan_name, status, appointment_date, report_name)
+ * @param {string} props.DrImage - Doctor's profile image URL
+ * 
+ * @component
+ */
 export const CancelledCard = ({ data, DrImage }) => {
     return (
         <Box
@@ -36,10 +60,10 @@ export const CancelledCard = ({ data, DrImage }) => {
                 width: "100%",
                 height: "100%",
                 display: "flex",
-                borderBottom: "1px solid #E6E1E5",
+                borderBottom: "1px solid #E6E1E5", // Common border color
             }}
         >
-            {/* Image tag */}
+            {/* Doctor profile image */}
             <Box
                 sx={{
                     width: "143px",
@@ -56,9 +80,11 @@ export const CancelledCard = ({ data, DrImage }) => {
                     }}
                     component={"img"}
                     src={getProfileImageSrc(DrImage, DrImage)}
-                ></Box>
+                    alt={`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}
+                />
             </Box>
-            {/* card content */}
+            
+            {/* Card content */}
             <Box
                 sx={{
                     display: "flex",
@@ -67,9 +93,12 @@ export const CancelledCard = ({ data, DrImage }) => {
                     padding: "2%",
                 }}
             >
+                {/* Doctor name */}
                 <Typography>
-                    {`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}{" "}
+                    {`${data?.first_name || ""} ${data?.middle_name || ""} ${data?.last_name || ""}`}
                 </Typography>
+                
+                {/* Plan name and status */}
                 <Box
                     sx={{
                         width: "100%",
@@ -80,7 +109,7 @@ export const CancelledCard = ({ data, DrImage }) => {
                 >
                     <Typography
                         sx={{
-                            color: "#313033",
+                            color: "#313033", // Common color: #313033
                             fontFamily: "Poppins",
                             fontSize: "12px",
                             fontStyle: "normal",
@@ -89,7 +118,7 @@ export const CancelledCard = ({ data, DrImage }) => {
                             letterSpacing: "0.096px",
                         }}
                     >
-                        {data?.plan_name}
+                        {data?.plan_name || "No Plan"}
                     </Typography>
                     <CustomButton
                         buttonCss={{
@@ -103,12 +132,14 @@ export const CancelledCard = ({ data, DrImage }) => {
                             lineHeight: "22px",
                         }}
                         isTransaprent={true}
-                        label={data?.status}
-                    ></CustomButton>
+                        label={data?.status || "Cancelled"}
+                    />
                 </Box>
+                
+                {/* Appointment date and reports */}
                 <Typography
                     sx={{
-                        color: "#313033",
+                        color: "#313033", // Common color: #313033
                         fontFamily: "Poppins",
                         fontSize: "12px",
                         fontStyle: "normal",
@@ -128,6 +159,17 @@ export const CancelledCard = ({ data, DrImage }) => {
     );
 };
 
+/**
+ * PaginationCard Component
+ * 
+ * Displays pagination controls for appointment lists
+ * Shows current page and pagination buttons
+ * 
+ * Note: Currently shows hardcoded "Page 1 of 1"
+ * Consider adding props for dynamic page numbers
+ * 
+ * @component
+ */
 export const PaginationCard = () => {
     return (
         <Box
@@ -139,15 +181,13 @@ export const PaginationCard = () => {
             }}
         >
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                {/* Page info */}
                 <Box>
                     <Typography sx={{ marginTop: "20%" }}>Page 1 of 1</Typography>
                 </Box>
-                <Box
-                    sx={{
-                        marginLeft: "0%",
-                        // marginTop: "1%",
-                    }}
-                >
+                
+                {/* Pagination controls */}
+                <Box>
                     <Pagination count={10} variant="outlined" shape="rounded" />
                 </Box>
             </Box>
@@ -155,22 +195,46 @@ export const PaginationCard = () => {
     );
 };
 
-export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
-    console.log(data)
+/**
+ * CompletedCard Component
+ * 
+ * Displays completed appointment card with action buttons
+ * Features:
+ * - Doctor profile and appointment details
+ * - Leave a Review button and modal
+ * - Book Again button and modal
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.data - Appointment data
+ * @param {string} props.DrImage - Doctor's profile image URL
+ * @param {string|number} props.pid - Patient ID
+ * @param {string|number} props.did - Doctor ID
+ * @param {string|number} props.aid - Appointment ID
+ * 
+ * @component
+ */
+export const CompletedCard = ({ data, DrImage, pid, did, aid }) => {
+    logger.debug("🔵 CompletedCard component rendering", { 
+        appointment_id: aid,
+        doctor_id: did,
+        patient_id: pid 
+    });
+    
+    // Modal states
     const [openLeaveReview, setOpenLeaveReview] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
-    console.log("Complted card data :  :  = = ", data);
     return (
         <Box sx={{ display: "flex" }}>
+            {/* Main card content */}
             <Box
                 sx={{
                     width: "100%",
                     height: "100%",
                     display: "flex",
-                    borderBottom: "1px solid #E6E1E5",
+                    borderBottom: "1px solid #E6E1E5", // Common border color
                 }}
             >
-                {/* Image tag */}
+                {/* Doctor profile image */}
                 <Box
                     sx={{
                         width: "143px",
@@ -187,9 +251,11 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                         }}
                         component={"img"}
                         src={getProfileImageSrc(DrImage, DrImage)}
-                    ></Box>
+                        alt={`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}
+                    />
                 </Box>
-                {/* card content */}
+                
+                {/* Card content */}
                 <Box
                     sx={{
                         display: "flex",
@@ -198,7 +264,10 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                         padding: "2%",
                     }}
                 >
-                    <Typography>{`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}</Typography>
+                    {/* Doctor name */}
+                    <Typography>{`${data?.first_name || ""} ${data?.middle_name || ""} ${data?.last_name || ""}`}</Typography>
+                    
+                    {/* Plan name and status */}
                     <Box
                         sx={{
                             width: "100%",
@@ -209,7 +278,7 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                     >
                         <Typography
                             sx={{
-                                color: "#313033",
+                                color: "#313033", // Common color: #313033
                                 fontFamily: "Poppins",
                                 fontSize: "12px",
                                 fontStyle: "normal",
@@ -218,7 +287,7 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                                 letterSpacing: "0.096px",
                             }}
                         >
-                            {data?.plan_name}
+                            {data?.plan_name || "No Plan"}
                         </Typography>
                         <CustomButton
                             buttonCss={{
@@ -233,11 +302,13 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                             }}
                             isTransaprent={true}
                             label="Completed"
-                        ></CustomButton>
+                        />
                     </Box>
+                    
+                    {/* Appointment date and reports */}
                     <Typography
                         sx={{
-                            color: "#313033",
+                            color: "#313033", // Common color: #313033
                             fontFamily: "Poppins",
                             fontSize: "12px",
                             fontStyle: "normal",
@@ -247,24 +318,25 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                             marginTop: "15%",
                         }}
                     >
-                        {data?.appointment_date} | Attached Reports:{data?.report_name}
+                        {data?.appointment_date || "No Date"} | Attached Reports: {data?.report_name || "None"}
                     </Typography>
                 </Box>
             </Box>
+            
+            {/* Action buttons container */}
             <Box
                 sx={{
                     display: "flex",
                     flexDirection: "column",
                     padding: "2%",
-                    flexDirection: "column",
                     justifyContent: "space-between",
                 }}
             >
+                {/* Leave a Review button and modal */}
                 <Box>
                     <CustomButton
                         buttonCss={{
                             marginLeft: "10%",
-                            // marginTop: "-6%",
                             borderRadius: "50px",
                             fontFamily: "Poppins",
                             fontSize: "14px",
@@ -274,10 +346,13 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                             fontWeight: "500",
                             lineHeight: "22px",
                         }}
-                        handleClick={() => setOpenLeaveReview(!openLeaveReview)}
+                        handleClick={() => {
+                            logger.debug("📝 Opening Leave Review modal", { aid });
+                            setOpenLeaveReview(!openLeaveReview);
+                        }}
                         isTransaprent={true}
                         label="Leave a Review"
-                    ></CustomButton>
+                    />
                     <CustomModal
                         isOpen={openLeaveReview}
                         conditionOpen={setOpenLeaveReview}
@@ -291,7 +366,7 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                                         justifyContent: "center",
                                         alignItems: "center",
                                     }}
-                                ></Box>
+                                />
                             </Fragment>
                         }
                     >
@@ -304,10 +379,11 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                         </Box>
                     </CustomModal>
                 </Box>
+                
+                {/* Book Again button and modal */}
                 <CustomButton
                     buttonCss={{
                         marginLeft: "10%",
-                        // marginTop: "-6%",
                         borderRadius: "50px",
                         fontFamily: "Poppins",
                         fontSize: "14px",
@@ -319,8 +395,11 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                     }}
                     isTransaprent={false}
                     label="Book Again"
-                    handleClick={() => setOpenDialog(!openDialog)}
-                ></CustomButton>
+                    handleClick={() => {
+                        logger.debug("📅 Opening Book Again modal", { did, aid });
+                        setOpenDialog(!openDialog);
+                    }}
+                />
                 <CustomModal
                     isOpen={openDialog}
                     title={"Book Appointment"}
@@ -334,20 +413,15 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
                                     justifyContent: "center",
                                     alignItems: "center",
                                 }}
-                            >
-                                {/* <CustomButton
-                                            label="Next"
-                                            handleClick={() =>
-                                                setPatientDetails(!openPatientDetails)
-                                            }
-                                        /> */}
-                            </Box>
+                            />
                         </Fragment>
                     }
                 >
                     <Box>
-                        <BookAppointmentModal drID={did}
-                                aid={aid} />
+                        <BookAppointmentModal 
+                            drID={did}
+                            aid={aid} 
+                        />
                     </Box>
                 </CustomModal>
             </Box>
@@ -355,36 +429,92 @@ export const CompletedCard = ({ data, DrImage, pid ,did,aid}) => {
     );
 };
 
+/**
+ * UpcomingCard Component
+ * 
+ * Displays upcoming appointment card with actions
+ * Features:
+ * - Doctor profile and appointment details
+ * - More options menu (Cancel, Re-Schedule)
+ * - Join appointment button
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.data - Appointment data
+ * @param {string} props.DrImage - Doctor's profile image URL
+ * @param {string} props.label - Button label
+ * @param {boolean} props.isDisabled - Whether join button is disabled
+ * @param {Object} props.path - Path object with {join, reject, rescheduled}
+ * @param {Function} props.changeFlagState - Callback to update parent state
+ * 
+ * @component
+ */
 export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFlagState }) => {
+    logger.debug("🔵 UpcomingCard component rendering", { 
+        appointment_id: data?.appointment_id,
+        status: data?.status 
+    });
+    
+    // Menu state
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    
+    // Modal states
+    const [openDialogCancle, setOpenDialogCancle] = useState(false);
+    const [openDialogReschedule, setOpenDialogReschedule] = useState(false);
+    
+    const navigate = useNavigate();
+    
+    /**
+     * Handle menu button click
+     * Opens menu and closes any open modals
+     */
     const handleClick = (event) => {
+        logger.debug("📋 Opening appointment options menu");
         setAnchorEl(event.currentTarget);
         setOpenDialogCancle(false);
         setOpenDialogReschedule(false);
     };
-    const navigate = useNavigate();
+    
+    /**
+     * Handle menu close
+     */
     const handleClose = () => {
+        logger.debug("📋 Closing appointment options menu");
         setAnchorEl(null);
     };
-    const [openDialogCancle, setOpenDialogCancle] = useState(false);
-    const [openDialogReschedule, setOpenDialogReschedule] = useState(false);
 
+    /**
+     * Navigate to join appointment page
+     */
     const JoinAppointment = async () => {
-        navigate(path.join)
+        logger.debug("🚪 Joining appointment", { join_path: path?.join });
+        
+        if (!path?.join) {
+            logger.error("❌ Join path is missing");
+            toastService.error("Join path is not available");
+            return;
+        }
+        
+        try {
+            navigate(path.join);
+            logger.debug("✅ Navigated to join appointment");
+        } catch (error) {
+            logger.error("❌ Error navigating to join appointment:", error);
+            toastService.error("Failed to join appointment");
+        }
     };
 
     return (
         <Box sx={{ width: "100%", display: "flex" }}>
+            {/* Main card content */}
             <Box
                 sx={{
                     width: "100%",
-                    // height: "100%",
                     display: "flex",
-                    borderBottom: "1px solid #E6E1E5",
+                    borderBottom: "1px solid #E6E1E5", // Common border color
                 }}
             >
-                {/* Image tag */}
+                {/* Doctor profile image */}
                 <Box
                     sx={{
                         width: "143px",
@@ -401,9 +531,11 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                         }}
                         component={"img"}
                         src={getProfileImageSrc(DrImage, DrImage)}
-                    ></Box>
+                        alt={`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}
+                    />
                 </Box>
-                {/* card content */}
+                
+                {/* Card content */}
                 <Box
                     sx={{
                         display: "flex",
@@ -412,7 +544,10 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                         padding: "2%",
                     }}
                 >
-                    <Typography>{`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}</Typography>
+                    {/* Doctor name */}
+                    <Typography>{`${data?.first_name || ""} ${data?.middle_name || ""} ${data?.last_name || ""}`}</Typography>
+                    
+                    {/* Plan name and status */}
                     <Box
                         sx={{
                             width: "100%",
@@ -423,7 +558,7 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                     >
                         <Typography
                             sx={{
-                                color: "#313033",
+                                color: "#313033", // Common color: #313033
                                 fontFamily: "Poppins",
                                 fontSize: "12px",
                                 fontStyle: "normal",
@@ -432,7 +567,7 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                                 letterSpacing: "0.096px",
                             }}
                         >
-                            {data?.plan_name}
+                            {data?.plan_name || "No Plan"}
                         </Typography>
                         <CustomButton
                             buttonCss={{
@@ -446,13 +581,15 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                                 lineHeight: "22px",
                             }}
                             isTransaprent={true}
-                            label={data?.status}
+                            label={data?.status || "Upcoming"}
                             className={"upcomingButton"}
-                        ></CustomButton>
+                        />
                     </Box>
+                    
+                    {/* Appointment date and reports */}
                     <Typography
                         sx={{
-                            color: "#313033",
+                            color: "#313033", // Common color: #313033
                             fontFamily: "Poppins",
                             fontSize: "12px",
                             fontStyle: "normal",
@@ -472,6 +609,8 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                     </Typography>
                 </Box>
             </Box>
+            
+            {/* Action buttons container */}
             <Box
                 sx={{
                     display: "flex",
@@ -480,6 +619,7 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                     alignItems: "flex-end",
                 }}
             >
+                {/* More options menu */}
                 <div style={{ width: "fit-content" }}>
                     <MoreHorizIcon
                         sx={{
@@ -489,6 +629,7 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                             borderRadius: "50px",
                         }}
                         onClick={handleClick}
+                        aria-label="More options"
                     />
                     <Menu
                         id="basic-menu"
@@ -499,13 +640,19 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                             "aria-labelledby": "basic-button",
                         }}
                     >
-                        {/* ---------------------- Appointments and Re-Schedule--------------------------------------------------- */}
-                        <MenuItem onClick={() => setOpenDialogCancle(!openDialogCancle)}>
-                            Cancle
+                        {/* Cancel appointment option */}
+                        <MenuItem 
+                            onClick={() => {
+                                logger.debug("❌ Opening cancel appointment modal");
+                                setOpenDialogCancle(!openDialogCancle);
+                                handleClose();
+                            }}
+                        >
+                            Cancel
                         </MenuItem>
                         <CustomModal
                             isOpen={openDialogCancle}
-                            title={"Book Appointment"}
+                            title={"Cancel Appointment"}
                             conditionOpen={setOpenDialogCancle}
                             footer={
                                 <Fragment>
@@ -516,21 +663,27 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                                             justifyContent: "center",
                                             alignItems: "center",
                                         }}
-                                    ></Box>
+                                    />
                                 </Fragment>
                             }
                         >
                             <Box>
                                 <CancelAppointmentSlider
-                                    path={path.reject}
+                                    path={path?.reject}
                                     data={data}
                                     changeFlagState={changeFlagState}
                                 />
                             </Box>
                         </CustomModal>
+                        
+                        {/* Re-Schedule option - Only show if status is "booked" */}
                         {data?.status === "booked" && (
                             <MenuItem
-                                onClick={() => setOpenDialogReschedule(!openDialogReschedule)}
+                                onClick={() => {
+                                    logger.debug("📅 Opening reschedule appointment modal");
+                                    setOpenDialogReschedule(!openDialogReschedule);
+                                    handleClose();
+                                }}
                             >
                                 Re-Schedule
                             </MenuItem>
@@ -538,7 +691,7 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
 
                         <CustomModal
                             isOpen={openDialogReschedule}
-                            title={"Book Appointment"}
+                            title={"Reschedule Appointment"}
                             conditionOpen={setOpenDialogReschedule}
                             footer={
                                 <Fragment>
@@ -549,13 +702,13 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                                             justifyContent: "center",
                                             alignItems: "center",
                                         }}
-                                    ></Box>
+                                    />
                                 </Fragment>
                             }
                         >
                             <Box>
                                 <RescheduleAppointmentSlider
-                                    path={path.rescheduled}
+                                    path={path?.rescheduled}
                                     data={data}
                                     changeFlagState={changeFlagState}
                                 />
@@ -564,6 +717,7 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                     </Menu>
                 </div>
 
+                {/* Join appointment button */}
                 <CustomButton
                     buttonCss={{
                         borderRadius: "50px",
@@ -578,26 +732,68 @@ export const UpcomingCard = ({ data, DrImage, label, isDisabled, path, changeFla
                     }}
                     isDisabled={isDisabled}
                     isTransaprent={false}
-                    label="Join"
+                    label={label || "Join"}
                     handleClick={JoinAppointment}
-                ></CustomButton>
+                />
             </Box>
         </Box>
     );
 };
 
+// PropTypes for type checking
 UpcomingCard.propTypes = {
-    label: PropTypes.string.isRequired,
+    data: PropTypes.shape({
+        first_name: PropTypes.string,
+        middle_name: PropTypes.string,
+        last_name: PropTypes.string,
+        plan_name: PropTypes.string,
+        status: PropTypes.string,
+        appointment_date: PropTypes.string,
+        report_name: PropTypes.string,
+        appointment_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }).isRequired,
     DrImage: PropTypes.string.isRequired,
-    isDisabled: PropTypes.bool.isRequired,
+    label: PropTypes.string,
+    isDisabled: PropTypes.bool,
+    path: PropTypes.shape({
+        join: PropTypes.string,
+        reject: PropTypes.string,
+        rescheduled: PropTypes.string,
+    }),
+    changeFlagState: PropTypes.func,
+};
+
+UpcomingCard.defaultProps = {
+    label: "Join",
+    isDisabled: false,
+    path: {},
+    changeFlagState: () => {},
 };
 
 CompletedCard.propTypes = {
+    data: PropTypes.shape({
+        first_name: PropTypes.string,
+        middle_name: PropTypes.string,
+        last_name: PropTypes.string,
+        plan_name: PropTypes.string,
+        appointment_date: PropTypes.string,
+        report_name: PropTypes.string,
+    }).isRequired,
     DrImage: PropTypes.string.isRequired,
+    pid: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    did: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    aid: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 CancelledCard.propTypes = {
+    data: PropTypes.shape({
+        first_name: PropTypes.string,
+        middle_name: PropTypes.string,
+        last_name: PropTypes.string,
+        plan_name: PropTypes.string,
+        status: PropTypes.string,
+        appointment_date: PropTypes.string,
+        report_name: PropTypes.string,
+    }).isRequired,
     DrImage: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    isDisabled: PropTypes.bool.isRequired,
 };

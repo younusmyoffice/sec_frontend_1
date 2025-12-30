@@ -1,6 +1,20 @@
+/**
+ * SelectRoleLogin Component Styles
+ * 
+ * Styles for the role selection landing page.
+ * Features:
+ * - Split-screen layout (image left, form right)
+ * - Responsive design with mobile breakpoints
+ * - Brand colors (#e72b4a, #e73a56)
+ * - Radio button styling
+ * - Image background with gradient overlay
+ */
+
+// Legacy import comments (deprecated Sass @import removed)
 // @import "../../../static/scss/base/variables";
 // @import "../../../static/scss/main.scss";
 
+// Main page container - full viewport background
 .register-photo {
     background: #f1f7fc;
     display: flex;
@@ -11,6 +25,8 @@
     flex-direction: column;
     padding: 2rem;
 }
+
+// Form group container (not currently used in component)
 .form-group {
     display: flex;
     align-items: center;
@@ -21,6 +37,8 @@
     width: 100%;
     max-width: 1.875rem;
 }
+
+// Left side: Decorative image background with gradient overlay
 .register-photo .image-holder {
     display: flex;
     justify-content: center;
@@ -36,12 +54,15 @@
     box-sizing: border-box;
 }
 
+// Logo container - centered alignment
 .logo {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 20px;  // Further reduced
+    margin-bottom: 0;
     max-width: 100%;
 }
 
+// Form container - main layout container
 .register-photo .form-container {
     display: flex;
     flex-wrap: wrap;
@@ -53,16 +74,31 @@
     box-sizing: border-box;
 }
 
+// Component library container - role selection area
+.component-library {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start !important;  // Force flex-start to move radio buttons up
+    margin-top: 0 !important;  // Force no top margin
+    margin-bottom: 0 !important;
+    padding: 0 !important;  // Force no padding
+    gap: 10px;  // Space between radio buttons
+}
+
+// Form element styling (legacy - not currently used)
 .register-photo form {
     display: flex;
     flex-direction: column;
     width: 100%;
     background-color: #ffffff;
-    padding: 40px 60px;
+    // padding: 40px 60px;
     color: #505e6c;
     height: auto;
     border-radius: 8px;
     box-sizing: border-box;
+    
 }
 
 .btn-continue {
@@ -76,12 +112,28 @@
     padding: 10px 20px;
     font-size: 1rem !important;
     box-sizing: border-box;
+}
+
+// Continue button styling (legacy - not currently used)
+.btn-continue {
+    min-width: 90%;
+    margin: 1% auto;
+    background: #e72b4a; // Brand color (red)
+    color: #ffffff;
+    text-align: center;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 1rem !important;
+    box-sizing: border-box;
 } 
 
+// Button display (legacy)
 .button {
     display: block;
 }
 
+// Responsive design: Mobile breakpoint
 @media (max-width: 991px) {
     .register-photo form {
         padding: 0px;
@@ -96,16 +148,23 @@
         justify-content: center;
         align-items: center;
         width: 100% !important;
+        align-items: center;
     }
 }
 
+// Page title/heading styling
 .register-photo .text-center {
-    font-size: 1.25rem;
-    line-height: 1.2em;
-    margin-top: 4% auto 0;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    margin-top: 5px;  // Very minimal margin
+    margin-bottom: 5px;  // Minimal margin
+    margin-left: auto;
+    margin-right: auto;
     text-align: center;
+    width: 100%;
 }
 
+// Block button styling (legacy - not currently used)
 .register-photo form .btn-block {
     background: #e72b4a;
     margin-left: 200px;
@@ -130,12 +189,15 @@
     transform: translateY(1px);
 }
 
+// Card content container (legacy - not currently used)
 .card .content {
     margin-top: 20px;
     margin-left: auto;
     margin-right: auto;
     max-width: 100%;
 }
+
+// Radio button label styling (legacy - not currently used)
 .card label.box {
     margin-top: 12px;
     padding: 10px 12px;
@@ -146,6 +208,8 @@
     cursor: pointer;
     max-width: 90%;
 }
+
+// Checked radio button states (legacy - not currently used)
 #one:checked ~ label.first,
 #two:checked ~ label.second,
 #three:checked ~ label.third {
@@ -166,6 +230,8 @@
     transition: all 0.25s ease;
     box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.2);
 }
+
+// Checked radio circle styles (legacy - not currently used)
 #one:checked ~ label.first .circle,
 #two:checked ~ label.second .circle,
 #three:checked ~ label.third .circle {
@@ -177,14 +243,17 @@
     width: 100%;
     align-items: center;
 }
+
+// Hide native radio inputs (legacy - not currently used)
 .card input[type="radio"] {
     display: none;
 }
 
-.component-library {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-}
+// Component library container - main content area for form (commented out - conflicts with above rules)
+// .component-library {
+//     display: flex !important;
+//     flex-direction: column !important;
+//     justify-content: center !important;
+//     align-items: center !important;
+// }
 

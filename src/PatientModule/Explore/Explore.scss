@@ -5,6 +5,48 @@
     padding: 0;
 }
 
+// Navigation Bar for Explore/MyActivity tabs
+.NavBar-Box {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 0.5rem 0;
+    
+    > a {
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        color: #313033;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        
+        &:hover {
+            background-color: rgba(231, 43, 74, 0.1);
+            border-color: #e72b4a;
+        }
+        
+        &.active {
+            background-color: #e72b4a;
+            color: white;
+        }
+    }
+}
+
+// Section spacing
+.section-spacing {
+    margin-top: 3rem;
+    
+    &:first-child {
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        margin-top: 2rem;
+    }
+}
+
 // Main Container
 .explore-container {
     width: 100%;

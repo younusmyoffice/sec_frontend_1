@@ -1,394 +1,633 @@
-.screen-container {
+// Modern How it Works Page Styles
+// Share e Care - Redesigned How it Works Page
+
+$primary-color: #E72B4A;
+$primary-dark: #B22222;
+$text-primary: #313033;
+$text-secondary: #525152;
+$background-light: #f5f5f5;
+$background-pink: #fdeaed;
+$white: #ffffff;
+$border-color: #e6e1e5;
+
+.howitworks-page {
     width: 100%;
-    height: 419vh;
-    background-color: white;
+    min-height: 100vh;
+    background-color: $white;
+    overflow-x: hidden;
 }
 
-.header-container1 {
-    width: 100%;
-}
+// ============================================
+// Header Styles (Shared from Home)
+// ============================================
+.landing-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: $white;
+    border-bottom: 1px solid $border-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 
-.header-container {
-    width: 95%;
-    height: 56px;
-    border: 1px solid #e6e1e5;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 2rem;
-}
-
-
-.howitworks-heading{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    justify-items: center;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-}
-
-@media (max-width: 480px) {
-    .howitworks-heading {
-        font-size: 14px; 
-        padding: 10px;
-    }
-}
-
-
-@media (min-width: 481px) and (max-width: 768px) {
-    .howitworks-heading {
-        font-size: 16px;
-        padding: 15px;
-    }
-}
-
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .howitworks-heading {
-        font-size: 18px;
-        padding: 20px;
-    }
-}
-
-@media (min-width: 1025px) {
-    .howitworks-heading {
-        font-size: 20px;
-        padding: 25px;
-    }
-}
-
-.description{
-    padding: 2rem;
-}
-
-.Benifits{
-  width: 100%;
-  padding: 2rem;
-}
-
-.firstpole{
-    display: flex;
-    width: 100%;
-    gap: 2rem;
-}
-
-.secondpole{
-    display: flex;
-    width: 100%;
-    gap: 2rem;
-    margin-top: 1rem;
-    
-}
-
-.thirdpole{
-    display: flex;
-    width: 100%;
-    gap: 2rem;
-    margin-top: 1rem;
-}
-
-.fourthpole{
-    display: flex;
-    width: 100%;
-    gap: 2rem;
-    margin-top: 1rem;
-}
-
-.heading2{
-    text-align: center;
-    margin-top: 2rem;
-    
-}
-
-.thought{
-    width: 1295px;
-    height: 304px;
-    display: flex;
-    justify-content: center;
-    background-image: url(../../../static/images/HowitworksImages/rectangle251.png);
-    background-size: cover;
-    align-items: center;
-    margin-top: 5rem;
-}
-
-.pink-container{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    background-color: #FDEAED;
-    margin-top: 3rem;
-}
-
-.welcome-heading{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2rem;
-    
-    
-}
-
-.boximage{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.about-doctor{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 2rem;
-
-}
-
-.footerContainer{
-     border: 1px solid;
-    width: 100%;
-    height: 500px;
-    position: relative;
-    background-color: #E72B4A;
-    display: flex;
-    flex-direction: column;
-}
-
-.mediaicons{
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 2rem;
-    width: 100%;
-    padding: 3rem;
-    
-   
-}
-
-.text1{
-    background-color: white;
-}
-
-.Boxicons{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2.5rem;
-
-}
-
-.firstfield{
-   width: 100%;
-   display: grid;
-   grid-template-columns: 1fr 1fr 1fr;
-
-}
-
-.secondfield{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-.about{
-    width: 100%;
-    display: flex;
-    margin-top: 1rem;
-    justify-content: center;
-}
-   
-   
-
-.other-fields{
-    padding: 2rem;
-}
-
-.monitor-doctor{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.pink-container-responsive{
-    display: none;
-}
-
-.red-footer-responsive{
-    display: block;
-    
-}
-
-.burger-menu {
-    cursor: pointer;
-    display: none !important;
-    width:35px;
-    height:30px;
-    position: absolute;
-    display:flex;
-    flex-direction: column;
-    justify-content: space-around;
-    left:50px;
-}
-.burger-menu img {
-    width: 30px;
-    height: 30px; 
-    display: block; 
-}
-
-.full-logo{
-    display: block;
- }
-
-
-
-@media (max-width: 768px) {
-    .burger-menu {
-        display: block !important;
-        width:35px;
-        height:30px;
-        position: fixed;
-        z-index: 9999;
-        background: #ffff;
-        left: 0;
+    .header-content {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-}
-    .full-logo{
-    display: none!important;
-}
-.red-footer {
-    display: block;
-}
-
-    .other-header-content {
-        display: block;
-        display:flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 1rem;
+        padding: 1rem 0;
+        min-height: 80px;
     }
-    @media (max-width:768px){
-        .other-header-content{
-            display:none;
+
+    .logo-link {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: scale(1.05);
         }
     }
 
-    .other-header-content.show {
-        display: block;
-        margin-top: 15rem;
-        z-index: 9999;
-        position:fixed;
-        background-color: #ffff;
+    .logo-img {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .desktop-nav {
         display: flex;
-        flex-direction: column;
-        width: 100%;
-        
+        align-items: center;
+        gap: 2rem;
+
+        .nav-link {
+            text-decoration: none;
+            color: $text-primary;
+            transition: color 0.3s ease;
+
+            &.active .nav-text {
+                color: $primary-color;
+            }
+
+            &:hover {
+                color: $primary-color;
+            }
+        }
+
+        .nav-text {
+            font-family: "Poppins", sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: $text-primary;
+            cursor: pointer;
+            transition: color 0.3s ease;
+
+            &:hover {
+                color: $primary-color;
+            }
+        }
+
+        .header-btn {
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            text-transform: none;
+            border-radius: 25px;
+            padding: 10px 24px;
+            transition: all 0.3s ease;
+
+            &.outlined-btn {
+                border: 2px solid $primary-color;
+                color: $primary-color;
+
+                &:hover {
+                    background-color: $primary-color;
+                    color: $white;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(231, 43, 74, 0.3);
+                }
+            }
+
+            &.contained-btn {
+                background-color: $primary-color;
+                color: $white;
+
+                &:hover {
+                    background-color: $primary-dark;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(231, 43, 74, 0.4);
+                }
+            }
+        }
     }
 
-@media screen and (max-width: 768px) {
-    // existing styles
+    .mobile-menu-btn {
+        color: $text-primary;
+        padding: 8px;
+    }
 }
 
-.red-footer-responsive{
-    display: block;
-    background: #E72B4A;
-    width: 100% !important;
-    height: 70vh;
-}
-
-.social-icons-responsive{
-      display: flex;
-      gap: 1.5rem;
-}
-
-.half-align{
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center;
-    margin-top: 2.5rem;
-}
-
-.hcf-pr{
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center;
-    margin-top: 2.5rem;
-}
-
-.about-us-res{
-    width: 100% !important;
-    display: flex !important;
-    margin-top: 2.5rem !important;
-    justify-content: center;
-    margin-left: 7.2rem;
-}
-
-.first-ali-res{
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
+.mobile-menu {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: $white;
+    z-index: 999;
     padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s ease;
+
+    .mobile-nav-link {
+        font-family: "Poppins", sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-primary;
+        text-decoration: none;
+        padding: 1rem;
+        border-bottom: 1px solid $border-color;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: $primary-color;
+        }
+    }
+
+    .mobile-menu-btn-item {
+        margin-top: 1rem;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-transform: none;
+    }
 }
 
-.pink-container{
-    display: none;
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.alldoc-text{
-    font-size: 20px !important;
+// ============================================
+// Footer Styles (Shared from Home)
+// ============================================
+.landing-footer {
+    background-color: $primary-dark;
+    color: $white;
+    padding: 4rem 0 2rem;
+
+    .footer-logo {
+        height: 50px;
+        width: auto;
+        margin-bottom: 2rem;
+    }
+
+    .footer-link {
+        font-family: "Red Hat Display", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: $white;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 1rem;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .social-icon {
+        color: $white;
+        transition: all 0.3s ease;
+
+        &:hover {
+            color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-3px);
+        }
+    }
 }
 
-.screen-container{
-    width: 100% !important;
-    // height: 650vh !important;
+// ============================================
+// Hero Section
+// ============================================
+.howitworks-hero-section {
+    padding: 6rem 0 4rem;
+    background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+    text-align: center;
+
+    .howitworks-hero-title {
+        font-family: "Playfair Display", serif;
+        font-size: 4rem;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 2rem;
+        line-height: 1.2;
+    }
+
+    .howitworks-hero-description {
+        font-family: "Red Hat Display", sans-serif;
+        font-size: 1.25rem;
+        line-height: 1.9;
+        color: $text-secondary;
+        text-align: center;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
 }
 
-    .howitworks-heading{
-        margin-top: 2rem;
+// ============================================
+// Benefits Section
+// ============================================
+.howitworks-benefits-section {
+    padding: 6rem 0;
+    background-color: $white;
+
+    .benefits-header {
+        text-align: center;
+        margin-bottom: 3rem;
+
+        .benefits-title {
+            font-family: "Playfair Display", serif;
+            font-size: 3rem;
+            font-weight: 600;
+            color: $text-primary;
+            margin-bottom: 1rem;
+        }
+
+        .benefits-subtitle {
+            font-family: "Playfair Display", serif;
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: $text-primary;
+        }
     }
 
-    .description{
-        margin-top: -2rem !important;
+    .benefit-card {
+        display: flex;
+        gap: 2rem;
+        background: $white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid $primary-color;
+
+        &:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .benefit-icon-container {
+            flex-shrink: 0;
+            padding: 1.5rem;
+            background: rgba(231, 43, 74, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: fit-content;
+        }
+
+        .benefit-content {
+            flex: 1;
+
+            .benefit-title {
+                font-family: "Playfair Display", serif;
+                font-size: 2rem;
+                font-weight: 600;
+                color: $text-primary;
+                margin-bottom: 1rem;
+                line-height: 1.3;
+            }
+
+            .benefit-description {
+                font-family: "Red Hat Display", sans-serif;
+                font-size: 1.125rem;
+                line-height: 1.8;
+                color: $text-secondary;
+            }
+        }
+    }
+}
+
+// ============================================
+// Experts Section
+// ============================================
+.howitworks-experts-section {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, $background-light 0%, #ffffff 100%);
+    text-align: center;
+
+    .experts-title {
+        font-family: "Playfair Display", serif;
+        font-size: 3rem;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 1rem;
     }
 
-    .Benifits{
-        margin-top: -2.5rem !important;
-        width: 100% !important;
+    .experts-subtitle {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: $text-secondary;
+        margin-bottom: 3rem;
     }
 
-    .benefit-text{
-        margin-top: 1rem !important;
-        line-height: 2.8rem !important;
-    }
-
-    .descr-pole{
-        font-size: 25px !important;
-    }
-
-    .second-pole{
-        margin-top: 1rem !important;
-    }
-
-    .head2{
-        margin-top: 4rem !important;
-        width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
-    }
-
-    .thought-text{
-       text-align: center;
-    }
-
-    .first-ali{
-        width: 100% !important;
-        display: flex !important;
-        justify-content: space-between;
+    .experts-image-container {
+        display: flex;
+        justify-content: center;
         align-items: center;
         padding: 2rem;
     }
 
- }
+    .experts-image {
+        width: 100%;
+        max-width: 600px;
+        height: auto;
+        object-fit: contain;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// ============================================
+// Quote Section
+// ============================================
+.howitworks-quote-section {
+    padding: 6rem 0;
+    background-color: $white;
+
+    .quote-card {
+        background: linear-gradient(135deg, $background-pink 0%, #ffffff 100%);
+        border-radius: 24px;
+        padding: 4rem 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, $primary-color, transparent);
+        }
+
+        .quote-text {
+            font-family: "Red Hat Display", sans-serif;
+            font-size: 1.5rem;
+            font-style: italic;
+            line-height: 1.8;
+            color: $text-primary;
+            margin: 2rem 0;
+            font-weight: 400;
+        }
+
+        .quote-author {
+            font-family: "Playfair Display", serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: $primary-color;
+            margin-top: 1rem;
+        }
+    }
+}
+
+// ============================================
+// Team Section
+// ============================================
+.howitworks-team-section {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, $background-pink 0%, #ffffff 100%);
+
+    .team-image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .team-image {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        object-fit: contain;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .team-content {
+        padding: 2rem;
+
+        .team-title {
+            font-family: "Playfair Display", serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: $text-primary;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .team-description {
+            font-family: "Red Hat Display", sans-serif;
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: $text-secondary;
+        }
+    }
+}
+
+// ============================================
+// Responsive Design
+// ============================================
+@media (max-width: 1200px) {
+    .howitworks-hero-title {
+        font-size: 3.5rem !important;
+    }
+
+    .benefits-title {
+        font-size: 2.5rem !important;
+    }
+
+    .experts-title {
+        font-size: 2.5rem !important;
+    }
+
+    .benefit-title {
+        font-size: 1.75rem !important;
+    }
+
+    .team-title {
+        font-size: 2rem !important;
+    }
+}
+
+@media (max-width: 960px) {
+    .howitworks-hero-section {
+        padding: 4rem 0 3rem;
+
+        .howitworks-hero-title {
+            font-size: 3rem !important;
+        }
+
+        .howitworks-hero-description {
+            font-size: 1.125rem;
+        }
+    }
+
+    .howitworks-benefits-section,
+    .howitworks-experts-section,
+    .howitworks-quote-section,
+    .howitworks-team-section {
+        padding: 4rem 0;
+    }
+
+    .benefit-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .howitworks-hero-section {
+        padding: 3rem 0 2rem;
+
+        .howitworks-hero-title {
+            font-size: 2.5rem !important;
+            margin-bottom: 1.5rem;
+        }
+
+        .howitworks-hero-description {
+            font-size: 1rem;
+        }
+    }
+
+    .howitworks-benefits-section {
+        padding: 3rem 0;
+
+        .benefits-header {
+            margin-bottom: 2rem;
+
+            .benefits-title {
+                font-size: 2rem !important;
+            }
+
+            .benefits-subtitle {
+                font-size: 1.5rem !important;
+            }
+        }
+
+        .benefit-card {
+            padding: 2rem 1.5rem !important;
+            margin-bottom: 1.5rem;
+
+            .benefit-icon-container {
+                padding: 1rem;
+            }
+
+            .benefit-content {
+                .benefit-title {
+                    font-size: 1.5rem !important;
+                    margin-bottom: 0.75rem;
+                }
+
+                .benefit-description {
+                    font-size: 1rem;
+                }
+            }
+        }
+    }
+
+    .howitworks-experts-section {
+        padding: 3rem 0;
+
+        .experts-title {
+            font-size: 2rem !important;
+            margin-bottom: 0.75rem;
+        }
+
+        .experts-subtitle {
+            font-size: 1.25rem !important;
+            margin-bottom: 2rem;
+        }
+    }
+
+    .howitworks-quote-section {
+        padding: 3rem 0;
+
+        .quote-card {
+            padding: 2.5rem 2rem !important;
+
+            .quote-text {
+                font-size: 1.25rem !important;
+                margin: 1.5rem 0;
+            }
+
+            .quote-author {
+                font-size: 1.125rem;
+            }
+        }
+    }
+
+    .howitworks-team-section {
+        padding: 3rem 0;
+
+        .team-content {
+            padding: 1rem;
+            text-align: center;
+
+            .team-title {
+                font-size: 1.75rem !important;
+                margin-bottom: 1rem;
+            }
+
+            .team-description {
+                font-size: 1rem;
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .howitworks-hero-title {
+        font-size: 2rem !important;
+    }
+
+    .benefits-title {
+        font-size: 1.75rem !important;
+    }
+
+    .experts-title {
+        font-size: 1.75rem !important;
+    }
+
+    .benefit-title {
+        font-size: 1.25rem !important;
+    }
+
+    .team-title {
+        font-size: 1.5rem !important;
+    }
+
+    .quote-text {
+        font-size: 1.125rem !important;
+    }
+}

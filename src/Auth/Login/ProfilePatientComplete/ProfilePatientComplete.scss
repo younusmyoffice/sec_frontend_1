@@ -1,225 +1,271 @@
-.Stepper{
+/**
+ * ProfilePatientComplete Component Styles
+ * 
+ * Styles for the patient profile completion page.
+ * Features:
+ * - Multi-step form layout with stepper
+ * - Responsive design
+ * - Form field styling
+ * - Button and navigation styling
+ * 
+ * Color Scheme:
+ * - Primary: #e72b4a (brand red/pink)
+ * - Backgrounds: #f5f5f5, #ffffff
+ * - Text: #333333, #000000
+ */
+
+// ============================================
+// STEPPER (Multi-Step Form Progress Indicator)
+// ============================================
+
+// Stepper container - centered horizontally
+.Stepper {
     display: flex;
-    // border: 1px solid;
     justify-content: center;
     margin-top: 3rem;
-    }
-    
-    .title1{
-        margin-top: -1rem;
-    }
-    
-    .Srvice-details{
-        display: flex;
-        position: relative;
-        flex-direction: column;
-        width: 100%;
-        // justify-content: space-between;
-        // gap: -16rem;
-        // border: 1px solid;
-    }
-    
-    .nxt-btn{
-        // border: 1px solid;
-        width: 100%;
-        margin-top: -27rem;
-    }
-    
-    .back-btn{
-        margin-top: 2.5rem;
-        margin-left: -7em;
-    }
-    
-    .title2{
-        // margin-top: 1rem;
-        display: flex;
-        // border: 1px solid;
-        width: 100%;
-        justify-content: center;
-        margin-top: -1.5rem;
-    }
-    
-    .step-back{
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 9rem;
-        // border: 1px solid;
-        width: 100%;
-    }
-    
-#app{
-  height: 100vh;
 }
     
-.mainBox1{
-   width: 100%;
-   height: 68vh;
-//    border: 1px solid;
+// ============================================
+// NAVIGATION & BUTTONS
+// ============================================
+
+// Step title container
+.title1 {
+    margin-top: -1rem;
+}
+
+// Service details container (not currently used)
+.Srvice-details {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    width: 100%;
+}
+
+// Next button container - negative margin for positioning
+.nxt-btn {
+    width: 100%;
+    margin-top: -27rem;
+}
+
+// Back button container - left aligned
+.back-btn {
+    margin-top: 2.5rem;
+    margin-left: -7em;
+}
+
+// Title 2 container - centered
+.title2 {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: -1.5rem;
+}
+
+// Step and back button wrapper - horizontal layout
+.step-back {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9rem; // Spacing between back button and stepper
+    width: 100%;
+}
+
+// ============================================
+// MAIN LAYOUT
+// ============================================
+
+// App container - full viewport height
+#app {
+    height: 100vh;
+}
+
+// Main content box - 68% viewport height for scrollable content
+.mainBox1 {
+    width: 100%;
+    height: 68vh;
 }   
 
-.heading1{
-    // border: 1px solid;
+// ============================================
+// FORM HEADINGS & SECTIONS
+// ============================================
+
+// Primary heading (Step 1)
+.heading1 {
     width: 100%;
     display: flex;
-    justify-content:center;
+    justify-content: center;
     margin-top: 3rem;
 }
 
-.Text-fields{
-    display: flex;
+// Doctor heading (Step 2)
+.Doc-heading {
     width: 100%;
+    display: flex;
     justify-content: center;
-    margin-top: 1rem;
 }
 
-.Text-fieldscss{
-  display: flex;
-  justify-content: center;
-}
-
-
-.reg-date{
-    display: flex;
+// Secondary heading
+.heading {
     width: 100%;
+    display: flex;
     justify-content: center;
-    margin-top: 1rem;
-}
-
-
-.heading{
-    width: 100%;
-    display: flex;
-    justify-content:center;
     margin-top: 3rem;
 }
 
-.Text-fields1{
-    // border: 1px solid;
-    width: 100%;
+// ============================================
+// FORM FIELD LAYOUTS
+// ============================================
+
+// Text field containers - centered layout
+.Text-fields {
     display: flex;
-    justify-content:center;
-    gap: 1.5rem;
+    width: 100%;
+    justify-content: center;
     margin-top: 1rem;
 }
 
-.other-fields1{
-    // border: 1px solid;
+.Text-fieldscss {
+    display: flex;
+    justify-content: center;
+}
+
+.Text-fields1 {
     width: 100%;
     display: flex;
-    justify-content:center;
+    justify-content: center;
+    gap: 1.5rem; // Spacing between multiple fields
     margin-top: 1rem;
 }
 
-.Date-of-birth1{
-    // border: 1px solid;
+.other-fields1 {
     width: 100%;
     display: flex;
-    justify-content:center;
+    justify-content: center;
     margin-top: 1rem;
 }
 
-.gender1{
-    // border: 1px solid;
+// Date of birth field container
+.Date-of-birth1 {
     width: 100%;
     display: flex;
-    justify-content:center;
+    justify-content: center;
     margin-top: 1rem;
 }
-.Degree{
-    // border: 1px solid;
+
+// Gender selection field container
+.gender1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+// Registration date field container
+.reg-date {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.reg-date1 {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.Doc-heading{
-    // border: 1px solid;
+// Additional field containers
+.Degree {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.reg-date1{
-    // border: 1px solid;
+.indian-reg-no {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.indian-reg-no{
-    // border: 1px solid;
+.Registration-date {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.Registration-date{
-    // border: 1px solid;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
+// ============================================
+// BUTTON LAYOUTS
+// ============================================
 
-.skip-btn{
+// Skip button container - centered
+.skip-btn {
     display: flex;
-    // border: 1px solid;
     width: 100%;
     justify-content: center;
     margin-top: 0.5rem;
-
 }
 
-.sve-btn{
-    // border: 1px solid;
+// Save button container - centered
+.sve-btn {
     width: 100%;
     display: flex;
     justify-content: center;
     margin-top: 1rem;
 }
 
-.imge-cont{
-    // border: 1px solid;
+// Done button container
+.done-btn1 {
+    margin-top: 1rem;
+}
+
+// ============================================
+// IMAGE & CARD CONTAINERS
+// ============================================
+
+// Image container - 85% viewport height
+.imge-cont {
     width: 100%;
     height: 85vh;
 }
 
-.card-cont1{
-    // border: 1px solid;
+// Card container - centered
+.card-cont1 {
     width: 100%;
-    // height: 70vh;
     display: flex;
     justify-content: center;
     margin-top: 2rem;
 }
 
-.done-btn1{
-    margin-top: 1rem;
-}
-
-.gender2{
-    // border: 1px solid;
+// Frame/image box container
+.FrameBox1 {
     width: 100%;
-    display: flex;
-    justify-content: center;
-    // margin-top: 1.5rem;
-}
-
-.FrameBox1{
-    width: 100%;
-    // border: 1px solid;
     padding: 1rem;
 }
 
-.undraw-img2{
-
+// Secondary gender container
+.gender2 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
+// Undraw illustration (legacy - not currently used)
+.undraw-img2 {
+    // Styles for undraw illustration
+}
+
+// ============================================
+// RESPONSIVE DESIGN (Mobile Breakpoints)
+// ============================================
+
+// Mobile and tablet styling (max-width: 768px)
 @media only screen and (max-width: 768px) {
-  .mainBox1 {
-    text-align: center;
-  }
+    // Main content box - center aligned text
+    .mainBox1 {
+        text-align: center;
+    }
 
   .heading1,
   .Doc-heading,

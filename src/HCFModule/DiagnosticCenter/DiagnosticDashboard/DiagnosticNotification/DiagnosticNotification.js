@@ -8,8 +8,11 @@ import DashboardCard from "./DashboardCard";
 import CustomNotificationCard from "../../../../DoctorModule/CustomDoctorComponent/Cards/CardNotification/CardNotification";
 import CustomButton from "../../../../components/CustomButton/custom-button";
 import "./diagnosticNotification.scss";
-import axiosInstance from "../../../../config/axiosInstance";
+import axiosInstance from "../../../../config/axiosInstance"; // Reusable axios instance with token handling
 import NoAppointmentCard from "../../../../PatientModule/PatientAppointment/NoAppointmentCard/NoAppointmentCard";
+import logger from "../../../../utils/logger"; // Centralized logging
+import toastService from "../../../../services/toastService"; // Toast notifications for user feedback
+import { useCallback } from "react";
 
 const DiagnosticNotification = () => {
     const [testCount, setTestCount] = useState(0);
@@ -20,54 +23,140 @@ const DiagnosticNotification = () => {
     const staff_id = localStorage.getItem("diagnostic_suid");
     const [viewAll, setViewAll] = useState(false);
 
+    /**
+     * Validate Diagnostic staff ID from localStorage
+     * SECURITY: Ensures staff ID is present before making API calls
+     * 
+     * @returns {string|null} Staff ID or null if invalid
+     */
+    const validateStaffId = useCallback(() => {
+        const staffId = localStorage.getItem("diagnostic_suid");
+
+        if (!staffId) {
+            logger.warn("⚠️ Diagnostic staff ID not found in localStorage");
+            toastService.warning("Staff ID is missing. Please log in again.");
+            return null;
+        }
+
+        logger.debug("✅ Diagnostic staff ID validated:", staffId);
+        return staffId;
+    }, []);
+
+    /**
+     * Fetch dashboard test count
+     * Loads the count of tests for the diagnostic center
+     */
     const fetchdashboardTestCount = async (staff_id) => {
+        logger.debug("📊 Fetching test count");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axiosInstance.get(`/sec/hcf/${staff_id}/dashboardTestCount`);
+            const response = await axiosInstance.get(`/sec/hcf/${staffId}/dashboardTestCount`);
             const Count = response?.data?.response[0]?.keyword_count || 0;
+            
+            logger.debug("✅ Test count received:", Count);
             setTestCount(Count);
         } catch (error) {
-            console.error("Error fetching staff data:", error.response);
+            logger.error("❌ Error fetching test count:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load test count");
+            setTestCount(0);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Fetch dashboard report count
+     * Loads the count of reports for the diagnostic center
+     */
     const fetchdashboardReportCount = async (staff_id) => {
+        logger.debug("📊 Fetching report count");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axiosInstance.get(`/sec/hcf/${staff_id}/dashboardReportCount`);
+            const response = await axiosInstance.get(`/sec/hcf/${staffId}/dashboardReportCount`);
             const Count = response?.data?.response[0]?.keyword_count || 0;
+            
+            logger.debug("✅ Report count received:", Count);
             setReportCount(Count);
         } catch (error) {
-            console.error("Error fetching staff data:", error.response);
+            logger.error("❌ Error fetching report count:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load report count");
+            setReportCount(0);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Fetch dashboard patient count
+     * Loads the count of patients for the diagnostic center
+     */
     const fetchdashboardPatientCount = async (staff_id) => {
+        logger.debug("📊 Fetching patient count");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axiosInstance.get(`/sec/hcf/${staff_id}/dashboardPatientCount`);
+            const response = await axiosInstance.get(`/sec/hcf/${staffId}/dashboardPatientCount`);
             const Count = response?.data?.response[0]?.keyword_count || 0;
+            
+            logger.debug("✅ Patient count received:", Count);
             setPatientCount(Count);
         } catch (error) {
-            console.error("Error fetching staff data:", error.response);
+            logger.error("❌ Error fetching patient count:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load patient count");
+            setPatientCount(0);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Fetch notifications
+     * Loads notifications list for the diagnostic center staff
+     */
     const Notification = async (staff_id) => {
+        logger.debug("📋 Fetching notifications");
         setLoading(true);
+        
+        const staffId = validateStaffId();
+        if (!staffId) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axiosInstance.get(`/sec/hcf/${staff_id}/StaffNotification/`);
-            const Count = response?.data?.response || [];
-            console.log(Count);
-            setNotify(Count);
+            const response = await axiosInstance.get(`/sec/hcf/${staffId}/StaffNotification/`);
+            const notifications = response?.data?.response || [];
+            
+            logger.debug("✅ Notifications received", { count: notifications.length });
+            setNotify(notifications);
         } catch (error) {
-            console.error("Error fetching staff data:", error.response);
+            logger.error("❌ Error fetching notifications:", error);
+            logger.error("❌ Error response:", error?.response?.data);
+            toastService.error("Failed to load notifications");
+            setNotify([]);
         } finally {
             setLoading(false);
         }

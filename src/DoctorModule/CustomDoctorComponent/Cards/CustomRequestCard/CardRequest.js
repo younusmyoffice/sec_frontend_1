@@ -215,7 +215,15 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                     {/* --------- Details Container-------- */}
                     <div style={{ marginLeft: "2%" }}>
                         <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                            <Typography
+                        <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.75rem",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                 <Typography
                                 sx={{
                                     color: "#313033",
                                     fontFamily: "Poppins",
@@ -223,17 +231,65 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                                     fontStyle: "normal",
                                     fontWeight: "400",
                                     lineHeight: "1.75rem",
+                         
                                 }}
                             >
-                                {/* {data?.patientBookedName === null
-                                    ? null
-                                    : data?.patientBookedName} */}
+                         
                                 {!data?.patientBookingName
                                     ? !data?.patientBookedName
                                         ? null
                                         : data?.patientBookedName
                                     : data?.patientBookingName}
                             </Typography>
+                          
+                                {/* Plan Name - Light gray, thin font */}
+                                {data?.plan_name && (
+                                    <Typography
+                                        sx={{
+                                            color: "#e72b4a",
+                                            fontFamily: "Poppins",
+                                            fontSize: "0.75rem",
+                                            fontStyle: "normal",
+                                            fontWeight: "400",
+                                            lineHeight: "1.125rem",
+                                            letterSpacing: "0.006rem",
+                                            
+                                            whiteSpace: "nowrap",
+                                        }}
+                                    >
+                                        {data?.plan_name}
+                                    </Typography>
+                                )}
+                                {/* Status - Pill-shaped tag with red border */}
+                                {data?.status && (
+                                    <Box
+                                        sx={{
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            padding: "0.25rem 0.75rem",
+                                            borderRadius: "50px", // Pill shape
+                                            border: "1px solid #E72B4A", // Thin red border
+                                            backgroundColor: "#ffffff", // White background
+                                            whiteSpace: "nowrap",
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                color: "#E72B4A",
+                                                fontFamily: "Poppins",
+                                                fontSize: "0.75rem",
+                                                fontStyle: "normal",
+                                                fontWeight: "600", // Bold
+                                                lineHeight: "1.125rem",
+                                                textTransform: "capitalize", // Capitalize first letter
+                                            }}
+                                        >
+                                            {data?.status?.replace(/_/g, " ")} {/* Replace underscore with space */}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Box>
                         </div>
                         <div className="card-details-container">
                             <Typography
@@ -249,14 +305,21 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                                     overflow: "hidden", // Handle overflow
                                     textOverflow: "ellipsis", // Show ellipsis
                                     flex: "1", // Allow it to take available space
+                                    marginRight: "0.75rem", // Add spacing before View link
                                 }}
                             >
                                 {data?.appointment_date}
                                 {" | "}
+                                {data?.appointment_time}
+                                
+                                {" | "}
                                 {data?.attachments}
                                 {" | "}
                                 {data?.report_name}
+                               
                             </Typography>
+                            {/* Plan Name and Status Container */}
+                      
                             <Box
                                 component="a"
                                 onClick={() => handleViewClick(data?.patient_id, data?.appointment_id)}
@@ -270,6 +333,7 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                                     letterSpacing: "0.006rem",
                                     textDecoration: "none",
                                     whiteSpace: "nowrap", // Prevent wrapping
+                                    marginLeft: "0.5rem", // Additional spacing from file name
                                     "&:hover": {
                                         textDecoration: "underline",
                                         cursor: "pointer"
@@ -431,7 +495,7 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                 </div>
                 {/* ------------ Button Container------------ */}
                 <div className="request-button-container">
-                    <div style={{ display: "flex", alignItems: "center", marginRight: "2%" }}>
+                    <div style={{ display: "flex", alignItems: "center", marginRight: "1rem" }}>
                         {label ? (
                             <CustomButton
                                 buttonCss={{
@@ -451,7 +515,7 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                             />
                         ) : null}
                     </div>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", marginRight: "1rem" }}>
                         {label ? (
                             <MoreHorizIcon
                                 sx={{
@@ -459,6 +523,7 @@ const CustomRequestCard = ({ data = {}, label, AcceptOrRejectButtonClicked, accA
                                     color: "#E6E1E5",
                                     border: "1px solid #E6E1E5",
                                     borderRadius: "50px",
+                                    padding: "0.25rem", // Add padding to icon
                                 }}
                                 onClick={handleClick}
                             />

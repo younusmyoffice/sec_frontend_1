@@ -1,0 +1,311 @@
+/**
+ * ProfileHCFAdminComplete Component Styles
+ * 
+ * Styles for the HCF Admin profile completion page.
+ * Features:
+ * - Multi-step form layout with stepper (2 steps)
+ * - Responsive design
+ * - Form field styling
+ * - Button and navigation styling
+ * - HCF category selection styling
+ * 
+ * Color Scheme:
+ * - Primary: #e72b4a (brand red/pink)
+ * - Backgrounds: #f5f5f5, #ffffff
+ * - Text: #313033, #000000, #787579
+ */
+
+// ============================================
+// STEPPER (Multi-Step Form Progress Indicator)
+// ============================================
+
+// Stepper container - centered horizontally
+.Stepper {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+// ============================================
+// NAVIGATION & BUTTONS
+// ============================================
+
+// Back button container - left aligned
+.back-btn {
+    margin-top: 2.5rem;
+    margin-left: -7em;
+}
+
+// Step and back button wrapper - horizontal layout
+.step-back {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9rem; // Spacing between back button and stepper
+    width: 100%;
+}
+
+// Save button container - centered
+.sve-btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+// ============================================
+// MAIN LAYOUT
+// ============================================
+
+// Frame image container (HCF Admin logo)
+.FrameBox1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.FrameBox1 img {
+    max-width: 200px;
+    max-height: 100px;
+}
+
+// Image container for completion screen
+.imge-cont {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 60vh;
+}
+
+// Card container for completion screen
+.card-cont1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+// Card styling for completion screen
+.card1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+// Completion image container
+.last-image {
+    margin-bottom: 2rem;
+}
+
+// Greetings text container
+.greetings1 {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+// Note text container
+.note1 {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+// Done button container
+.done-btn1 {
+    display: flex;
+    justify-content: center;
+}
+
+// ============================================
+// MAIN LAYOUT
+// ============================================
+
+// App container - full viewport height
+#app {
+    height: 100vh;
+}
+
+// Main content box - 68% viewport height with centered content
+.mainBox1 {
+    width: 100%;
+    height: 68vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+// ============================================
+// FORM HEADINGS & SECTIONS
+// ============================================
+
+// Primary heading (Step 1: HCF Information)
+.heading1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+// ============================================
+// FORM FIELD LAYOUTS
+// ============================================
+
+// Text field containers - centered layout
+.Text-fields {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.Text-fields1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem; // Spacing between multiple fields (e.g., service dates, times)
+    margin-top: 1rem;
+}
+
+// Other fields container - centered layout
+.other-fields1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+// Gender/Department selection container
+.gender1 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+    
+    // Department checkboxes styling
+    h3 {
+        font-family: poppins;
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        color: #313033;
+    }
+    
+    // FormControlLabel spacing
+    .MuiFormControlLabel-root {
+        margin-left: 8px;
+        margin-right: 16px;
+    }
+}
+
+// ============================================
+// IMAGE & CARD CONTAINERS
+// ============================================
+
+// Image container for completion screen
+.imge-cont {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 60vh;
+}
+
+// Card container
+.card-cont1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+// Card styling
+.card1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+// Mobile breakpoint - 768px and below
+@media only screen and (max-width: 768px) {
+    // Stack layout for mobile
+    .step-back {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .back-btn {
+        margin-left: 0;
+        align-self: flex-start;
+    }
+    
+    .Stepper {
+        width: 100%;
+        padding: 0 1rem;
+    }
+    
+    .mainBox1 {
+        height: auto;
+        padding: 2rem 1rem;
+    }
+    
+    // Responsive text fields
+    .Text-fields1 {
+        flex-direction: column;
+        gap: 0;
+        
+        > div {
+            width: 100%;
+        }
+    }
+    
+    // Frame image responsive
+    .FrameBox1 img {
+        max-width: 150px;
+    }
+    
+    // Card container responsive
+    .card-cont1 {
+        padding: 1rem;
+    }
+    
+    .card1 {
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .last-image {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .greetings1,
+    .note1 {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .done-btn1 {
+        width: 100%;
+        max-width: 270px;
+    }
+}
+

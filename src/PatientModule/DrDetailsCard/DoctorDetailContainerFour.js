@@ -11,6 +11,27 @@ import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
 
+/**
+ * ContainerFour Component
+ * 
+ * Displays doctor's professional qualifications:
+ * - Education details (University, Qualification, Year)
+ * - Licenses & Certifications
+ * - Honors & Awards
+ * - Work Experience
+ * 
+ * Shows multiple cards for each category
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.Qualification - Doctor's qualification degree
+ * @param {string} props.University - University name
+ * @param {string} props.YearOfQualification - Year of qualification
+ * @param {Array} props.doctorLicense - Array of licenses
+ * @param {Array} props.doctorAward - Array of awards
+ * @param {Array} props.doctorExperience - Array of work experience
+ * 
+ * @component
+ */
 const ContainerFour = ({
     Qualification,
     University,
